@@ -1,0 +1,592 @@
+/* ==========================================================================
+   AIVORRAA — expanding panel row
+   --------------------------------------------------------------------------
+   Third and last motion module. motion.css holds the baseline (entrance,
+   IntersectionObserver reveals, hero atmosphere); motion-advanced.css holds
+   the scroll-linked and pointer-linked work; this file holds one component
+   that needed enough CSS to be worth its own file.
+
+   A row of panels where the hovered one grows and its siblings recede, each
+   holding a small scene that wakes up when called on.
+
+   THE MECHANISM
+   `flex: 1` on every panel, `flex-grow: 2.6` on the hovered one. The dimming
+   comes from a rule on the ROW's hover state, not the panel's:
+   `.expand-row:hover .expand-panel` dims everything, then the more specific
+   `.expand-panel:hover` brings the one under the cursor back. Without that
+   first rule there is nothing to dim the others against — this is the part
+   that is easy to get wrong.
+
+   ACCESSIBILITY
+   `:focus-within` is matched everywhere `:hover` is, so tabbing to a link
+   inside a panel opens it exactly as pointing at it does.
+
+   Below the large breakpoint the row becomes a column and every panel is
+   permanently open. There is no hover on a touch screen, and content that
+   only exists on hover does not exist on a phone.
+
+   The collapsed copy uses max-height and opacity rather than `display: none`,
+   so it stays in the accessibility tree and in the HTML a crawler reads —
+   which matters here more than usual (PRD §2, Finding 1).
+   ========================================================================== */
+
+.expand-row {
+  display: grid;
+  gap: 1rem;
+}
+
+.expand-panel {
+  position: relative;
+  overflow: clip;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 17rem;
+  transition:
+    flex-grow 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.55s ease,
+    filter 0.55s ease,
+    border-color 0.55s ease,
+    background-color 0.55s ease;
+}
+
+/*
+  Occupies the panel's upper region only, not the whole box.
+
+  Centred over the full panel the scene rendered straight through the copy —
+  the bottom block's scrim is deliberately semi-transparent, so a bar chart
+  behind it crossed the text. Confining the visual to the space the copy does
+  not use removes the collision rather than fighting it with opacity.
+*/
+.panel-visual {
+  position: absolute;
+  inset: 0 0 42% 0;
+  z-index: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  transition:
+    opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    scale 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Content sits above the visual. */
+.panel-layer {
+  position: relative;
+  z-index: 1;
+}
+
+@media (width >= 64rem) {
+  .expand-row {
+    display: flex;
+    height: 30rem;
+  }
+
+  .expand-panel {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .expand-row:hover .expand-panel,
+  .expand-row:focus-within .expand-panel {
+    opacity: 0.55;
+    filter: saturate(0.5);
+  }
+
+  .expand-row .expand-panel:hover,
+  .expand-row .expand-panel:focus-within {
+    flex-grow: 2.6;
+    opacity: 1;
+    filter: none;
+    border-color: var(--color-brand-300);
+    background-color: var(--color-surface);
+  }
+
+  /*
+    The copy unfolds only when the panel is active — and only when JavaScript
+    is running.
+
+    The collapse itself needs no JavaScript, so gating it looks redundant. It
+    is not: without the gate, a visitor or crawler with JS disabled gets four
+    blocks of body copy sitting at `opacity: 0`, reachable only by hovering.
+    The text is in the HTML either way, but on a site whose central problem is
+    indexation (PRD §2, Finding 1) that is not a state worth shipping. Without
+    JS every panel is simply open.
+  */
+  .js .expand-panel .panel-copy {
+    opacity: 0;
+    max-height: 0;
+    translate: 0 0.75rem;
+    transition:
+      opacity 0.45s ease,
+      max-height 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+      translate 0.45s ease,
+      margin-top 0.45s ease;
+  }
+
+  .js .expand-panel:hover .panel-copy,
+  .js .expand-panel:focus-within .panel-copy {
+    opacity: 1;
+    max-height: 16rem;
+    translate: 0 0;
+    margin-block-start: 1rem;
+  }
+
+  /* The visual wakes with the panel. */
+  /* 0.4, not 0.22: the scenes are hairline marks, and at 22% they vanished
+     entirely rather than resting quietly. */
+  .expand-panel .panel-visual {
+    opacity: 0.4;
+    scale: 0.92;
+  }
+
+  .expand-panel:hover .panel-visual,
+  .expand-panel:focus-within .panel-visual {
+    opacity: 1;
+    scale: 1;
+  }
+
+  /*
+    Titles wrap even while collapsed.
+
+    Holding them to one line keeps the row tidier, but "Operations-Heavy
+    Businesses" in a 230px panel then gets cut mid-word, and a clipped label is
+    worse than an uneven one. They step up a size when the panel opens instead,
+    which gives the expansion something to do beyond widening.
+  */
+  .expand-panel .panel-title {
+    font-size: 1.0625rem;
+    transition:
+      font-size 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+      color 0.4s ease;
+  }
+
+  .expand-panel:hover .panel-title,
+  .expand-panel:focus-within .panel-title {
+    font-size: 1.5rem;
+  }
+}
+
+/*
+  An outlined numeral that fills with the accent when its panel is active.
+  Cheap, and it gives the row a second thing that changes besides width, which
+  is what stops the interaction reading as purely mechanical.
+*/
+.panel-num {
+  font-weight: 700;
+  line-height: 1;
+  color: transparent;
+  /* ink-400, not ink-300: an outlined numeral is large text and needs 3:1
+     (ink-300 on navy is 2.6:1). */
+  -webkit-text-stroke: 1px var(--color-ink-400);
+  transition:
+    color 0.45s ease,
+    -webkit-text-stroke-color 0.45s ease;
+}
+
+@media (hover: hover) {
+  .expand-panel:hover .panel-num,
+  .expand-panel:focus-within .panel-num {
+    color: var(--color-brand-600);
+    -webkit-text-stroke-color: transparent;
+  }
+}
+
+/* ==========================================================================
+   Panel visuals — one small scene each, built entirely from CSS
+   ========================================================================== */
+
+/* --- Blueprint: a grid laid back in perspective under a floating plan ----- */
+
+.v-blueprint {
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+}
+
+.v-blueprint .v-grid {
+  position: absolute;
+  inset: -30%;
+  background-image:
+    linear-gradient(rgba(var(--hi-rgb), 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--hi-rgb), 0.06) 1px, transparent 1px);
+  background-size: 28px 28px;
+  transform: perspective(520px) rotateX(58deg);
+  transform-origin: 50% 100%;
+}
+
+.v-blueprint .v-plan {
+  position: absolute;
+  inset-inline-start: 50%;
+  inset-block-start: 46%;
+  width: 5.5rem;
+  height: 5.5rem;
+  margin: -2.75rem 0 0 -2.75rem;
+  border: 1.5px dashed var(--color-brand-400);
+  border-radius: 0.75rem;
+  background: rgba(var(--glow-rgb), 0.06);
+}
+
+.js .v-blueprint .v-plan {
+  animation: float-bob 4.5s ease-in-out infinite alternate;
+}
+
+@keyframes float-bob {
+  from {
+    translate: 0 -8px;
+  }
+  to {
+    translate: 0 8px;
+  }
+}
+
+/* --- Growth: bars, the last one accented --------------------------------- */
+
+.v-growth {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.6rem;
+  height: 7rem;
+}
+
+.v-growth > i {
+  width: 1.5rem;
+  border-radius: 3px 3px 0 0;
+  background: var(--color-ink-300);
+  transform-origin: bottom center;
+}
+
+.v-growth > i:nth-child(1) {
+  height: 40%;
+}
+.v-growth > i:nth-child(2) {
+  height: 62%;
+  background: var(--color-brand-400);
+}
+.v-growth > i:nth-child(3) {
+  height: 84%;
+  background: var(--color-brand-500);
+}
+.v-growth > i:nth-child(4) {
+  height: 100%;
+  background: var(--color-lime-400);
+}
+
+.js .v-growth > i {
+  animation: bar-rise 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i, 0) * 90ms);
+}
+
+@keyframes bar-rise {
+  from {
+    scale: 1 0;
+  }
+  to {
+    scale: 1 1;
+  }
+}
+
+/* --- Documents: a stack, the top one signed off -------------------------- */
+
+.v-docs {
+  position: relative;
+  width: 6rem;
+  height: 7rem;
+}
+
+.v-docs > span {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(var(--hi-rgb), 0.14);
+  border-radius: 0.5rem;
+  background: var(--color-surface);
+  box-shadow: 0 10px 24px -12px rgba(var(--shade-rgb), calc(0.9 * var(--shade-k)));
+}
+
+.v-docs > span:nth-child(1) {
+  rotate: -7deg;
+  translate: -8px 4px;
+}
+
+.v-docs > span:nth-child(2) {
+  rotate: 4deg;
+  translate: 6px 0;
+}
+
+.v-docs > span:nth-child(3) {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 0.75rem;
+}
+
+.v-docs .doc-line {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-ink-300);
+}
+
+.v-docs .doc-line:nth-of-type(1) {
+  width: 80%;
+  background: var(--color-brand-600);
+}
+
+.v-docs .doc-line:nth-of-type(2) {
+  width: 60%;
+}
+
+.v-docs .doc-check {
+  margin-block-start: auto;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  background: var(--color-lime-400);
+}
+
+/* --- Orbit: two counter-rotating rings around a pulsing core -------------- */
+
+.v-orbit {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 8rem;
+  height: 8rem;
+}
+
+.v-orbit .o-ring {
+  position: absolute;
+  border: 1px dashed rgba(var(--mesh-rgb), 0.35);
+  border-radius: 50%;
+}
+
+.v-orbit .o-ring:nth-child(1) {
+  width: 8rem;
+  height: 8rem;
+}
+
+.v-orbit .o-ring:nth-child(2) {
+  width: 4.75rem;
+  height: 4.75rem;
+  border-color: var(--color-brand-500);
+}
+
+.js .v-orbit .o-ring:nth-child(1) {
+  animation: panel-spin 22s linear infinite;
+}
+
+.js .v-orbit .o-ring:nth-child(2) {
+  animation: panel-spin 16s linear infinite reverse;
+}
+
+@keyframes panel-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+.v-orbit .o-core {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: var(--color-brand-600);
+  box-shadow: 0 0 0 6px rgba(var(--glow-rgb), 0.1);
+}
+
+.js .v-orbit .o-core {
+  animation: core-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes core-pulse {
+  0%,
+  100% {
+    scale: 1;
+  }
+  50% {
+    scale: 0.82;
+  }
+}
+
+/* ==========================================================================
+   Reduced motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .js .v-blueprint .v-plan,
+  .js .v-growth > i,
+  .js .v-orbit .o-ring,
+  .js .v-orbit .o-core {
+    animation: none !important;
+    scale: 1 1 !important;
+    translate: none !important;
+  }
+
+  /*
+    The row stops expanding and every panel is permanently open. A layout that
+    only reveals its content on hover is not usable without motion.
+  */
+  .expand-panel,
+  .expand-row:hover .expand-panel,
+  .expand-row:focus-within .expand-panel,
+  .expand-row .expand-panel:hover,
+  .expand-row .expand-panel:focus-within {
+    flex-grow: 1 !important;
+    opacity: 1 !important;
+    filter: none !important;
+    transition: none !important;
+  }
+
+  .js .expand-panel .panel-copy,
+  .js .expand-panel:hover .panel-copy,
+  .js .expand-panel:focus-within .panel-copy {
+    opacity: 1 !important;
+    max-height: none !important;
+    translate: none !important;
+    margin-block-start: 1rem !important;
+    transition: none !important;
+  }
+
+  .expand-panel .panel-visual {
+    opacity: 0.5 !important;
+    scale: 1 !important;
+  }
+
+  .expand-panel .panel-title {
+    white-space: normal !important;
+  }
+}
+
+/* ==========================================================================
+   Footer brand watermark
+
+   An oversized wordmark spanning the footer, clipped to a top-down gradient so
+   it fades to nothing as it bleeds off the bottom edge.
+
+   `background-clip: text` with a transparent fill is what produces the fade —
+   painting the gradient and letting the glyphs act as the mask, rather than
+   setting a flat low-opacity colour. The difference is that the letters are
+   most present where they meet the content above and dissolve below it.
+
+   SIZING IS CONSTRAINED ON PURPOSE. "AIVORRAA" is eight characters at roughly
+   0.62em each, so the word is about 5em wide; at 22vw that is 110vw and the
+   document grows sideways. Capped at 15vw it lands near 75vw at every width.
+   The footer is `overflow: clip` regardless, as a second guard.
+
+   Decorative: the brand name is already in the footer logo and the copyright
+   line, so this carries aria-hidden and is never announced twice.
+   ========================================================================== */
+
+.brand-watermark {
+  display: block;
+  width: 100%;
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(3rem, 15vw, 15rem);
+  line-height: 0.74;
+  letter-spacing: -0.05em;
+  /*
+    Fades downward, and deliberately fainter than a standalone watermark would
+    be: the copyright row and the back-to-top control now sit ON TOP of these
+    letters, so anything stronger starts competing with text it is meant to sit
+    behind. The letters read most clearly in their upper halves, above the
+    bottom bar, and dissolve through it.
+  */
+  background: linear-gradient(
+    180deg,
+    rgba(var(--hi-rgb), 0.095) 0%,
+    rgba(var(--hi-rgb), 0.03) 55%,
+    rgba(var(--hi-rgb), 0) 95%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  user-select: none;
+  pointer-events: none;
+  /*
+    Pushed down by a quarter of its own height so the glyphs are cut by the
+    footer's bottom edge. A translate rather than a negative margin: it does not
+    affect layout, so it cannot change the footer's height or reintroduce the
+    gap this replaced.
+  */
+  translate: 0 26%;
+}
+
+/* A soft pool of light behind the watermark, echoing the hero's accent. */
+.footer-glow {
+  position: absolute;
+  inset-block-end: -45%;
+  inset-inline-start: 50%;
+  translate: -50% 0;
+  width: 58vw;
+  height: 26vw;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse,
+    rgba(var(--glow-rgb), 0.13) 0%,
+    rgba(var(--accent-rgb), 0.1) 40%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+/* Social pills: label beside the mark, inverting to paper on hover. */
+.social-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.05rem;
+  border: 1px solid rgba(var(--hi-rgb), 0.12);
+  border-radius: 999px;
+  background: rgba(var(--hi-rgb), 0.03);
+  color: rgba(var(--hi-rgb), 0.8);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  transition:
+    background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.35s ease,
+    border-color 0.35s ease,
+    translate 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (hover: hover) {
+  .social-pill:hover {
+    background: rgb(var(--hi-rgb));
+    border-color: rgb(var(--hi-rgb));
+    color: var(--color-ink);
+    translate: 0 -2px;
+  }
+}
+
+/* Back to top: the disc lifts and inverts. */
+.to-top-disc {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid rgba(var(--hi-rgb), 0.15);
+  border-radius: 50%;
+  transition:
+    background-color 0.35s ease,
+    color 0.35s ease,
+    translate 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (hover: hover) {
+  .to-top:hover .to-top-disc {
+    background: rgb(var(--hi-rgb));
+    color: var(--color-ink);
+    translate: 0 -4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .social-pill,
+  .to-top-disc,
+  .to-top:hover .to-top-disc,
+  .social-pill:hover {
+    translate: none !important;
+    transition: none !important;
+  }
+}

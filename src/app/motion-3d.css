@@ -1,0 +1,205 @@
+/* ==========================================================================
+   AIVORRAA — 3D scroll layer
+   --------------------------------------------------------------------------
+   Every scroll effect on the site used to move in two dimensions: things
+   slid up and faded in, or shrank and faded out. This module puts them in
+   SPACE -- rotation and depth under perspective -- following the techniques
+   that recur in current award-winning work:
+
+     - On-scroll 3D carousel (Codrops): each card's rotateY / translateZ /
+       scale follow its distance from the viewport centre.  -> services
+     - 3D stack motion (Codrops): passed cards tip back into depth.
+                                                          -> process stack
+     - Perspective panels: panels rotate and shift depth as you scroll.
+                                              -> headings, cards, console
+     - Spatial zoom: scrolling feels like moving INTO the screen.
+                                              -> hero floor flight, CTA
+
+   All CSS scroll-driven animation (plus two tiny scripts where CSS cannot
+   measure what it needs: the coverflow distance and the canvas camera). No
+   WebGL library: three.js alone is ~160KB gzipped, against ~48KB of JS
+   budget left under PRD §21.
+
+   HOW THE PROPERTIES ARE SPLIT
+   The existing effects use the individual `translate` / `scale` properties.
+   Rotation and depth here go on `transform`, which composes with them rather
+   than replacing them -- so a card's hover lift (`translate`) and its 3D entry
+   (`transform`) can run at the same time without one cancelling the other.
+
+   Same gates as every motion file: `.js` + `@supports` for the scroll-driven
+   parts (nothing hidden without JavaScript), and all of it off under
+   `prefers-reduced-motion`.
+
+   These keyframes REPLACE the flat versions that used to live in
+   motion-advanced.css and motion-scroll.css; each name is defined only here.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Section headings -- flip up from lying flat
+   Hinged at the baseline, so a heading rises off the page toward the reader.
+   -------------------------------------------------------------------------- */
+
+@supports (animation-timeline: view()) {
+  .js .sd-enter {
+    transform-origin: 50% 100%;
+  }
+}
+
+@keyframes sd-enter {
+  from {
+    opacity: 0;
+    translate: 0 2rem;
+    transform: perspective(900px) rotateX(58deg);
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    transform: perspective(900px) rotateX(0deg);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   2. Cards -- tilt in from depth
+   Each arrives tipped back and pushed away, and settles flat and forward.
+   -------------------------------------------------------------------------- */
+
+@keyframes sd-enter-soft {
+  from {
+    opacity: 0;
+    translate: 0 1.25rem;
+    filter: blur(6px);
+    transform: perspective(1200px) rotateX(22deg) translateZ(-90px);
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    filter: blur(0);
+    transform: perspective(1200px) rotateX(0deg) translateZ(0);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   3. Closing CTA -- arrives from inside the screen (spatial zoom)
+   Pushed deep in Z rather than scaled, so it cannot overflow its container
+   on the way in (the reason the flat version started at scale 0.965).
+   -------------------------------------------------------------------------- */
+
+@keyframes sd-settle {
+  from {
+    opacity: 0;
+    transform: perspective(1200px) translateZ(-280px) rotateX(12deg);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(1200px) translateZ(0) rotateX(0deg);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   4. Process stack -- 3D stack motion
+   A passed card tips back from its top edge and recedes, so the stack reads
+   as physical cards in depth rather than a pile of shrinking rectangles.
+   -------------------------------------------------------------------------- */
+
+@keyframes pin-recede {
+  to {
+    opacity: 0.3;
+    translate: 0 -1.25rem;
+    transform: perspective(1400px) translateZ(-160px) rotateX(-8deg);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   5. Hero copy -- tips back onto the floor as you leave
+   Rotates on X the way the neural floor beneath it lies, so the headline
+   looks like it is laid down onto the terrain the camera is flying over.
+   -------------------------------------------------------------------------- */
+
+@keyframes hero-recede {
+  to {
+    opacity: 0.15;
+    filter: blur(3px);
+    transform: perspective(1100px) translateZ(-240px) rotateX(24deg);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   6. Workflow console -- straightens as it arrives, like the dashboard
+   -------------------------------------------------------------------------- */
+
+@supports (animation-timeline: view()) {
+  .js .wf-os {
+    transform-origin: 50% 0%;
+    animation: console-straighten linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 34%;
+  }
+}
+
+@keyframes console-straighten {
+  /* Transform only -- see dash-straighten: a translucent espresso panel over
+     paper turns grey. */
+  from {
+    transform: perspective(1600px) rotateX(22deg) scale(0.93);
+  }
+  to {
+    transform: perspective(1600px) rotateX(0deg) scale(1);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   7. Services -- scroll-driven 3D coverflow
+   CoverflowDepth.tsx writes each card's distance from the viewport centre as
+   --d (-1 left .. 0 centre .. +1 right) and its magnitude as --ad. The card
+   facing the reader is flat and forward; the rest turn toward the centre and
+   fall back in depth. On the LINK, not the <li>: the <li> already carries the
+   velocity skew on `transform`.
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .js .hscroll-card > a {
+    transform: perspective(1300px) rotateY(calc(var(--d, 0) * -30deg))
+      translateZ(calc(var(--ad, 0) * -170px));
+    opacity: calc(1 - var(--ad, 0) * 0.28);
+    transition: opacity 0.2s linear;
+    will-change: transform;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   8. Footer wordmark -- rises upright from the floor
+   `transform` only: the watermark positions itself with `translate`.
+   -------------------------------------------------------------------------- */
+
+@supports (animation-timeline: view()) {
+  .js .brand-watermark {
+    transform-origin: 50% 100%;
+    animation: wordmark-rise linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 30%;
+  }
+}
+
+@keyframes wordmark-rise {
+  from {
+    opacity: 0;
+    transform: perspective(700px) rotateX(78deg);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(700px) rotateX(0deg);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   9. Reduced motion
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .js .wf-os,
+  .js .brand-watermark {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}
