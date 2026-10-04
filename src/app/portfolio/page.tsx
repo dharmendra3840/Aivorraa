@@ -102,7 +102,7 @@ export default function PortfolioPage() {
                 </div>
 
                 <Card className="h-fit lg:mt-16">
-                  <h2 className="font-display text-ink text-lg font-semibold">
+                  <h2 className="font-display text-ink text-lg font-normal">
                     In the meantime
                   </h2>
                   <p className="text-ink-500 mt-3 leading-relaxed">
@@ -142,7 +142,7 @@ export default function PortfolioPage() {
               <div className="mt-8 flex justify-center">
                 <Link
                   href="/about"
-                  className="text-brand-700 hover:text-brand-800 text-sm font-semibold underline underline-offset-4"
+                  className="link-line text-ink text-sm font-medium"
                 >
                   How Aivorraa works
                 </Link>

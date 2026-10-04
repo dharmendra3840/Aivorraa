@@ -109,7 +109,7 @@ export default function PrivacyPolicyPage() {
               This site sets no advertising or tracking cookies, and runs no
               analytics. The only things it stores in your browser are two
               functional preferences: if you choose &ldquo;Pause motion&rdquo;
-              or the light theme, that choice is remembered on your device so
+              or the dark theme, that choice is remembered on your device so
               it still applies on your next visit. Neither is ever sent
               anywhere. It
               does not use remarketing pixels or cross-site tracking. If

@@ -7,25 +7,16 @@ import { useEffect, useId, useRef, useState } from "react";
 // Deliberately NOT importing from @/content/services: this is a client
 // component, and that module would drag the whole service catalogue — every
 // FAQ answer and deliverable description — into the browser bundle. See the
-// header comment in services.nav.ts.
+// header comment in services.nav.ts. (media.ts is small: names and alt text.)
 import {
   NAV_GROUPS,
   SERVICE_NAV,
   getNavItem,
 } from "@/content/services.nav";
-import {
-  ACCENT,
-  ButtonLink,
-  Container,
-  cx,
-} from "@/components/ui";
-import {
-  ArrowRightIcon,
-  ChevronDownIcon,
-  CloseIcon,
-  Icon,
-  MenuIcon,
-} from "@/components/icons";
+import { SERVICE_MEDIA } from "@/content/media";
+import { ButtonLink, Container, cx } from "@/components/ui";
+import { ChevronDownIcon, CloseIcon, MenuIcon } from "@/components/icons";
+import { Photo } from "@/components/media/Photo";
 import { Logo } from "./Logo";
 
 /**
@@ -38,7 +29,17 @@ import { Logo } from "./Logo";
  * The menu only controls visibility.
  *
  * PRD §19 — grouped services, keyboard support, clear focus states, mobile
- * accordion.
+ * menu.
+ *
+ * THE REFERENCE'S HEADER (brandium.nl), reproduced:
+ *   - it is never a bar: no background, fixed in place, always there -- the
+ *     page scrolls UNDER it rather than the header scrolling away
+ *   - the name and the links are white in a `mix-blend-mode: difference`
+ *     layer (.header-blend, motion.css §8d), so they invert against whatever
+ *     passes beneath: black over white, white over charcoal and photographs
+ *   - the action button is a separate, normal layer, so it stays solid
+ * Two fixed layers rather than one: a blend only works on the fixed element
+ * itself; any positioned wrapper with a z-index would isolate it.
  */
 
 /*
@@ -47,11 +48,9 @@ import { Logo } from "./Logo";
                      service pages (PRD §13 -- the crawl-critical part)
     AI Automation -> /ai-automation
     Development   -> /web-development
-    Growth        -> /digital-marketing (funnels, CRO, GA4 -- the "growth
-                     systems" of the brief)
+    Growth        -> /digital-marketing
     Case Studies  -> /portfolio
-  About and Industries moved to the footer, where they remain linked from
-  every page.
+  About and Industries are in the footer, linked from every page.
 */
 const NAV: Array<{ label: string; href: string; mega?: boolean }> = [
   { label: "Services", href: "/services", mega: true },
@@ -63,19 +62,19 @@ const NAV: Array<{ label: string; href: string; mega?: boolean }> = [
   { label: "Contact", href: "/contact" },
 ];
 
+/** Position of each service in the preview stack (see motion.css). */
+const SERVICE_INDEX = new Map(SERVICE_NAV.map((s, i) => [s.slug, i]));
+
 export function Header() {
   const pathname = usePathname();
   const [megaOpen, setMegaOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const megaId = useId();
   const navRef = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Close everything on navigation. Done by comparing against the previous
-  // pathname during render rather than in an effect: setState inside an effect
-  // triggers a second render pass, and React's own guidance is to adjust state
-  // during render when it derives from a changed input.
+  // Close everything on navigation -- adjusted during render, not in an
+  // effect, because it derives from a changed input (React's guidance).
   const [lastPath, setLastPath] = useState(pathname);
   if (lastPath !== pathname) {
     setLastPath(pathname);
@@ -83,31 +82,21 @@ export function Header() {
     setMobileOpen(false);
   }
 
-  // Subtle elevation change once the page scrolls, matching the design's
-  // floating pill treatment.
+  // Scrolling closes the mega-menu: a reader who opens it and then just
+  // scrolls on never fires a mouseleave. (React bails out when it is
+  // already closed, so this does not re-render per scroll event.)
   useEffect(() => {
-    const onScroll = () => {
-      setScrolled(window.scrollY > 12);
-      /*
-        Scrolling closes the mega-menu.
-
-        It opens on hover and closes on mouseleave, which covers the pointer
-        moving away but not the far more common case: the reader opens it,
-        decides against it and just scrolls on. The pointer never moves, so no
-        mouseleave ever fires and the panel stays open over the page -- which
-        is what it was doing while the reader was three sections further down.
-
-        Safe to call unconditionally; React bails out when the state is
-        already false, so this does not re-render on every scroll event.
-      */
-      setMegaOpen(false);
-    };
-    onScroll();
+    const onScroll = () => setMegaOpen(false);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Escape closes; click outside closes the mega-menu.
+  // A pending close must not fire after unmount.
+  useEffect(() => () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+  }, []);
+
+  // Escape closes; a click outside closes the mega-menu.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -128,7 +117,7 @@ export function Header() {
     };
   }, []);
 
-  // Lock scroll behind the mobile drawer.
+  // Lock scroll behind the mobile menu.
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
     return () => {
@@ -148,116 +137,94 @@ export function Header() {
     closeTimer.current = setTimeout(() => setMegaOpen(false), 140);
   };
 
-  /*
-    The keyboard equivalent of mouseleave. The menu opens when the Services
-    link takes focus, so it has to close when focus leaves the header ---
-    otherwise tabbing past it left a 460px panel open over the page with the
-    reader's focus already somewhere below it.
-
-    React's onBlur is a delegated `focusout`, so it fires for descendants too
-    and `relatedTarget` is whatever is receiving focus. A null relatedTarget
-    means focus left the document entirely, which should also close.
-  */
+  // The keyboard equivalent of mouseleave: close when focus leaves the header.
   const handleFocusOut = (event: React.FocusEvent<HTMLDivElement>) => {
     const next = event.relatedTarget as Node | null;
     if (!next || !navRef.current?.contains(next)) setMegaOpen(false);
   };
 
   return (
-    <header className="sticky top-0 z-50 pt-3 sm:pt-5">
-      <Container>
-        <div
-          ref={navRef}
-          onMouseLeave={scheduleCloseMega}
-          onBlur={handleFocusOut}
-          data-mega-shell={megaOpen ? "open" : "closed"}
-          className={cx(
-            /*
-              `relative` so the mega-menu can hang off the pill's bottom edge
-              instead of being laid out inside it -- in flow it pushed the
-              whole page down 459px every time it opened.
+    <header>
+      <div
+        ref={navRef}
+        onMouseLeave={scheduleCloseMega}
+        onBlur={handleFocusOut}
+        data-mega-shell={megaOpen ? "open" : "closed"}
+      >
+        {/* Layer 1 -- the name and the links, difference-blended. */}
+        <div className="header-blend">
+          <Container>
+            <div className="flex h-[4.5rem] items-center gap-6">
+              <Link
+                href="/"
+                className="shrink-0 rounded-md text-[0.95rem]"
+                aria-label="Aivorraa — home"
+                data-cursor="hidden"
+              >
+                <Logo />
+              </Link>
 
-              The bottom corners square off while it is open so the pill and
-              the panel read as one continuous card, and the pill's own bottom
-              border becomes the divider between them.
-            */
-            "pill-surface relative transition-shadow duration-300",
-            megaOpen ? "rounded-t-[1.75rem]" : "rounded-[1.75rem]",
-            scrolled && "shadow-float",
-          )}
-        >
-          <div className="flex items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-3.5">
-            <Link
-              href="/"
-              className="rounded-pill shrink-0"
-              aria-label="Aivorraa — home"
-            >
-              <Logo className="h-6 w-auto sm:h-7" />
-            </Link>
-
-            {/* Desktop navigation */}
-            <nav
-              aria-label="Primary"
-              className="hidden items-center gap-0.5 lg:flex xl:gap-1"
-            >
-              {NAV.map((item) =>
-                item.mega ? (
-                  <div
-                    key={item.href}
-                    className="relative"
-                    onMouseEnter={openMega}
-                  >
+              {/* Desktop navigation, centred in the bar. */}
+              <nav
+                aria-label="Primary"
+                className="mx-auto hidden items-center gap-1 lg:flex xl:gap-4"
+              >
+                {NAV.map((item) =>
+                  item.mega ? (
+                    <div key={item.href} onMouseEnter={openMega}>
+                      <Link
+                        href={item.href}
+                        aria-expanded={megaOpen}
+                        aria-controls={megaId}
+                        onFocus={openMega}
+                        onClick={() => setMegaOpen(false)}
+                        data-cursor="hidden"
+                        className="flex items-center gap-1 rounded-md px-2.5 py-2 text-[0.9375rem] whitespace-nowrap"
+                      >
+                        <span className="roll">
+                          <span data-text={item.label}>{item.label}</span>
+                        </span>
+                        <ChevronDownIcon
+                          className={cx(
+                            "h-3.5 w-3.5 transition-transform duration-300",
+                            megaOpen && "rotate-180",
+                          )}
+                        />
+                      </Link>
+                    </div>
+                  ) : (
                     <Link
+                      key={item.href}
                       href={item.href}
-                      aria-expanded={megaOpen}
-                      aria-controls={megaId}
-                      onFocus={openMega}
-                      onClick={() => setMegaOpen(false)}
+                      aria-current={isActive(item.href) ? "page" : undefined}
+                      data-cursor="hidden"
                       className={cx(
-                        "rounded-pill flex items-center gap-1 px-2 py-2 text-[0.8125rem] font-medium whitespace-nowrap transition-colors xl:px-3.5 xl:text-sm",
-                        isActive(item.href)
-                          ? "text-ink"
-                          : "text-ink-500 hover:text-ink",
+                        "rounded-md px-2.5 py-2 text-[0.9375rem] whitespace-nowrap",
+                        isActive(item.href) && "underline decoration-1 underline-offset-[6px]",
                       )}
                     >
                       <span className="roll">
                         <span data-text={item.label}>{item.label}</span>
                       </span>
-                      <ChevronDownIcon
-                        className={cx(
-                          "h-4 w-4 transition-transform duration-200",
-                          megaOpen && "rotate-180",
-                        )}
-                      />
                     </Link>
-                  </div>
-                ) : (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cx(
-                      "rounded-pill px-2 py-2 text-[0.8125rem] font-medium whitespace-nowrap transition-colors xl:px-3.5 xl:text-sm",
-                      isActive(item.href)
-                        ? "text-ink"
-                        : "text-ink-500 hover:text-ink",
-                    )}
-                  >
-                    <span className="roll">
-                      <span data-text={item.label}>{item.label}</span>
-                    </span>
-                  </Link>
-                ),
-              )}
-            </nav>
+                  ),
+                )}
+              </nav>
 
-            <div className="flex items-center gap-2">
-              {/* Wrapped rather than given `hidden sm:inline-flex` directly:
-                  a display utility on the component loses to the button's own
-                  base `inline-flex`. Below 640px the label wraps and the pill
-                  becomes a blob, and the drawer already carries a full-width
-                  CTA, so it is hidden there. See the note in components/ui. */}
+              {/* Holds the space the action layer occupies on the right. */}
+              <span aria-hidden="true" className="ml-auto w-11 shrink-0 sm:w-40 lg:ml-0" />
+            </div>
+          </Container>
+        </div>
+
+        {/* Layer 2 -- the solid action button and the menu toggle. */}
+        <div className="header-actions w-full">
+          <Container>
+            <div className="flex h-[4.5rem] items-center justify-end gap-2">
+              {/* Wrapped: a display utility on the button would lose to its
+                  own base `inline-flex` (see the note in components/ui). */}
               <span className="hidden sm:block">
-                <ButtonLink href="/contact" variant="primary" withArrow>
+                <ButtonLink href="/contact" variant="primary" size="md" withArrow>
                   Start a project
                 </ButtonLink>
               </span>
@@ -268,7 +235,7 @@ export function Header() {
                 aria-expanded={mobileOpen}
                 aria-controls="mobile-nav"
                 aria-label={mobileOpen ? "Close menu" : "Open menu"}
-                className="border-line text-ink hover:bg-ink-50 rounded-pill inline-flex h-11 w-11 items-center justify-center border lg:hidden"
+                className="bg-signal text-page inline-flex h-11 w-11 items-center justify-center rounded-md lg:hidden"
               >
                 {mobileOpen ? (
                   <CloseIcon className="h-5 w-5" />
@@ -277,55 +244,42 @@ export function Header() {
                 )}
               </button>
             </div>
-          </div>
+          </Container>
+        </div>
 
-          {/* Desktop mega-menu. All eight service links are in the HTML at all
-              times; `hidden` only controls visibility. */}
-          <div
-            id={megaId}
-            hidden={!megaOpen}
-            data-mega-open={megaOpen ? "true" : "false"}
-            className="mega-panel mega-dock pill-surface hidden px-6 pt-6 pb-7 lg:block"
-          >
-            <div className="grid gap-8 lg:grid-cols-[1fr_1fr_16rem]">
+        {/* Desktop mega-menu. All eight service links are in the HTML at all
+            times; `hidden` only controls visibility. A fixed sheet of its own
+            below the bar, so opening it never moves the page. */}
+        <div
+          id={megaId}
+          hidden={!megaOpen}
+          className="mega-panel bg-page border-line fixed inset-x-0 top-0 z-40 hidden border-b pt-[4.5rem] shadow-[var(--shadow-float)] lg:block"
+        >
+          <Container>
+            <div className="grid gap-10 pt-8 pb-10 lg:grid-cols-[1fr_1fr_20rem]">
               {NAV_GROUPS.map((group) => (
                 <div key={group.label}>
-                  <p className="text-ink-400 mb-1 text-[0.7rem] font-semibold tracking-[0.14em] uppercase">
+                  <p className="eyebrow mb-1">
+                    <span aria-hidden="true">&#10022;</span>
                     {group.label}
                   </p>
-                  <p className="text-ink-400 mb-4 text-sm">{group.blurb}</p>
-                  <ul className="grid gap-1.5">
-                    {group.slugs.map((slug, i) => {
+                  <p className="text-ink-500 mb-6 text-sm">{group.blurb}</p>
+                  <ul className="grid gap-1">
+                    {group.slugs.map((slug) => {
                       const service = getNavItem(slug);
                       if (!service) return null;
-                      const accent = ACCENT[service.accent];
                       return (
-                        <li
-                          key={slug}
-                          className="mega-item"
-                          style={{ "--i": i } as React.CSSProperties}
-                        >
+                        <li key={slug}>
                           <Link
                             href={`/${slug}`}
-                            className="spot group hover:bg-ink-50 flex items-start gap-3 rounded-2xl p-2.5 transition-colors"
+                            data-i={SERVICE_INDEX.get(slug)}
+                            className="group block py-1.5"
                           >
-                            <span
-                              className={cx(
-                                "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ring-1 ring-transparent transition duration-300 group-hover:scale-110",
-                                accent.bg,
-                                accent.text,
-                                accent.ring,
-                              )}
-                            >
-                              <Icon name={service.icon} className="h-5 w-5" />
+                            <span className="text-[1.6rem] leading-tight font-light tracking-[-0.035em]">
+                              <span className="link-draw">{service.nav}</span>
                             </span>
-                            <span className="min-w-0">
-                              <span className="text-ink group-hover:text-brand-700 block text-[0.9375rem] font-semibold transition-colors">
-                                {service.nav}
-                              </span>
-                              <span className="text-ink-400 mt-0.5 block text-[0.8125rem] leading-snug">
-                                {service.summary}
-                              </span>
+                            <span className="text-ink-500 block text-[0.8125rem] leading-snug">
+                              {service.summary}
                             </span>
                           </Link>
                         </li>
@@ -335,113 +289,95 @@ export function Header() {
                 </div>
               ))}
 
-              <div className="scope-dark bg-panel rounded-card border-brand-500/30 flex flex-col justify-between border bg-[linear-gradient(150deg,rgba(var(--glow-rgb),0.14),rgba(var(--accent-rgb),0.12)_60%,rgba(var(--glow-rgb),0.06))] p-6 text-ink shadow-[0_0_40px_-18px_rgba(var(--glow-rgb),0.39)]">
+              <div className="flex flex-col gap-5">
+                {/* Decorative preview of the hovered service. */}
+                <div className="mega-preview rounded-card relative aspect-[4/3] overflow-hidden" aria-hidden="true">
+                  {SERVICE_NAV.map((s, i) => (
+                    <Photo
+                      key={s.slug}
+                      id={SERVICE_MEDIA[s.slug] ?? "svc-web"}
+                      sizes="20rem"
+                      still
+                      reveal={false}
+                      alt=""
+                      className={`preview-${i}`}
+                    />
+                  ))}
+                </div>
                 <div>
-                  <p className="font-display text-xl leading-tight font-semibold">
+                  <p className="text-lg leading-snug font-light tracking-[-0.02em]">
                     Not sure which one you need?
                   </p>
-                  <p className="mt-2.5 text-sm text-ink/70">
+                  <p className="text-ink-500 mt-2 text-sm leading-relaxed">
                     Tell Aivorraa what you are building and you will get a
                     straight recommendation — including when the answer is to fix
                     what you have rather than rebuild it.
                   </p>
-                </div>
-                <div className="mt-6 grid gap-2">
-                  <ButtonLink
-                    href="/contact"
-                    variant="primary"
-                    size="sm"
-                    withArrow
-                    className="shine"
-                  >
-                    Start a project
-                  </ButtonLink>
-                  <Link
-                    href="/services"
-                    className="rounded-pill inline-flex items-center justify-center gap-1.5 px-4 py-2 text-sm font-semibold text-ink/80 transition-colors hover:text-ink"
-                  >
-                    See all services
-                    <ArrowRightIcon className="h-4 w-4" />
-                  </Link>
+                  <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">
+                    <ButtonLink href="/contact" variant="primary" size="sm" withArrow>
+                      Start a project
+                    </ButtonLink>
+                    <ButtonLink href="/services" variant="link" className="text-sm">
+                      See all services
+                    </ButtonLink>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </Container>
         </div>
-      </Container>
+      </div>
 
-      {/* Mobile drawer */}
-      {/*
-        Also docked rather than in flow, for the same reason as the mega-menu:
-        as a sibling after the pill it grew the sticky header and pushed the
-        page down by the full height of the drawer the moment it opened.
-      */}
+      {/* Mobile menu: full screen, large light type -- the reference's mobile
+          treatment. Fixed, so it never pushes the page. */}
       <div
         id="mobile-nav"
         hidden={!mobileOpen}
-        className="absolute inset-x-0 top-full lg:hidden"
+        className="bg-page fixed inset-0 z-40 overflow-y-auto pt-[4.5rem] lg:hidden"
       >
-        <Container>
-          <div className="pill-surface drawer-dock rounded-card mt-3 max-h-[calc(100dvh-8rem)] overflow-y-auto p-4">
-            <nav aria-label="Mobile" className="grid gap-1">
-              {NAV.map((item) => (
+        <Container className="pt-6 pb-12">
+          <nav aria-label="Mobile" className="grid">
+            {NAV.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={isActive(item.href) ? "page" : undefined}
+                className={cx(
+                  "border-line border-b py-3.5 text-[2rem] leading-tight font-light tracking-[-0.04em]",
+                  isActive(item.href) ? "text-ink" : "text-ink-600",
+                )}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+
+          <p className="eyebrow mt-10 mb-3">
+            <span aria-hidden="true">&#10022;</span>
+            All services
+          </p>
+          <ul className="grid grid-cols-2 gap-x-4 gap-y-2.5">
+            {SERVICE_NAV.map((service) => (
+              <li key={service.slug}>
                 <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cx(
-                    "rounded-2xl px-4 py-3 text-base font-semibold transition-colors",
-                    isActive(item.href)
-                      ? "bg-ink-50 text-ink"
-                      : "text-ink-600 hover:bg-ink-50",
-                  )}
+                  href={`/${service.slug}`}
+                  className="text-ink-600 hover:text-ink text-[0.9375rem]"
                 >
-                  {item.label}
+                  {service.nav}
                 </Link>
-              ))}
-            </nav>
+              </li>
+            ))}
+          </ul>
 
-            <div className="border-line mt-4 border-t pt-4">
-              <p className="text-ink-400 mb-2 px-4 text-[0.7rem] font-semibold tracking-[0.14em] uppercase">
-                All services
-              </p>
-              <ul className="grid gap-0.5">
-                {SERVICE_NAV.map((service) => {
-                  const accent = ACCENT[service.accent];
-                  return (
-                    <li key={service.slug}>
-                      <Link
-                        href={`/${service.slug}`}
-                        className="hover:bg-ink-50 flex items-center gap-3 rounded-2xl px-4 py-2.5 transition-colors"
-                      >
-                        <span
-                          className={cx(
-                            "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
-                            accent.bg,
-                            accent.text,
-                          )}
-                        >
-                          <Icon name={service.icon} className="h-4 w-4" />
-                        </span>
-                        <span className="text-ink-600 text-[0.9375rem] font-medium">
-                          {service.nav}
-                        </span>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-
-            <ButtonLink
-              href="/contact"
-              variant="primary"
-              size="lg"
-              withArrow
-              className="mt-5 w-full"
-            >
-              Start Your Project
-            </ButtonLink>
-          </div>
+          <ButtonLink
+            href="/contact"
+            variant="primary"
+            size="lg"
+            withArrow
+            className="mt-10 w-full"
+          >
+            Start a project
+          </ButtonLink>
         </Container>
       </div>
     </header>

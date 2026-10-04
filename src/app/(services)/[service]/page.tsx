@@ -18,6 +18,8 @@ import { ACCENT, ButtonLink, Card, Chip, JsonLd, cx } from "@/components/ui";
 import { Reveal } from "@/components/motion/Reveal";
 import { staggerStyle } from "@/components/motion/stagger";
 import { ArrowRightIcon, Icon } from "@/components/icons";
+import { Photo } from "@/components/media/Photo";
+import { SERVICE_MEDIA } from "@/content/media";
 import {
   SERVICES,
   SERVICE_SLUGS,
@@ -107,51 +109,52 @@ export default async function ServicePage({ params }: Params) {
           ]}
         />
 
-        <div className="grid items-start gap-10 lg:grid-cols-[1.35fr_1fr] lg:gap-16">
-          <PageHeader
-            eyebrow={service.name}
-            title={service.h1}
-            lede={service.lede}
-          >
-            <div className="flex flex-wrap items-center gap-3">
-              <ButtonLink
-                href="/contact"
-                variant="primary"
-                size="lg"
-                withArrow
-                className="shine"
-              >
-                Get a quote
-              </ButtonLink>
-              <ButtonLink href="#faqs" variant="outline" size="lg">
-                Read the FAQs
-              </ButtonLink>
-            </div>
-          </PageHeader>
+        <PageHeader
+          eyebrow={service.name}
+          title={service.h1}
+          lede={service.lede}
+        >
+          <div className="flex flex-wrap items-center gap-x-7 gap-y-4">
+            <ButtonLink href="/contact" variant="primary" size="lg" withArrow>
+              Get a quote
+            </ButtonLink>
+            <ButtonLink href="#faqs" variant="link">
+              Read the FAQs
+            </ButtonLink>
+          </div>
+        </PageHeader>
+
+        {/* The reference's project-page opening: one large photograph, with
+            the at-a-glance panel beside it. The photo is illustrative. */}
+        <div className="mt-12 grid items-stretch gap-5 lg:mt-16 lg:grid-cols-[1.7fr_1fr]">
+          <Photo
+            id={SERVICE_MEDIA[service.slug] ?? "svc-web"}
+            sizes="(min-width: 1024px) 62vw, 100vw"
+            className="rounded-card aspect-[16/10] lg:aspect-auto lg:min-h-[30rem]"
+            priority
+            reveal={false}
+          />
 
           {/* Keyword and at-a-glance panel */}
-          <Card className="rise rise-5 lift spot-edge sticky-media mt-6 lg:mt-20">
+          <Card className="rise rise-5">
             <span
               className={cx(
-                "mb-5 flex h-12 w-12 items-center justify-center rounded-2xl",
-                accent.bg,
+                "bg-page mb-6 flex h-11 w-11 items-center justify-center rounded-full",
                 accent.text,
               )}
             >
-              <Icon name={service.icon} className="h-6 w-6" />
+              <Icon name={service.icon} className="h-5 w-5" />
             </span>
-            <h2 className="font-display text-ink text-base font-semibold">
-              At a glance
-            </h2>
+            <h2 className="text-2xl">At a glance</h2>
             <dl className="mt-4 grid gap-3.5 text-sm">
               <div>
-                <dt className="text-ink-400 text-xs font-semibold tracking-[0.12em] uppercase">
+                <dt className="text-ink-400 text-xs">
                   Pricing model
                 </dt>
                 <dd className="text-ink-600 mt-1">{service.pricing.model}</dd>
               </div>
               <div>
-                <dt className="text-ink-400 text-xs font-semibold tracking-[0.12em] uppercase">
+                <dt className="text-ink-400 text-xs">
                   Deliverables
                 </dt>
                 <dd className="text-ink-600 mt-1">
@@ -160,14 +163,14 @@ export default async function ServicePage({ params }: Params) {
                 </dd>
               </div>
               <div>
-                <dt className="text-ink-400 text-xs font-semibold tracking-[0.12em] uppercase">
+                <dt className="text-ink-400 text-xs">
                   Also covers
                 </dt>
                 <dd className="mt-2 flex flex-wrap gap-1.5">
                   {service.secondaryKeywords.map((kw) => (
                     <span
                       key={kw}
-                      className="bg-ink-50 text-ink-500 rounded-pill px-2.5 py-1 text-xs font-medium"
+                      className="bg-page text-ink-600 rounded-[0.3rem] px-2 py-1 text-[0.6875rem] font-medium"
                     >
                       {kw}
                     </span>
@@ -195,7 +198,7 @@ export default async function ServicePage({ params }: Params) {
                 <li
                   key={item}
                   style={staggerStyle(i)}
-                  className="lift spot-edge card-sweep sd-enter-soft bg-surface border-line rounded-card flex items-start gap-3.5 border p-5"
+                  className="bg-surface border-line rounded-card flex items-start gap-3.5 border p-5"
                 >
                   <span
                     aria-hidden="true"
@@ -264,13 +267,13 @@ export default async function ServicePage({ params }: Params) {
               <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {work.map((study) => (
                   <Card as="li" key={study.slug}>
-                    <p className="text-ink-400 text-xs font-semibold tracking-[0.14em] uppercase">
+                    <p className="text-ink-400 text-xs">
                       {study.industry} &middot; {study.year}
                     </p>
-                    <h3 className="font-display text-ink mt-3 text-lg font-semibold">
+                    <h3 className="font-display text-ink mt-3 text-lg font-normal">
                       <Link
                         href={`/portfolio/${study.slug}`}
-                        className="hover:text-brand-700 transition-colors"
+                        className="link-draw"
                       >
                         {study.title}
                       </Link>
@@ -322,7 +325,6 @@ export default async function ServicePage({ params }: Params) {
                   href="/contact"
                   variant="primary"
                   withArrow
-                  className="shine"
                 >
                   Request a scoped quote
                 </ButtonLink>
@@ -361,7 +363,7 @@ export default async function ServicePage({ params }: Params) {
             />
             <Link
               href="/services"
-              className="text-brand-700 hover:text-brand-800 inline-flex items-center gap-1.5 text-sm font-semibold"
+              className="link-draw text-ink inline-flex items-center gap-1.5 text-sm font-medium"
             >
               All {SERVICES.length} services
               <ArrowRightIcon className="h-4 w-4" />

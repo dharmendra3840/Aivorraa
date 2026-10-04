@@ -1,502 +1,1204 @@
 /* ==========================================================================
-   AIVORRAA motion layer
+   AIVORRAA — motion
    --------------------------------------------------------------------------
-   PRD §18: "Subtle micro-interactions, scroll reveals, restrained parallax.
-   Provide reduced-motion behaviour and preserve performance."
+   The reference (brandium.nl) runs GSAP + ScrollTrigger + SplitText + Lenis.
+   The same effects are built here on the platform instead -- CSS
+   scroll-driven animations (`animation-timeline: view()`), transitions, and
+   Lenis for inertia -- which keeps the JavaScript budget (PRD §21) intact:
 
-   THREE RULES THIS FILE FOLLOWS, AND WHY
-   --------------------------------------
-   1. NOTHING STARTS INVISIBLE WITHOUT JAVASCRIPT.
-      Every reveal is gated behind `html.js`, a class added by a blocking inline
-      script in the root layout. If that script does not run — JS disabled, a
-      crawler that does not execute it, a script error — the hiding rules never
-      apply and the content is simply visible.
+     1. Word reveals      headings rise word by word out of a mask (SplitText)
+     2. Image reveals     photos unclip from the bottom and settle from 1.12x
+     3. Parallax          photos drift inside their frames while in view
+     4. The growing reel  a card that opens to full-bleed as you scroll
+     5. Lit rows          process steps brighten as they cross the middle
+     6. Counters          stats count up as they arrive
+     7. Wordmark          the footer name rises letter by letter
+     8. Marquee, dot field, hover states, header, curtain
 
-      This is not theoretical caution. PRD §2 Finding 4 records that the live
-      site's AOS scroll animation set the header wrapper to `opacity: 0` and
-      broke it, and Finding 1 is that only the homepage was indexed. Content
-      that depends on JavaScript to become visible is exactly the wrong risk to
-      take on this site.
-
-   2. ONLY `transform` AND `opacity` ARE ANIMATED.
-      Both are composited on the GPU and neither triggers layout, which keeps
-      INP inside the PRD §21 budget of 200ms and contributes nothing to CLS.
-      No animation here changes width, height, top, left or margin.
-
-   3. EVERY EFFECT HAS A REDUCED-MOTION OFF-SWITCH.
-      The block at the end of this file disables all of it. Elements settle into
-      their final state rather than disappearing.
+   THE RULES EVERY EFFECT FOLLOWS
+     - Nothing may depend on JavaScript to be visible: every hidden starting
+       state is gated on `html.js`.
+     - Scroll-driven effects are inside `@supports (animation-timeline:
+       view())`; a browser without them simply shows the finished layout.
+     - All of it is off under `prefers-reduced-motion` (section 99).
+     - Looping animations are pausable (MotionToggle, WCAG 2.2.2): they are
+       time-based CSS loops, which the toggle pauses through the Web
+       Animations API.
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   Entrance — the adapted "eh-rise"
-
-   Hero content animates on load rather than on scroll, because it is already
-   in view. `both` fill mode holds the from-state during the delay, so nothing
-   flashes in before its turn.
+   0. Shared timing
    -------------------------------------------------------------------------- */
 
-.js .rise {
-  opacity: 0;
-  animation: rise-up 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+:root {
+  --t-fast: 0.25s;
+  --t-med: 0.6s;
+  --t-slow: 1.1s;
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-quart: cubic-bezier(0.76, 0, 0.24, 1);
 }
 
-.rise-1 { animation-delay: 0.05s; }
-.rise-2 { animation-delay: 0.15s; }
-.rise-3 { animation-delay: 0.25s; }
-.rise-4 { animation-delay: 0.35s; }
-.rise-5 { animation-delay: 0.45s; }
-.rise-6 { animation-delay: 0.55s; }
-.rise-7 { animation-delay: 0.65s; }
+/* --------------------------------------------------------------------------
+   1. Word reveals (SplitWords.tsx)
+   Each word is a clipping box with the word inside it, pushed below its own
+   baseline; on reveal it rises into place, staggered by --wi.
 
-@keyframes rise-up {
+   Triggered two ways:
+     - by an enclosing Reveal (IntersectionObserver) -> [data-reveal="visible"]
+     - on page load, for hero headlines, via `.split-load`
+   -------------------------------------------------------------------------- */
+
+.split-w {
+  display: inline-block;
+  overflow: clip;
+  /* Room for descenders and the tight leading of display type. */
+  padding-block: 0.08em;
+  margin-block: -0.08em;
+  vertical-align: top;
+}
+
+.split-i {
+  display: inline-block;
+}
+
+.js [data-reveal="hidden"] .split-i,
+.js [data-reveal-group="hidden"] .split-i {
+  translate: 0 108%;
+}
+
+.js [data-reveal="visible"] .split-i,
+.js [data-reveal-group="visible"] .split-i {
+  translate: 0 0;
+  transition: translate 1s var(--ease-expo);
+  transition-delay: calc(var(--wi, 0) * 55ms + var(--reveal-delay, 0ms));
+}
+
+.js .split-load .split-i {
+  animation: split-rise 1.1s var(--ease-expo) both;
+  animation-delay: calc(var(--wi, 0) * 60ms + 120ms);
+}
+
+@keyframes split-rise {
   from {
-    opacity: 0;
-    transform: translate3d(0, 20px, 0);
+    translate: 0 108%;
   }
   to {
-    opacity: 1;
-    transform: none;
+    translate: 0 0;
   }
 }
 
 /* --------------------------------------------------------------------------
-   Scroll reveal
-
-   Driven by one shared IntersectionObserver (see components/motion/Reveal).
-   The `.js` gate is what makes this safe — see rule 1 at the top of this file.
+   Generic reveal (Reveal.tsx) -- fade and rise once on entry.
    -------------------------------------------------------------------------- */
 
-.js [data-reveal] {
+.js [data-reveal="hidden"]:not(:has(.split-w)) {
   opacity: 0;
-  transform: translate3d(0, 26px, 0);
+  translate: 0 28px;
+}
+
+.js [data-reveal="visible"]:not(:has(.split-w)) {
+  opacity: 1;
+  translate: 0 0;
   transition:
-    opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 0.9s var(--ease-expo),
+    translate 0.9s var(--ease-expo);
   transition-delay: var(--reveal-delay, 0ms);
 }
 
-.js [data-reveal="visible"] {
-  opacity: 1;
-  transform: none;
-}
-
-/* Children stagger in sequence. The index is set inline by the component. */
-.js [data-reveal-group] > * {
+.js [data-reveal-group="hidden"] > * {
   opacity: 0;
-  transform: translate3d(0, 22px, 0);
-  transition:
-    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-  transition-delay: calc(var(--stagger-index, 0) * 70ms);
+  translate: 0 32px;
 }
 
 .js [data-reveal-group="visible"] > * {
   opacity: 1;
-  transform: none;
-}
-
-/* --------------------------------------------------------------------------
-   Hover micro-interactions
-   -------------------------------------------------------------------------- */
-
-/* Card lift with an accent glow. The adapted "eh-stat:hover". */
-.lift {
+  translate: 0 0;
   transition:
-    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 0.4s ease,
-    border-color 0.4s ease;
+    opacity 0.9s var(--ease-expo),
+    translate 0.9s var(--ease-expo);
+  transition-delay: calc(var(--stagger-index, 0) * 90ms);
 }
 
-@media (hover: hover) {
-  .lift:hover {
-    transform: translate3d(0, -6px, 0);
-    box-shadow:
-      0 1px 2px rgba(var(--shade-rgb), calc(0.03 * var(--shade-k))),
-      0 24px 50px -22px rgba(var(--glow-rgb), 0.3);
+/* Load-time rise for page headers (`rise rise-1` ... `rise-5`). */
+.js .rise {
+  animation: rise-in 1s var(--ease-expo) both;
+}
+.js .rise-1 { animation-delay: 0.05s; }
+.js .rise-2 { animation-delay: 0.15s; }
+.js .rise-3 { animation-delay: 0.3s; }
+.js .rise-4 { animation-delay: 0.42s; }
+.js .rise-5 { animation-delay: 0.55s; }
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    translate: 0 24px;
   }
 }
 
-/* A light sweep across a button on hover. */
-.shine {
+/* Scroll-driven entrance used by cards across the site. */
+@supports (animation-timeline: view()) {
+  .js .sd-enter-soft,
+  .js .sd-enter {
+    animation: sd-enter linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 70%;
+  }
+}
+
+@keyframes sd-enter {
+  from {
+    opacity: 0;
+    translate: 0 40px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   2 + 3. Photos (Photo.tsx)
+   `.media` is the frame; the <img> inside is 14% taller than it, so it has
+   room to drift (parallax) without exposing an edge.
+   -------------------------------------------------------------------------- */
+
+.media {
   position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background-color: var(--color-surface);
+  background-size: cover;
+  background-position: center;
+}
+
+.media > img,
+.media > video {
+  position: absolute;
+  inset: -7% 0;
+  width: 100%;
+  height: 114%;
+  object-fit: cover;
+}
+
+/* Frames that should not drift (small thumbnails, the reel poster). */
+.media[data-still] > img,
+.media[data-still] > video {
+  inset: 0;
+  height: 100%;
+}
+
+@supports (animation-timeline: view()) {
+  /* Unclip upward as the frame arrives. */
+  .js .media[data-reveal-media] {
+    animation: media-unclip linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 85%;
+  }
+
+  /* Settle from 1.12x and drift with the scroll -- two properties, two
+     animations, so they compose. */
+  .js .media > img {
+    animation:
+      media-settle linear both,
+      media-drift linear both;
+    animation-timeline: view(), view();
+    animation-range:
+      entry 0% cover 45%,
+      cover 0% cover 100%;
+  }
+
+  .js .media[data-still] > img {
+    animation: media-settle linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 45%;
+  }
+}
+
+@keyframes media-unclip {
+  from {
+    clip-path: inset(18% 0 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes media-settle {
+  from {
+    scale: 1.12;
+  }
+  to {
+    scale: 1;
+  }
+}
+
+@keyframes media-drift {
+  from {
+    translate: 0 -5%;
+  }
+  to {
+    translate: 0 5%;
+  }
+}
+
+/* Hover zoom for linked imagery. Uses `transform`, so it composes with the
+   `scale`/`translate` the scroll animations own. */
+.img-zoom .media > img {
+  transition: transform 1.2s var(--ease-expo);
+}
+.img-zoom:hover .media > img,
+.img-zoom:focus-visible .media > img {
+  transform: scale(1.05);
+}
+
+/* --------------------------------------------------------------------------
+   4. The growing reel (Reel.tsx)
+   The section is tall; its inner stage is sticky. As the section scrolls
+   through, the frame's clip opens from a centred card to the full viewport.
+   -------------------------------------------------------------------------- */
+
+.reel {
+  position: relative;
+  view-timeline: --reel block;
+}
+
+.reel-stage {
+  position: relative;
+  height: 100svh;
   overflow: hidden;
 }
 
-.shine::after {
-  content: "";
+.reel-frame {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    100deg,
-    transparent 30%,
-    rgba(var(--hi-rgb), 0.45) 50%,
-    transparent 70%
-  );
-  transform: translateX(-120%);
+  background: #0f0f0f center / cover no-repeat;
+}
+
+.reel-frame > video,
+.reel-frame > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.reel-caption {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 2;
+  color: #fff;
   pointer-events: none;
 }
 
-@media (hover: hover) {
-  .shine:hover::after {
-    transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
-    transform: translateX(120%);
+@supports (animation-timeline: view()) {
+  .js .reel {
+    height: 230svh;
+  }
+
+  .js .reel-stage {
+    position: sticky;
+    top: 0;
+  }
+
+  .js .reel-frame {
+    animation: reel-open linear both;
+    animation-timeline: --reel;
+    animation-range: contain 0% contain 55%;
+  }
+
+  .js .reel-frame > video,
+  .js .reel-frame > img {
+    animation: reel-zoom linear both;
+    animation-timeline: --reel;
+    animation-range: contain 0% contain 70%;
+  }
+
+  .js .reel-caption {
+    animation: reel-caption linear both;
+    animation-timeline: --reel;
+    animation-range: contain 45% contain 70%;
   }
 }
 
-/* Underline that draws in from the left. */
-.underline-sweep {
-  background-image: linear-gradient(
-    currentColor,
-    currentColor
-  );
-  background-size: 0% 1.5px;
-  background-position: 0 100%;
-  background-repeat: no-repeat;
-  transition: background-size 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-@media (hover: hover) {
-  .underline-sweep:hover {
-    background-size: 100% 1.5px;
+@keyframes reel-open {
+  from {
+    clip-path: inset(22% 24% 22% 24% round 1.25rem);
+  }
+  to {
+    clip-path: inset(0 0 0 0 round 0);
   }
 }
 
-/* Pulsing status dot. The adapted "eh-pulse". */
-.pulse-dot {
-  position: relative;
+@media (width < 48rem) {
+  @keyframes reel-open {
+    from {
+      clip-path: inset(28% 5% 28% 5% round 1rem);
+    }
+    to {
+      clip-path: inset(0 0 0 0 round 0);
+    }
+  }
 }
 
-.pulse-dot::after {
-  content: "";
+@keyframes reel-zoom {
+  from {
+    scale: 1.25;
+  }
+  to {
+    scale: 1;
+  }
+}
+
+@keyframes reel-caption {
+  from {
+    opacity: 0;
+    translate: 0 30px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   5. Lit rows -- process stages brighten as they cross the middle
+   -------------------------------------------------------------------------- */
+
+@supports (animation-timeline: view()) {
+  .js .lit-row {
+    animation: row-lit linear both;
+    animation-timeline: view();
+    animation-range: cover 20% cover 48%;
+  }
+
+  .js .lit-row .lit-num {
+    animation: row-num linear both;
+    animation-timeline: view();
+    animation-range: cover 20% cover 48%;
+  }
+}
+
+@keyframes row-lit {
+  from {
+    opacity: 0.25;
+  }
+}
+
+@keyframes row-num {
+  from {
+    color: var(--color-ink-300);
+  }
+  to {
+    color: var(--color-ink);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   6. Counters -- `.count-up` paints var(--to) via a registered integer
+   -------------------------------------------------------------------------- */
+
+@property --num {
+  syntax: "<integer>";
+  inherits: false;
+  initial-value: 0;
+}
+
+.count-up {
+  --num: var(--to);
+  counter-reset: num var(--num);
+}
+
+.count-up::after {
+  content: counter(num);
+}
+
+@supports (animation-timeline: view()) {
+  .js .count-up {
+    animation: count linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 100%;
+  }
+}
+
+@keyframes count {
+  from {
+    --num: 0;
+  }
+  to {
+    --num: var(--to);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   7. The footer wordmark -- letters rise as the footer arrives
+   -------------------------------------------------------------------------- */
+
+.wordmark {
+  --gutter: 1rem;
+  display: flex;
+  justify-content: center;
+  overflow: clip;
+  font-weight: 300;
+  line-height: 0.8;
+  letter-spacing: -0.06em;
+  white-space: nowrap;
+  /* Sized to ~62% of the container, centred: restrained rather than
+     edge-to-edge. The word is 3.10em wide in Inter Tight Light at this
+     tracking (measured), so width * 0.62 / 3.10 = width / 5. */
+  font-size: calc((min(100vw, var(--container-page)) - 2 * var(--gutter)) / 5);
+  padding-bottom: 0.04em;
+  user-select: none;
+}
+
+@media (width >= 40rem) {
+  .wordmark {
+    --gutter: 1.5rem;
+  }
+}
+
+@media (width >= 64rem) {
+  .wordmark {
+    --gutter: 2.5rem;
+  }
+}
+
+.wordmark > span {
+  display: inline-block;
+}
+
+@supports (animation-timeline: view()) {
+  .js .wordmark > span {
+    animation: letter-rise linear both;
+    animation-timeline: view();
+    animation-range:
+      entry calc(var(--i, 0) * 4%)
+      entry calc(70% + var(--i, 0) * 4%);
+  }
+}
+
+@keyframes letter-rise {
+  from {
+    translate: 0 85%;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   8a. Marquee (time-based loop -> pausable)
+   -------------------------------------------------------------------------- */
+
+.marquee {
+  display: flex;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.marquee__track {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  min-width: 100%;
+  justify-content: space-around;
+  padding-inline-end: var(--marquee-gap, 4rem);
+  gap: var(--marquee-gap, 4rem);
+}
+
+.js .marquee__track {
+  animation: marquee 38s linear infinite;
+}
+
+.marquee:hover .marquee__track {
+  animation-play-state: paused;
+}
+
+@keyframes marquee {
+  to {
+    translate: -100% 0;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   8b. Dot field -- the reference's dot-matrix panel (time-based, pausable)
+   -------------------------------------------------------------------------- */
+
+.dot-field {
   position: absolute;
   inset: 0;
-  border-radius: 50%;
-  background: inherit;
-  animation: dot-pulse 2.4s ease-out infinite;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.85) 1.15px, transparent 1.7px);
+  background-size: 26px 26px;
+  background-position: 13px 13px;
+  -webkit-mask-image: radial-gradient(60% 70% at var(--dx, 50%) var(--dy, 50%), #000 0%, rgba(0, 0, 0, 0.18) 70%);
+  mask-image: radial-gradient(60% 70% at var(--dx, 50%) var(--dy, 50%), #000 0%, rgba(0, 0, 0, 0.18) 70%);
 }
 
-@keyframes dot-pulse {
+@property --dx {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 50%;
+}
+@property --dy {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 50%;
+}
+
+.js .dot-field {
+  animation: dot-wander 14s ease-in-out infinite alternate;
+}
+
+@keyframes dot-wander {
   0% {
-    opacity: 0.7;
-    transform: scale(1);
+    --dx: 20%;
+    --dy: 30%;
   }
-  70%,
+  50% {
+    --dx: 80%;
+    --dy: 55%;
+  }
   100% {
-    opacity: 0;
-    transform: scale(2.8);
+    --dx: 35%;
+    --dy: 85%;
   }
 }
 
 /* --------------------------------------------------------------------------
-   Reduced motion
-
-   Rule 3. Everything above is switched off, and anything that starts hidden is
-   forced visible — a user asking for less motion must still get the content,
-   not an empty page.
+   8c. Links, buttons and nav
    -------------------------------------------------------------------------- */
 
-@media (prefers-reduced-motion: reduce) {
-  .js .rise,
-  .js [data-reveal],
-  .js [data-reveal-group] > * {
-    opacity: 1 !important;
-    transform: none !important;
-    animation: none !important;
-    transition: none !important;
-  }
+/* Underline that draws from the left on hover (the reference's text links). */
+.link-line {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 100% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  padding-bottom: 0.2em;
+  transition: background-size 0.5s var(--ease-expo);
+}
 
-  .lift:hover,
-  .shine:hover::after {
-    transform: none !important;
+.link-line:hover,
+.link-line:focus-visible {
+  background-size: 0% 1px;
+  background-position: 100% 100%;
+}
+
+.link-draw {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  padding-bottom: 0.15em;
+  transition: background-size 0.5s var(--ease-expo);
+}
+
+.link-draw:hover,
+.link-draw:focus-visible,
+.group:hover .link-draw {
+  background-size: 100% 1px;
+}
+
+/* Text that rolls up to an identical copy on hover (nav links). */
+.roll {
+  display: inline-block;
+  overflow: clip;
+  height: 1.25em;
+  line-height: 1.25;
+  vertical-align: top;
+}
+
+.roll > span {
+  display: block;
+  transition: translate 0.55s var(--ease-expo);
+}
+
+.roll > span::after {
+  content: attr(data-text);
+  display: block;
+}
+
+a:hover .roll > span,
+a:focus-visible .roll > span,
+button:hover .roll > span {
+  translate: 0 -1.25em;
+}
+
+/* Magnetic pull (PointerFX writes --mag-x / --mag-y). */
+.magnetic {
+  translate: var(--mag-x, 0) var(--mag-y, 0);
+  transition:
+    translate 0.4s var(--ease-expo),
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+/* Gentle lift for linked cards. */
+.lift {
+  transition: translate 0.6s var(--ease-expo);
+}
+.lift:hover {
+  translate: 0 -4px;
+}
+
+
+/* --------------------------------------------------------------------------
+   8d. Header -- the reference's fixed, transparent, difference-blended bar
+   The logo and the links are WHITE in a layer with mix-blend-mode:
+   difference, so they render black over the white page, white over charcoal
+   and inverted over photographs -- legible without ever drawing a bar. The
+   blended layer must itself be the fixed element: a positioned ancestor with
+   a z-index would isolate it and the blend would have nothing to act on.
+   The action button lives in a separate, normal layer.
+   -------------------------------------------------------------------------- */
+
+.header-blend {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 50;
+  color: #fff;
+  mix-blend-mode: difference;
+  pointer-events: none;
+}
+
+.header-blend a,
+.header-blend button {
+  pointer-events: auto;
+}
+
+.header-blend .logo-mark {
+  filter: none;
+}
+
+.header-actions {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 51;
+  pointer-events: none;
+}
+
+.header-actions a,
+.header-actions button {
+  pointer-events: auto;
+}
+
+/* Visitors who ask for more contrast get a plain solid bar instead: blended
+   type can lose contrast where it crosses a mid-tone photograph. */
+@media (prefers-contrast: more) {
+  .header-blend {
+    mix-blend-mode: normal;
+    color: var(--color-ink);
+    background: var(--color-page);
+    box-shadow: 0 1px 0 var(--color-line);
+  }
+  .header-blend .logo-mark {
+    filter: invert(1);
+  }
+  [data-theme="dark"] .header-blend .logo-mark {
+    filter: none;
   }
 }
 
 /* --------------------------------------------------------------------------
-   Mega-menu
-
-   Items cascade in when the panel opens. Gated on `.js` like every other
-   reveal — the links are in the server HTML at all times (PRD §13 relies on
-   that for crawlability), and this only animates their appearance.
+   8d'. Follower cursor (Cursor.tsx)
    -------------------------------------------------------------------------- */
 
-.js .mega-panel[data-mega-open="true"] .mega-item {
+.cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 110;
+  pointer-events: none;
   opacity: 0;
-  animation: rise-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
-  animation-delay: calc(var(--i, 0) * 45ms);
+  transition: opacity 0.3s ease;
+  will-change: transform;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .js .mega-panel[data-mega-open="true"] .mega-item {
-    opacity: 1;
-    animation: none;
+.cursor[data-visible="true"] {
+  opacity: 1;
+}
+
+.cursor-dot {
+  position: absolute;
+  top: -2.25rem;
+  left: -2.25rem;
+  display: grid;
+  place-items: center;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+  background: #0f0f0f;
+  scale: 0.2;
+  transition:
+    scale 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.3s ease,
+    opacity 0.2s ease;
+}
+
+.cursor[data-tone="light"] .cursor-dot {
+  background: #f2f2f2;
+}
+
+.cursor[data-state="pointer"] .cursor-dot {
+  scale: 0.12;
+}
+
+.cursor[data-state="hidden"] .cursor-dot {
+  scale: 0;
+}
+
+.cursor[data-state="text"] .cursor-dot {
+  scale: 1.25;
+  background: rgba(15, 15, 15, 0.86);
+}
+
+/* On dark ground the labelled disc inverts too. */
+.cursor[data-tone="light"][data-state="text"] .cursor-dot {
+  background: rgba(242, 242, 242, 0.92);
+}
+
+.cursor[data-tone="light"] .cursor-label {
+  color: #0f0f0f;
+}
+
+.cursor[data-pressed="true"] .cursor-dot {
+  scale: 0.16;
+}
+
+.cursor[data-pressed="true"][data-state="text"] .cursor-dot {
+  scale: 1.1;
+}
+
+.cursor-label {
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.cursor[data-state="text"] .cursor-label {
+  opacity: 1;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .cursor {
+    display: none;
   }
 }
 
-
-/* ==========================================================================
-   Lenis smooth scroll — required base rules
-
-   Lenis puts these classes on <html>. Without them the browser's own
-   scroll-behavior fights the library and anchor jumps stutter.
-   ========================================================================== */
-
-html.lenis,
-html.lenis body {
-  height: auto;
+/* Mega-menu image preview: crossfades to the hovered service (pure CSS). */
+.mega-preview > .media {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.5s ease;
 }
 
-/*
-  Matched on `.lenis` alone, not only `.lenis.lenis-smooth`.
-
-  Lenis adds `lenis` as soon as it is constructed but only adds `lenis-smooth`
-  once smoothing actually engages. In the window between the two, this site's
-  own `:root { scroll-behavior: smooth }` is still live and the browser's native
-  smoothing fights Lenis for the same scroll — two easings racing, which reads
-  as a stutter on the first anchor jump. Lenis owns the smoothing whenever it
-  is present, so the native one is off from the moment it exists.
-*/
-.lenis,
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
+.mega-preview > .preview-0 {
+  opacity: 1;
 }
 
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
+/* Services showcase, same mechanism. */
+.svc-preview > .media {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition:
+    opacity 0.6s ease,
+    scale 1.2s var(--ease-expo);
+  scale: 1.04;
 }
 
-.lenis.lenis-stopped {
-  overflow: hidden;
+.svc-preview > .preview-0 {
+  opacity: 1;
+  scale: 1;
 }
 
-/* ==========================================================================
-   Intro curtain
+/* --------------------------------------------------------------------------
+   8e. Scroll progress hairline
+   -------------------------------------------------------------------------- */
 
-   A panel over the first paint that wipes upward to reveal the page.
+.scroll-progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 60;
+  height: 2px;
+  background: var(--color-lime-400);
+  transform-origin: 0 50%;
+  scale: 0 1;
+  pointer-events: none;
+}
 
-   IT IS PURE CSS, AND THAT IS THE POINT
-   A JavaScript loader that waits for an event and then removes itself has one
-   catastrophic failure mode: if the event never fires — a script error, a
-   hung request, an old browser — the visitor is left staring at a blank
-   panel with the site sealed behind it. This curtain is a timed CSS animation
-   with `both` fill. It leaves on its own whatever happens, because nothing has
-   to run for it to finish.
+@supports (animation-timeline: scroll()) {
+  .js .scroll-progress {
+    animation: progress linear both;
+    animation-timeline: scroll(root);
+  }
+}
 
-   Three further guards:
-     - gated behind `html.js`, so no-JS visitors and crawlers never see it
-     - `pointer-events: none` throughout, so it cannot swallow a click even
-       while it is on screen
-     - `aria-hidden`, and it contains no content that is not already in the page
+@keyframes progress {
+  to {
+    scale: 1 1;
+  }
+}
 
-   KEPT DELIBERATELY SHORT (~0.75s total).
-   The reference site holds a branded dark screen for several seconds. It can
-   afford that; this site cannot. PRD §21 sets LCP <= 2.0s and PRD §2 Finding 1
-   is that the site was barely indexed — an opaque panel over the hero delays
-   the largest contentful paint by however long it is shown. A wipe also
-   reveals the content progressively rather than all at once, so the hero
-   starts being visible partway through rather than at the end.
-   ========================================================================== */
+/* --------------------------------------------------------------------------
+   8f. Page curtain (PageTransition.tsx)
+   A charcoal panel that rises over the page on navigation and lifts away
+   once the next page is in -- the reference's page wipe.
+   -------------------------------------------------------------------------- */
 
 .page-curtain {
-  display: none;
-}
-
-.js .page-curtain {
   position: fixed;
   inset: 0;
   z-index: 100;
   display: grid;
   place-items: center;
-  /* --color-page, NOT --color-ink: ink is white on this theme, and this panel
-     covers the whole viewport on every load. */
-  background: var(--color-page);
+  background: #1b1b1c;
+  color: #f2f2f2;
   pointer-events: none;
-  animation: curtain-lift 0.62s cubic-bezier(0.76, 0, 0.24, 1) 0.16s both;
+  translate: 0 100%;
 }
 
-@keyframes curtain-lift {
-  from {
-    clip-path: inset(0 0 0 0);
-  }
-  to {
-    clip-path: inset(0 0 100% 0);
-    visibility: hidden;
-  }
+html:not(.js) .page-curtain {
+  display: none;
 }
 
-/* The mark fades out slightly ahead of the panel. */
-.js .curtain-mark {
+.curtain-mark {
   font-family: var(--font-display);
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: 0.32em;
-  color: var(--color-ink);
-  animation: curtain-mark 0.5s ease-out both;
+  font-size: clamp(2rem, 6vw, 4.5rem);
+  font-weight: 300;
+  letter-spacing: -0.05em;
+  overflow: clip;
 }
 
-@keyframes curtain-mark {
-  0% {
-    opacity: 0;
-    letter-spacing: 0.5em;
-  }
-  55% {
-    opacity: 1;
-    letter-spacing: 0.32em;
-  }
-  100% {
-    opacity: 0;
-    letter-spacing: 0.28em;
-  }
+.curtain-mark > span {
+  display: inline-block;
 }
 
-/* A hairline that draws across beneath the mark. */
-.js .curtain-rule {
-  width: 6rem;
-  height: 1px;
-  background: rgba(var(--hi-rgb), 0.35);
-  transform-origin: left center;
-  animation: curtain-rule 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+/* First load: up and away, quickly. Pure CSS, self-terminating. */
+.js .page-curtain[data-phase="initial"] {
+  animation: curtain-lift 0.9s var(--ease-quart) 0.25s both;
+  translate: 0 0;
 }
 
-@keyframes curtain-rule {
-  from {
-    scale: 0 1;
-  }
-  to {
-    scale: 1 1;
-  }
+.js .page-curtain[data-phase="initial"] .curtain-mark > span {
+  animation: curtain-word 0.9s var(--ease-expo) both;
 }
 
-/* --------------------------------------------------------------------------
-   Page-change transitions (PageTransition.tsx)
+/* Back/forward navigation (no click to catch): replay the first-load lift. */
+.js .page-curtain[data-phase="enter"] {
+  animation: curtain-lift 0.75s var(--ease-quart) both;
+  translate: 0 0;
+}
 
-   cover  -- the panel wipes UP over the outgoing page; the router navigates
-             once it is fully covered.
-   reveal -- the new route has committed; the panel carries on UP and away.
-   enter  -- back/forward: a fresh remount replays the first-load wipe (the
-             base rule above), so it needs nothing here.
-   -------------------------------------------------------------------------- */
-
+/* Cover, then -- as a CSS failsafe for when scripts have died and the
+   reveal phase never comes -- lift on its own after 6s. The failsafe has
+   fill `forwards` only, so it cannot apply before it starts. */
 .js .page-curtain[data-phase="cover"] {
-  /* Swallows a stray second click during the ~0.4s cover. Nothing else is
-     reachable while the page is hidden anyway. */
-  pointer-events: auto;
-  /*
-    Two animations. The second is a CSS-ONLY FAILSAFE (see curtain-failsafe
-    below for why it has its own name): if the route has not
-    committed in 5s -- or scripts have died, so neither the reveal nor the
-    component's own 6s safety net can fire -- the panel lifts on its own.
-    `forwards`, not `both`: a backwards fill would pin the panel fully closed
-    during the 5s delay and override the wipe-in.
-  */
   animation:
-    curtain-cover 0.38s cubic-bezier(0.76, 0, 0.24, 1) both,
-    curtain-failsafe 0.6s cubic-bezier(0.76, 0, 0.24, 1) 5s forwards;
+    curtain-cover 0.38s var(--ease-quart) both,
+    curtain-lift 0.6s var(--ease-quart) 6s forwards;
+  pointer-events: auto;
+}
+
+.js .page-curtain[data-phase="cover"] .curtain-mark > span {
+  animation: curtain-word 0.6s var(--ease-expo) 0.12s both;
 }
 
 .js .page-curtain[data-phase="reveal"] {
-  animation: curtain-lift 0.62s cubic-bezier(0.76, 0, 0.24, 1) 0.06s both;
-}
-
-/*
-  Identical to curtain-lift, under its OWN NAME -- and the name is the point.
-  Browsers match running animations by name: when the phase switches to
-  "reveal" (which uses curtain-lift), a curtain-lift already in the cover
-  phase's list would be treated as the same animation and keep its original
-  start time. The reveal then began ~360ms in, already 59% open, over a page
-  that had only just arrived. A distinct name makes the reveal start at 0.
-*/
-@keyframes curtain-failsafe {
-  from {
-    clip-path: inset(0 0 0 0);
-  }
-  to {
-    clip-path: inset(0 0 100% 0);
-    visibility: hidden;
-  }
+  animation: curtain-lift 0.75s var(--ease-quart) 0.05s both;
+  translate: 0 0;
 }
 
 @keyframes curtain-cover {
   from {
-    clip-path: inset(100% 0 0 0);
+    translate: 0 100%;
   }
   to {
-    clip-path: inset(0 0 0 0);
+    translate: 0 0;
   }
 }
 
-/* While covered, the mark HOLDS instead of fading (the first-load version
-   fades out after 0.5s -- here the panel may be up for longer), and the rule
-   becomes a loading sweep in case the next page is slow to arrive. */
-.js .page-curtain[data-phase="cover"] .curtain-mono {
-  animation:
-    curtain-mono-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both,
-    curtain-mono-pulse 1.3s ease-in-out 0.7s infinite alternate;
-}
-
-.js .page-curtain[data-phase="cover"] .curtain-mark {
-  animation: curtain-mark-hold 0.45s ease-out 0.14s both;
-}
-
-.js .page-curtain[data-phase="cover"] .curtain-rule {
-  animation: curtain-rule-load 1.1s cubic-bezier(0.65, 0, 0.35, 1) 0.2s infinite;
-}
-
-.js .page-curtain[data-phase="reveal"] .curtain-mono,
-.js .page-curtain[data-phase="reveal"] .curtain-mark,
-.js .page-curtain[data-phase="reveal"] .curtain-rule {
-  animation: curtain-content-out 0.24s ease-in both;
-}
-
-@keyframes curtain-mark-hold {
+@keyframes curtain-lift {
   from {
-    opacity: 0;
-    letter-spacing: 0.46em;
+    translate: 0 0;
   }
   to {
-    opacity: 1;
-    letter-spacing: 0.32em;
+    translate: 0 -100%;
   }
 }
 
-@keyframes curtain-mono-pulse {
+@keyframes curtain-word {
   from {
-    filter: drop-shadow(0 0 12px rgba(var(--glow-rgb), 0.28));
-  }
-  to {
-    filter: drop-shadow(0 0 26px rgba(var(--glow-rgb), 0.52));
+    translate: 0 110%;
   }
 }
 
-@keyframes curtain-rule-load {
-  0% {
-    scale: 0 1;
-    transform-origin: left center;
+/* --------------------------------------------------------------------------
+   8g. Toggles (MotionToggle, ThemeToggle)
+   -------------------------------------------------------------------------- */
+
+.motion-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.125rem;
+  padding: 0.3rem 0.8rem 0.3rem 0.35rem;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 999px;
+  color: var(--color-ink-500);
+  font-size: 0.8125rem;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.motion-toggle:hover,
+.motion-toggle[aria-pressed="true"] {
+  color: var(--color-ink);
+  border-color: var(--color-ink);
+}
+
+.motion-toggle-icon {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  color: #0f0f0f;
+  background: var(--color-lime-400);
+}
+
+.theme-toggle {
+  position: fixed;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  width: 4.75rem;
+  height: 2.5rem;
+  padding: 4px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 999px;
+  color: var(--color-ink-500);
+  background-color: color-mix(in srgb, var(--color-page) 86%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-float);
+  transition: border-color 0.2s ease;
+}
+
+.theme-toggle:hover {
+  border-color: var(--color-ink);
+}
+
+.theme-toggle-knob {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  height: calc(100% - 8px);
+  border-radius: 999px;
+  background: var(--color-ink);
+  transition: translate 0.45s var(--ease-quart);
+}
+
+[data-theme="dark"] .theme-toggle-knob {
+  translate: 100% 0;
+}
+
+.theme-toggle-icon {
+  position: relative;
+  display: grid;
+  flex: 1;
+  place-items: center;
+  height: 100%;
+  transition: color 0.3s ease;
+}
+
+:root:not([data-theme="dark"]) .theme-toggle-icon--sun,
+[data-theme="dark"] .theme-toggle-icon--moon {
+  color: var(--color-page);
+}
+
+html:not(.js) .theme-toggle {
+  display: none;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* --------------------------------------------------------------------------
+   99. Reduced motion -- everything above, off
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .js .split-i,
+  .js [data-reveal] ,
+  .js [data-reveal-group] > *,
+  .js .rise,
+  .js .sd-enter,
+  .js .sd-enter-soft,
+  .js .media > img,
+  .js .reel-frame,
+  .js .reel-frame > video,
+  .js .reel-frame > img,
+  .js .reel-caption,
+  .js .lit-row,
+  .js .lit-row .lit-num,
+  .js .count-up,
+  .js .wordmark > span,
+  .js .marquee__track,
+  .js .dot-field {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    translate: none !important;
+    scale: none !important;
+    clip-path: none !important;
   }
-  50% {
-    scale: 1 1;
-    transform-origin: left center;
+
+  /* Frames: stop the unclip, but leave opacity alone -- the stacked hover
+     previews (mega-menu, services) are opacity-swapped, and forcing every
+     layer visible would pin the last one on top. Swap instantly instead. */
+  .js .media {
+    animation: none !important;
+    clip-path: none !important;
   }
-  50.01% {
-    transform-origin: right center;
+
+  .mega-preview > .media,
+  .svc-preview > .media {
+    transition: none !important;
+    scale: none !important;
   }
-  100% {
-    scale: 0 1;
-    transform-origin: right center;
+
+  .js .count-up {
+    --num: var(--to);
+  }
+
+  .js .reel {
+    height: auto;
+  }
+
+  .js .reel-stage {
+    position: relative;
+    height: 80svh;
+  }
+
+  .js .page-curtain,
+  .scroll-progress {
+    display: none;
+  }
+
+  .cursor {
+    display: none;
   }
 }
 
-@keyframes curtain-content-out {
-  to {
-    opacity: 0;
-    translate: 0 -10px;
+/* --------------------------------------------------------------------------
+   100. Brand mark (Logo.tsx) -- the PNG is white on transparent
+   -------------------------------------------------------------------------- */
+
+.logo-mark {
+  filter: invert(1);
+}
+
+[data-theme="dark"] .logo-mark,
+.scope-dark .logo-mark {
+  filter: none;
+}
+
+/* --------------------------------------------------------------------------
+   101. Hover-swapped previews (mega-menu, services showcase) -- pure CSS
+   The hovered or focused link [data-i=n] shows preview n; with nothing
+   hovered, preview 0 rests in place. :has() needs no JavaScript.
+   -------------------------------------------------------------------------- */
+
+.mega-panel:has([data-i]:hover, [data-i]:focus-visible) .mega-preview > .preview-0,
+.svc-showcase:has([data-i]:hover, [data-i]:focus-visible) .svc-preview > .preview-0 {
+  opacity: 0;
+}
+
+.mega-panel:has([data-i="0"]:hover, [data-i="0"]:focus-visible) .mega-preview > .preview-0,
+.svc-showcase:has([data-i="0"]:hover, [data-i="0"]:focus-visible) .svc-preview > .preview-0 {
+  opacity: 1;
+  scale: 1;
+}
+
+.mega-panel:has([data-i="1"]:hover, [data-i="1"]:focus-visible) .mega-preview > .preview-1,
+.svc-showcase:has([data-i="1"]:hover, [data-i="1"]:focus-visible) .svc-preview > .preview-1 {
+  opacity: 1;
+  scale: 1;
+}
+
+.mega-panel:has([data-i="2"]:hover, [data-i="2"]:focus-visible) .mega-preview > .preview-2,
+.svc-showcase:has([data-i="2"]:hover, [data-i="2"]:focus-visible) .svc-preview > .preview-2 {
+  opacity: 1;
+  scale: 1;
+}
+
+.mega-panel:has([data-i="3"]:hover, [data-i="3"]:focus-visible) .mega-preview > .preview-3,
+.svc-showcase:has([data-i="3"]:hover, [data-i="3"]:focus-visible) .svc-preview > .preview-3 {
+  opacity: 1;
+  scale: 1;
+}
+
+.mega-panel:has([data-i="4"]:hover, [data-i="4"]:focus-visible) .mega-preview > .preview-4,
+.svc-showcase:has([data-i="4"]:hover, [data-i="4"]:focus-visible) .svc-preview > .preview-4 {
+  opacity: 1;
+  scale: 1;
+}
+
+.mega-panel:has([data-i="5"]:hover, [data-i="5"]:focus-visible) .mega-preview > .preview-5,
+.svc-showcase:has([data-i="5"]:hover, [data-i="5"]:focus-visible) .svc-preview > .preview-5 {
+  opacity: 1;
+  scale: 1;
+}
+
+.mega-panel:has([data-i="6"]:hover, [data-i="6"]:focus-visible) .mega-preview > .preview-6,
+.svc-showcase:has([data-i="6"]:hover, [data-i="6"]:focus-visible) .svc-preview > .preview-6 {
+  opacity: 1;
+  scale: 1;
+}
+
+.mega-panel:has([data-i="7"]:hover, [data-i="7"]:focus-visible) .mega-preview > .preview-7,
+.svc-showcase:has([data-i="7"]:hover, [data-i="7"]:focus-visible) .svc-preview > .preview-7 {
+  opacity: 1;
+  scale: 1;
+}
+
+
+/* --------------------------------------------------------------------------
+   102. AI workflow rail -- fills with lime as the stage scrolls through
+   -------------------------------------------------------------------------- */
+
+.wf-rail {
+  position: relative;
+  height: 1px;
+  background: var(--color-line-strong);
+}
+
+.wf-rail-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--color-lime-400);
+  transform-origin: 0 50%;
+}
+
+@supports (animation-timeline: view()) {
+  .js .wf-rail-fill {
+    animation: rail-fill linear both;
+    animation-timeline: view();
+    animation-range: cover 15% cover 55%;
+  }
+}
+
+@keyframes rail-fill {
+  from {
+    scale: 0 1;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* No curtain at all. There is nothing to reveal that was ever hidden. */
-  .js .page-curtain {
-    display: none;
-    animation: none;
+  .js .wf-rail-fill {
+    animation: none !important;
   }
 }

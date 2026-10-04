@@ -28,7 +28,7 @@ const ck = (n, ok, d = "") => out.push(`  ${ok ? "PASS" : "FAIL"}  ${n}${d ? "  
 
 // ---------------------------------------------------------------- per page: CSP, contrast, target size
 // Every page in BOTH themes: contrast is checked in each; CSP and target
-// size do not depend on the theme, so the dark (default) pass covers them.
+// size do not depend on the theme, so the first (dark) pass covers them.
 const cspAll = [], lowAll = [], lowLight = [], smallAll = [];
 for (const theme of ["dark", "light"])
 for (const path of PAGES) {
@@ -37,7 +37,7 @@ for (const path of PAGES) {
   const errs = [];
   p.on("console", (m) => /Content Security Policy|Refused to/i.test(m.text()) && errs.push(m.text().slice(0, 120)));
   await p.evaluateOnNewDocument((t) => {
-    try { if (t === "light") localStorage.setItem("aivorraa:theme", "light"); else localStorage.removeItem("aivorraa:theme"); } catch {}
+    try { if (t === "dark") localStorage.setItem("aivorraa:theme", "dark"); else localStorage.removeItem("aivorraa:theme"); } catch {}
     window.__csp = [];
     document.addEventListener("securitypolicyviolation", (e) => window.__csp.push(`${e.violatedDirective} ${e.blockedURI}`));
   }, theme);
@@ -66,7 +66,15 @@ for (const path of PAGES) {
       let op = 1; for (let n = el; n; n = n.parentElement) op *= Number(getComputedStyle(n).opacity);
       if (op < 0.5) continue;
       const fg = rgba(cs.color), bg = bgOf(el);
-      const mix = fg.slice(0, 3).map((v, i) => v * fg[3] + bg[i] * (1 - fg[3]));
+      let mix = fg.slice(0, 3).map((v, i) => v * fg[3] + bg[i] * (1 - fg[3]));
+      // Text in a `mix-blend-mode: difference` layer (the header) composites
+      // as |text - backdrop| per channel; measure what is actually painted.
+      for (let n = el; n; n = n.parentElement) {
+        if (getComputedStyle(n).mixBlendMode === "difference") {
+          mix = mix.map((v, i) => Math.abs(v - bg[i]));
+          break;
+        }
+      }
       const a = L(mix), c = L(bg);
       const ratio = (Math.max(a, c) + 0.05) / (Math.min(a, c) + 0.05);
       const big = parseFloat(cs.fontSize) >= 24 || (parseFloat(cs.fontSize) >= 18.66 && Number(cs.fontWeight) >= 700);

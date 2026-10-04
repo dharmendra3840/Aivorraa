@@ -27,11 +27,11 @@ import { SITE } from "@/lib/site-config";
 export const OG_SIZE = { width: 1200, height: 630 };
 export const LOGO_SIZE = { width: 512, height: 512 };
 
-// "Parchment & Espresso" -- see the palette note in globals.css. The card is
-// the espresso register: a dark card holds its own in light and dark feeds.
-const PAGE = "#17120e";
-const SIGNAL = "#e2c8a8";
-const SIGNAL_DEEP = "#c9a27a";
+// "Gallery" -- see the palette note in globals.css: charcoal card, white
+// type, the grey second tone and one lime dot.
+const PAGE = "#1b1b1c";
+const SIGNAL = "#d2ff00";
+const SIGNAL_DEEP = "#8a8a8e";
 
 const cache = new Map<string, string>();
 function dataUri(name: string): string {
@@ -58,8 +58,8 @@ export function SocialCard() {
         position: "relative",
         background: PAGE,
         backgroundImage:
-          "radial-gradient(900px 520px at 78% 30%, rgba(201,162,122,0.24), transparent 62%), radial-gradient(700px 420px at 100% 100%, rgba(138,90,43,0.45), transparent 60%)",
-        color: "#f3ece2",
+          "radial-gradient(900px 520px at 78% 30%, rgba(255,255,255,0.08), transparent 62%)",
+        color: "#f2f2f2",
         fontFamily: "sans-serif",
       }}
     >
@@ -130,7 +130,7 @@ export function SocialCard() {
               marginTop: 26,
               fontSize: 25,
               lineHeight: 1.4,
-              color: "rgba(243,236,226,0.66)",
+              color: "rgba(242,242,242,0.66)",
             }}
           >
             Websites, apps and AI automation for growing businesses.
@@ -143,7 +143,7 @@ export function SocialCard() {
             alignItems: "center",
             gap: 14,
             fontSize: 22,
-            color: "rgba(243,236,226,0.58)",
+            color: "rgba(242,242,242,0.58)",
           }}
         >
           <div
@@ -162,7 +162,7 @@ export function SocialCard() {
 }
 
 /**
- * Square mark: the cream monogram on burnt umber, matching the favicon. Used for the
+ * Square mark: the white monogram on charcoal. Used for the
  * Organization schema logo (/logo.png), which is square so it sits correctly
  * in whatever shape the consumer crops it to.
  */
@@ -176,7 +176,7 @@ export function LogoMark({ size = 512 }: { size?: number }) {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        backgroundImage: `linear-gradient(135deg, #9a6835 0%, #7a4e25 55%, #4a2e16 100%)`,
+        backgroundImage: `linear-gradient(135deg, #2c2c2e 0%, #1b1b1c 60%, #0f0f0f 100%)`,
       }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}

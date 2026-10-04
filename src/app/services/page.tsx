@@ -74,7 +74,7 @@ export default function ServicesPage() {
                     as="li"
                     key={slug}
                     style={staggerStyle(cardIndex)}
-                    className="lift spot-edge card-sweep sd-enter-soft group h-full"
+                    className="group h-full"
                   >
                     <div className="flex items-start gap-4">
                       <span
@@ -87,10 +87,10 @@ export default function ServicesPage() {
                         <Icon name={service.icon} className="h-6 w-6" />
                       </span>
                       <div className="min-w-0 flex-1">
-                        <h3 className="font-display text-ink text-xl font-semibold">
+                        <h3 className="font-display text-ink text-xl font-normal">
                           <Link
                             href={`/${slug}`}
-                            className="hover:text-brand-700 transition-colors"
+                            className="link-draw"
                           >
                             {service.name}
                           </Link>
@@ -123,12 +123,12 @@ export default function ServicesPage() {
                         </ul>
 
                         <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-                          <span className="text-ink-400 text-xs font-semibold tracking-[0.1em] uppercase">
+                          <span className="text-ink-400 text-xs">
                             {service.pricing.model}
                           </span>
                           <Link
                             href={`/${slug}`}
-                            className="text-brand-700 hover:text-brand-800 inline-flex items-center gap-1.5 text-sm font-semibold"
+                            className="link-draw text-ink inline-flex items-center gap-1.5 text-sm font-medium"
                           >
                             Full details
                             <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
@@ -153,7 +153,7 @@ export default function ServicesPage() {
       <Section>
         <Container>
           <Reveal className="border-line rounded-card mx-auto max-w-3xl border border-dashed p-8 sm:p-10">
-            <h2 className="font-display text-ink text-2xl font-semibold">
+            <h2 className="font-display text-ink text-2xl font-normal">
               Why only {SERVICES.length} services?
             </h2>
             <p className="text-ink-500 mt-4 leading-relaxed">

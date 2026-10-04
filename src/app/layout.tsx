@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { DM_Sans, Poppins } from "next/font/google";
+import { Inter_Tight } from "next/font/google";
 import "./globals.css";
 
 import { Header } from "@/components/layout/Header";
@@ -9,25 +9,23 @@ import { PageTransition } from "@/components/motion/PageTransition";
 import { PointerFX } from "@/components/motion/PointerFX";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { ThemeToggle } from "@/components/motion/ThemeToggle";
+import { Cursor } from "@/components/motion/Cursor";
 import { organizationSchema, schemaGraph } from "@/lib/schema";
 import { SITE } from "@/lib/site-config";
 
 /**
- * PRD §18 — Poppins and DM Sans were the stated typography preference.
- * Self-hosted via next/font so there is no external stylesheet request and no
- * font-swap layout shift (PRD §21 — CLS <= 0.1).
+ * One typeface, as the reference design (brandium.nl) uses: Inter Tight, a
+ * free neo-grotesk close to its TWK Lausanne, set light and large for display
+ * and regular for text. This supersedes PRD §18's Poppins + DM Sans at the
+ * client's direction (the full restyle to the reference).
+ *
+ * Self-hosted via next/font, so there is no external stylesheet request and
+ * no font-swap layout shift (PRD §21 — CLS <= 0.1).
  */
-const poppins = Poppins({
+const interTight = Inter_Tight({
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
-  variable: "--font-poppins",
-  display: "swap",
-});
-
-const dmSans = DM_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-dm-sans",
+  weight: ["300", "400", "500"],
+  variable: "--font-inter-tight",
   display: "swap",
 });
 
@@ -63,19 +61,19 @@ export const metadata: Metadata = {
    */
   icons: {
     /*
-      Built by scripts/build-icons.mjs from the monogram, with the strokes
-      thickened per size so the calligraphic hairlines survive at 16px.
+      Built by scripts/build-icons.mjs: a light "a." in Inter Tight on
+      charcoal, drawn heavier at the small sizes so it holds at 16px.
       /favicon.ico matters on its own: browsers, bookmarks and Google Search
-      request it directly whatever these tags say -- it used to 404.
-      New filenames, not the old /icon.png, so browsers holding the previous
-      icon in their (very sticky) favicon cache fetch the new one.
+      request it directly whatever these tags say.
+      The ?v= query busts the (very sticky) favicon cache -- bump it whenever
+      the icons are rebuilt.
     */
     icon: [
-      { url: "/favicon.ico", sizes: "16x16 32x32 48x48" },
-      { url: "/brand/icon-32.png", type: "image/png", sizes: "32x32" },
-      { url: "/brand/icon-192.png", type: "image/png", sizes: "192x192" },
+      { url: "/favicon.ico?v=4", sizes: "16x16 32x32 48x48" },
+      { url: "/brand/icon-32.png?v=4", type: "image/png", sizes: "32x32" },
+      { url: "/brand/icon-192.png?v=4", type: "image/png", sizes: "192x192" },
     ],
-    apple: [{ url: "/brand/apple-touch-icon.png", sizes: "180x180" }],
+    apple: [{ url: "/brand/apple-touch-icon.png?v=4", sizes: "180x180" }],
   },
   manifest: "/manifest.webmanifest",
   alternates: { canonical: `${SITE.url}/` },
@@ -84,7 +82,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0f0c09",
+  themeColor: "#ffffff",
   colorScheme: "light",
 };
 
@@ -94,9 +92,9 @@ export default function RootLayout({
   return (
     <html
       lang={SITE.language}
-      className={`${poppins.variable} ${dmSans.variable}`}
-      // Dark (espresso) is the default theme -- and what renders without JS.
-      data-theme="dark"
+      className={interTight.variable}
+      // Light is the default theme -- and what renders without JS.
+      data-theme="light"
       /*
         The inline script below adds `js` to this element BEFORE hydration, so
         React finds a className on the client that differs from the one it
@@ -130,9 +128,15 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             // "js" gates the motion CSS; "motion-paused" restores a saved
             // WCAG 2.2.2 pause choice BEFORE first paint (MotionToggle), and
-            // data-theme a saved light-theme choice (ThemeToggle) -- so a
+            // data-theme a saved dark-theme choice (ThemeToggle) -- so a
             // returning visitor never sees a frame of the wrong theme.
-            __html: `var d=document.documentElement;d.classList.add("js");try{if(localStorage.getItem("aivorraa:motion")==="paused")d.classList.add("motion-paused");if(localStorage.getItem("aivorraa:theme")==="light")d.setAttribute("data-theme","light")}catch(e){}`,
+            //
+            // FAILSAFE: reveals are hidden under `js` and shown by React
+            // components. If the app bundle never starts (a blocked or failed
+            // chunk), `window.__aivReady` is never set, and after 4s `js` is
+            // removed -- every hiding rule switches off and the page shows in
+            // full. PageTransition sets the flag on mount.
+            __html: `var d=document.documentElement;d.classList.add("js");try{if(localStorage.getItem("aivorraa:motion")==="paused")d.classList.add("motion-paused");if(localStorage.getItem("aivorraa:theme")==="dark")d.setAttribute("data-theme","dark")}catch(e){}setTimeout(function(){if(!window.__aivReady)d.classList.remove("js")},4000)`,
           }}
         />
       </head>
@@ -140,7 +144,7 @@ export default function RootLayout({
         {/* PRD §19 — keyboard users reach the content without tabbing the menu. */}
         <a
           href="#main"
-          className="bg-ink text-page rounded-pill sr-only z-[100] px-5 py-3 text-sm font-semibold focus:not-sr-only focus:fixed focus:top-4 focus:left-4"
+          className="bg-ink text-page rounded-pill sr-only z-[100] px-5 py-3 text-sm font-medium focus:not-sr-only focus:fixed focus:top-4 focus:left-4"
         >
           Skip to content
         </a>
@@ -166,14 +170,16 @@ export default function RootLayout({
         */}
         <PageTransition />
 
-        {/* One delegated pointer listener drives every spotlight and magnet. */}
+        {/* One delegated pointer listener drives the magnetic buttons. */}
         <PointerFX />
 
         {/* Inertial scrolling. Disabled entirely under reduced motion. */}
         <SmoothScroll />
 
         <Header />
-        <main id="main" className="flex-1">
+        {/* The header is fixed and out of flow (it floats over the page, as on
+            the reference), so the page starts below its 4.5rem. */}
+        <main id="main" className="flex-1 pt-[4.5rem]">
           {children}
         </main>
         <Footer />
@@ -181,6 +187,10 @@ export default function RootLayout({
         {/* Light / dark switch, fixed bottom-right. Last in the DOM so it is
             last in the tab order rather than the first stop on every page. */}
         <ThemeToggle />
+
+        {/* The follower cursor -- fine pointers only, never under reduced
+            motion. Decorative; the native cursor stays. */}
+        <Cursor />
       </body>
     </html>
   );

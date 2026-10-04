@@ -81,13 +81,13 @@ export function PortfolioFilters({
         <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((study) => (
             <Card as="li" key={study.slug} className="h-full">
-              <p className="text-ink-400 text-xs font-semibold tracking-[0.14em] uppercase">
+              <p className="text-ink-400 text-xs">
                 {study.industry} &middot; {study.year}
               </p>
-              <h3 className="font-display text-ink mt-3 text-lg leading-snug font-semibold">
+              <h3 className="font-display text-ink mt-3 text-lg leading-snug font-normal">
                 <Link
                   href={`/portfolio/${study.slug}`}
-                  className="hover:text-brand-700 transition-colors"
+                  className="link-draw"
                 >
                   {study.title}
                 </Link>
@@ -120,7 +120,7 @@ function FilterGroup({
   if (options.length === 0) return null;
   return (
     <div role="group" aria-label={`Filter by ${label.toLowerCase()}`}>
-      <p className="text-ink-400 mb-2.5 text-xs font-semibold tracking-[0.12em] uppercase">
+      <p className="text-ink-400 mb-2.5 text-xs">
         {label}
       </p>
       <div className="flex flex-wrap gap-2">

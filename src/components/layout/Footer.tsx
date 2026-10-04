@@ -11,7 +11,6 @@ import {
   WhatsAppIcon,
   YouTubeIcon,
 } from "@/components/icons";
-import { Logo } from "./Logo";
 import { MotionToggle } from "@/components/motion/MotionToggle";
 import {
   CONTACT,
@@ -24,13 +23,15 @@ import {
  * PRD §14 — "Active service links, social profiles, contact, legal pages,
  * company details only when verified."
  *
- * PRD §13 Dead links — /pricing/ and /careers/ are deliberately ABSENT. The
- * PRD requires each to either become a real page with real content or be
- * removed from navigation; there is no approved pricing and no confirmed open
- * role, so they are removed. Re-add them here only alongside a real page.
+ * PRD §13 Dead links — /pricing/ and /careers/ are deliberately ABSENT: there
+ * is no approved pricing and no confirmed open role. Re-add them only
+ * alongside a real page.
  *
  * Every contact channel and company detail below is rendered conditionally from
  * site-config, so an unverified value cannot reach the page.
+ *
+ * The reference's footer: charcoal, a closing line with one link, columns of
+ * small links, and the name set enormous across the bottom edge.
  */
 
 const SOCIAL_ICONS = {
@@ -45,136 +46,27 @@ const LEGAL_LINKS = [
   { label: "Accessibility", href: "/accessibility" },
 ];
 
+const WORDMARK = "Aivorraa";
+
 export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="scope-dark bg-panel border-line relative isolate mt-20 overflow-clip border-t text-ink">
-      {/*
-        Brand watermark, sitting BEHIND the footer content rather than in a band
-        beneath it.
-
-        Anchored to the footer's lower edge and pushed down by a quarter of its
-        own height, so the letters are cut by the bottom of the section and the
-        copyright row reads across their upper halves. That overlap is the whole
-        effect — as a flow sibling underneath the columns it just added a strip
-        of empty dark space.
-
-        `isolate` on the footer gives this its own stacking context, so z-0 here
-        and z-10 on the content cannot be affected by anything outside.
-
-        Decorative only: the name is already carried by the logo above and the
-        copyright line, so it is hidden from assistive technology rather than
-        announced a third time.
-      */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-0 select-none"
-      >
-        <span className="footer-glow" />
-        <span className="brand-watermark">AIVORRAA</span>
-      </div>
-
-      {/* Content rides above the watermark. */}
-      {/*
-        Bottom padding scales with the watermark. The wordmark is sized in vw,
-        so on a narrow screen it is small; a fixed large pad would leave it
-        stranded in empty space below the bottom bar instead of tucked against
-        it.
-      */}
-      <Container className="relative z-10 pt-14 pb-12 sm:pb-16 lg:pt-18 lg:pb-28">
-        {/*
-          A closing line that says what the work does, in plain words. PRD
-          §5's one proposition is still stated verbatim in the brand column
-          below -- this sits above it as a headline.
-        */}
-        <div className="border-line mb-14 flex flex-col gap-8 border-b pb-14 lg:flex-row lg:items-end lg:justify-between">
-          <p className="font-display max-w-3xl text-[1.9rem] leading-[1.12] font-semibold tracking-[-0.03em] text-ink sm:text-[2.6rem]">
-            Websites that get found, apps that get used, and automation
-            that gives your team <span className="text-signature">its week back.</span>
-          </p>
-          <div className="shrink-0">
-            <ButtonLink href="/contact" variant="primary" size="lg" withArrow>
-              Start a project
-            </ButtonLink>
-          </div>
-        </div>
-
-        <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
-          {/* Brand column */}
-          <div className="max-w-sm">
-            <Logo tone="light" className="h-7" />
-            {/* PRD §3.7 / §5 — the one proposition, stated identically
-                everywhere, naming the brand rather than saying "we". */}
-            <p className="mt-4 text-sm leading-relaxed text-ink/60">
-              {SITE.proposition}
+    <footer className="scope-dark bg-panel text-ink relative mt-28 overflow-clip sm:mt-36">
+      <Container className="pt-16 sm:pt-20 lg:pt-24">
+        <div className="grid gap-14 lg:grid-cols-[1.2fr_1fr_1fr_1fr] lg:gap-10">
+          {/* Closing line + brand */}
+          <div className="max-w-md">
+            <p className="text-[1.9rem] leading-[1.1] font-light tracking-[-0.04em] sm:text-[2.35rem]">
+              Websites that get found, apps that get used, and automation that
+              gives your team{" "}
+              <span className="text-signature">its week back.</span>
             </p>
-
-            <div className="mt-6 grid gap-2.5 text-sm">
-              <a
-                href={`mailto:${CONTACT.email}`}
-                className="inline-flex items-center gap-2.5 text-ink/75 transition-colors hover:text-ink"
-              >
-                <MailIcon className="h-4 w-4 shrink-0" />
-                {CONTACT.email}
-              </a>
-
-              {/* Rendered only once a verified business number exists (§29). */}
-              {CONTACT.phone ? (
-                <a
-                  href={`tel:${CONTACT.phone.replace(/\s/g, "")}`}
-                  className="text-ink/75 transition-colors hover:text-ink"
-                >
-                  {CONTACT.phone}
-                </a>
-              ) : null}
-
-              {CONTACT.whatsapp ? (
-                <a
-                  href={`https://wa.me/${CONTACT.whatsapp}`}
-                  className="inline-flex items-center gap-2.5 text-ink/75 transition-colors hover:text-ink"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  <WhatsAppIcon className="h-4 w-4 shrink-0" />
-                  WhatsApp
-                </a>
-              ) : null}
-
-              <p className="text-ink/50">{CONTACT.serviceArea}</p>
+            <div className="mt-8">
+              <ButtonLink href="/contact" variant="link" className="text-base">
+                Start a project
+              </ButtonLink>
             </div>
-
-            {/* PRD §16 — only verified profiles are linked, matching the
-                sameAs array exactly. Consistency is the entity signal. */}
-            {/*
-              Labelled pills rather than bare icon circles. An icon alone
-              relies on the visitor recognising the mark and needs an
-              aria-label to mean anything; the name beside it is legible to
-              everyone and reads as a deliberate component rather than a
-              default social row.
-            */}
-            {VERIFIED_PROFILES.length > 0 ? (
-              <ul className="mt-7 flex flex-wrap gap-2.5">
-                {VERIFIED_PROFILES.map((profile) => {
-                  const IconCmp =
-                    SOCIAL_ICONS[profile.key as keyof typeof SOCIAL_ICONS];
-                  if (!IconCmp) return null;
-                  return (
-                    <li key={profile.key}>
-                      <a
-                        href={profile.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="social-pill"
-                      >
-                        <IconCmp className="h-4 w-4 shrink-0" />
-                        {profile.label}
-                      </a>
-                    </li>
-                  );
-                })}
-              </ul>
-            ) : null}
           </div>
 
           <FooterColumn title="Services">
@@ -197,57 +89,130 @@ export function Footer() {
                 {industry.name}
               </FooterLink>
             ))}
-          </FooterColumn>
-
-          <FooterColumn title="Company">
-            <FooterLink href="/about">About Aivorraa</FooterLink>
+            <FooterLink href="/about" className="mt-4">About Aivorraa</FooterLink>
             <FooterLink href="/portfolio">Case Studies</FooterLink>
             <FooterLink href="/insights">Insights</FooterLink>
             <FooterLink href="/contact">Contact</FooterLink>
-            {LEGAL_LINKS.map((link) => (
-              <FooterLink key={link.href} href={link.href}>
-                {link.label}
-              </FooterLink>
-            ))}
           </FooterColumn>
+
+          <div>
+            <h2 className="text-ink-400 mb-5 text-[0.75rem] font-normal tracking-[0.02em]">
+              Get in touch
+            </h2>
+            {/* PRD §3.7 / §5 — the one proposition, stated identically
+                everywhere, naming the brand rather than saying "we". */}
+            <p className="text-ink-500 text-sm leading-relaxed">
+              {SITE.proposition}
+            </p>
+            <div className="mt-5 grid gap-2.5 text-sm">
+              <a
+                href={`mailto:${CONTACT.email}`}
+                className="text-ink inline-flex items-center gap-2.5"
+              >
+                <MailIcon className="h-4 w-4 shrink-0" />
+                <span className="link-draw">{CONTACT.email}</span>
+              </a>
+
+              {/* Rendered only once a verified business number exists (§29). */}
+              {CONTACT.phone ? (
+                <a
+                  href={`tel:${CONTACT.phone.replace(/\s/g, "")}`}
+                  className="text-ink"
+                >
+                  <span className="link-draw">{CONTACT.phone}</span>
+                </a>
+              ) : null}
+
+              {CONTACT.whatsapp ? (
+                <a
+                  href={`https://wa.me/${CONTACT.whatsapp}`}
+                  className="text-ink inline-flex items-center gap-2.5"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  <WhatsAppIcon className="h-4 w-4 shrink-0" />
+                  <span className="link-draw">WhatsApp</span>
+                </a>
+              ) : null}
+
+              <p className="text-ink-500">{CONTACT.serviceArea}</p>
+            </div>
+
+            {/* PRD §16 — only verified profiles are linked, matching the
+                sameAs array exactly. Labelled, not bare icons. */}
+            {VERIFIED_PROFILES.length > 0 ? (
+              <ul className="mt-6 flex flex-wrap gap-2">
+                {VERIFIED_PROFILES.map((profile) => {
+                  const IconCmp =
+                    SOCIAL_ICONS[profile.key as keyof typeof SOCIAL_ICONS];
+                  if (!IconCmp) return null;
+                  return (
+                    <li key={profile.key}>
+                      <a
+                        href={profile.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="border-line-strong text-ink hover:bg-ink hover:text-page inline-flex h-9 items-center gap-2 rounded-md border px-3 text-[0.8125rem] transition-colors"
+                      >
+                        <IconCmp className="h-4 w-4 shrink-0" />
+                        {profile.label}
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : null}
+          </div>
         </div>
 
-        <div className="mt-12 flex flex-col gap-3 border-t border-line pt-7 text-sm text-ink/55 sm:flex-row sm:items-center sm:justify-between">
-          <p>
+        <div className="border-line text-ink-500 mt-16 flex flex-col gap-4 border-t pt-7 text-[0.8125rem] sm:flex-row sm:items-center sm:justify-between">
+          <p className="flex flex-wrap items-center gap-x-1.5">
+            <span aria-hidden="true">&#10022;</span>
             &copy; {year}{" "}
             {/* §29 — the registered legal name replaces the brand name here
-                once confirmed. Until then the brand name alone is used rather
-                than implying an entity form that is not verified. */}
+                once confirmed. */}
             {SITE.legalName ?? SITE.name}. All rights reserved.
             {ORGANISATION.gstin ? <> &middot; GSTIN {ORGANISATION.gstin}</> : null}
           </p>
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-            <MotionToggle />
-            <p>
-              Built by{" "}
-              <Link href="/" className="text-ink/70 hover:text-ink">
-                Aivorraa
-              </Link>
-            </p>
-
-            {/*
-              A real anchor, not a scroll handler. It works with JavaScript
-              disabled, it is focusable and activatable by keyboard for free,
-              and `scroll-behavior: smooth` on the root animates it — so the
-              whole control costs no JavaScript at all.
-            */}
-            <a
-              href="#main"
-              className="to-top group inline-flex items-center gap-2.5 text-ink/60 transition-colors hover:text-ink"
-            >
-              Back to top
-              <span className="to-top-disc" aria-hidden="true">
-                <ArrowRightIcon className="h-4 w-4 -rotate-90" />
-              </span>
-            </a>
-          </div>
+          <ul className="flex flex-wrap items-center gap-x-5 gap-y-3">
+            {LEGAL_LINKS.map((link) => (
+              <li key={link.href}>
+                <Link href={link.href} className="link-draw hover:text-ink transition-colors">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+            <li>
+              <MotionToggle />
+            </li>
+            <li>
+              {/* A real anchor, not a scroll handler: works without
+                  JavaScript, keyboard-activatable, and Lenis animates it. */}
+              <a
+                href="#main"
+                className="hover:text-ink inline-flex items-center gap-2 transition-colors"
+              >
+                Back to top
+                <ArrowRightIcon className="h-3.5 w-3.5 -rotate-90" />
+              </a>
+            </li>
+          </ul>
         </div>
       </Container>
+
+      {/* The name, enormous, cut by the bottom edge. Decorative: the brand is
+          already named by the copyright line, so it is not announced again. */}
+      <div aria-hidden="true" className="mt-10 select-none sm:mt-14">
+        <div className="container-page">
+          <p className="wordmark text-ink">
+            {WORDMARK.split("").map((ch, i) => (
+              <span key={i} style={{ "--i": i } as React.CSSProperties}>
+                {ch}
+              </span>
+            ))}
+          </p>
+        </div>
+      </div>
     </footer>
   );
 }
@@ -261,10 +226,10 @@ function FooterColumn({
 }) {
   return (
     <div>
-      <h2 className="font-display mb-4 text-[0.7rem] font-semibold tracking-[0.14em] text-ink/55 uppercase">
+      <h2 className="text-ink-400 mb-5 text-[0.75rem] font-normal tracking-[0.02em]">
         {title}
       </h2>
-      <ul className="grid gap-2.5 text-sm">{children}</ul>
+      <ul className="grid gap-2 text-[0.9375rem]">{children}</ul>
     </div>
   );
 }
@@ -273,21 +238,23 @@ function FooterLink({
   href,
   children,
   emphasis = false,
+  className,
 }: {
   href: string;
   children: React.ReactNode;
   emphasis?: boolean;
+  className?: string;
 }) {
   return (
-    <li>
+    <li className={className}>
       <Link
         href={href}
         className={cx(
-          "transition-colors hover:text-ink",
-          emphasis ? "font-semibold text-ink/85" : "text-ink/60",
+          "transition-colors",
+          emphasis ? "text-ink" : "text-ink-600 hover:text-ink",
         )}
       >
-        {children}
+        <span className="link-draw">{children}</span>
       </Link>
     </li>
   );

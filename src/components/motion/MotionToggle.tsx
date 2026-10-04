@@ -8,22 +8,21 @@ import { cx } from "@/components/ui";
  * "Pause motion" -- WCAG 2.2 success criterion 2.2.2 (Pause, Stop, Hide).
  *
  * Anything that moves on its own for more than five seconds, alongside other
- * content, must be pausable. This site has ~25 looping animations (the hero
- * floor, the dashboard, the stack marquee, the process scenes) and relied on
- * `prefers-reduced-motion` alone -- which only helps people who know to set an
- * operating-system preference.
+ * content, must be pausable. The looping motion here is the tools marquee,
+ * the dot field and the reel video; `prefers-reduced-motion` alone only helps
+ * people who know to set an operating-system preference.
  *
  * WHAT IT PAUSES, AND WHAT IT DELIBERATELY DOES NOT
  * Only time-based animations that loop forever. It does NOT touch the
- * scroll-driven animations (reveals, the pinned stages): those move only when
+ * scroll-driven animations (reveals, the growing reel): those move only when
  * the reader scrolls, so they are not "auto-playing", and pausing them would
  * freeze reveals half-way -- content stuck at opacity 0 is worse than motion.
  * A blanket `animation-play-state: paused` in CSS cannot tell the two apart;
  * the Web Animations API can (`timeline` and `iterations`).
  *
  * New looping animations that start later -- a section scrolled into view,
- * a new page -- are caught by `animationstart`. The hero canvas listens for
- * the `motion-paused` class on <html> and stops drawing.
+ * a new page -- are caught by `animationstart`. The reel video (Reel.tsx)
+ * listens for the `motion-paused` class on <html> and pauses itself.
  *
  * The choice persists (localStorage, a functional preference -- see the
  * privacy policy) and is applied before first paint by the inline script in
@@ -41,11 +40,27 @@ function isLoopingTimeAnimation(a: Animation) {
   );
 }
 
+/*
+  Only the animations THIS toggle paused are ever resumed. Calling play() on
+  an animation takes it over from CSS for good -- after that its
+  `animation-play-state` rules are ignored -- so resuming everything on every
+  sync (including the initial one on mount) silently broke CSS-driven pauses
+  such as the marquee stopping on hover.
+*/
+const pausedByToggle = new WeakSet<Animation>();
+
 function applyToRunning(paused: boolean) {
   for (const a of document.getAnimations()) {
     if (!isLoopingTimeAnimation(a)) continue;
-    if (paused) a.pause();
-    else a.play();
+    if (paused) {
+      if (a.playState === "running") {
+        a.pause();
+        pausedByToggle.add(a);
+      }
+    } else if (pausedByToggle.has(a)) {
+      a.play();
+      pausedByToggle.delete(a);
+    }
   }
 }
 
@@ -71,7 +86,10 @@ export function MotionToggle({ className }: { className?: string }) {
       if (!root.classList.contains("motion-paused")) return;
       const el = e.target as Element;
       for (const a of el.getAnimations()) {
-        if (isLoopingTimeAnimation(a)) a.pause();
+        if (isLoopingTimeAnimation(a)) {
+          a.pause();
+          pausedByToggle.add(a);
+        }
       }
     };
     document.addEventListener("animationstart", onStart, true);

@@ -1,144 +1,133 @@
 @import "tailwindcss";
 @import "./motion.css";
-@import "./motion-advanced.css";
-@import "./motion-panels.css";
-@import "./motion-scroll.css";
-@import "./motion-process.css";
-@import "./motion-hero.css";
-@import "./motion-sections.css";
-@import "./motion-brand.css";
-@import "./motion-3d.css";
 
 /* ==========================================================================
-   AIVORRAA design tokens — "Parchment & Espresso"
+   AIVORRAA design tokens — "Gallery"
    --------------------------------------------------------------------------
-   A single-hue system (warm umber, hue ~30deg) in two registers:
+   An editorial, image-led system after the reference the client chose
+   (brandium.nl): a white page, near-black type set LIGHT and large, quiet
+   grey panels, a charcoal footer, and one acid-lime accent used sparingly.
+   The photography carries the colour; the interface stays out of its way.
 
-     ESPRESSO  the DEFAULT theme: dark roast, cream type, caramel accent.
-     PAPER     the light theme (ThemeToggle, bottom-right): warm parchment,
-               espresso-black type, burnt-umber accent.
+     LIGHT  the DEFAULT theme: white page, ink #0f0f0f.
+     DARK   the alternative (ThemeToggle, bottom-right): ink-black page,
+            light type -- the same system inverted, never a different one.
 
-   The product moments -- the hero dashboard, the workflow console,
-   blueprints, the closing CTA, the footer, the page curtain -- are espresso
-   in BOTH themes (`.scope-dark`). On paper they give the page its rhythm; on
-   espresso they sit one step lighter than the page, as raised panels.
-
-   The tokens in @theme below are the PAPER values; the espresso values
-   follow in the `.scope-dark, :root[data-theme="dark"]` block.
+   The charcoal panels -- the footer, the AI workflow stage, the "Why" stat
+   panel, the reel and the page curtain -- are charcoal in BOTH themes
+   (`.scope-dark`).
 
    CONTRAST (WCAG 2.2 AA, measured)
-     espresso #1f1914 on paper #f4efe6 ........ 15.9:1   body/headlines
-     ink-500  #6b5d50 on paper ................  5.6:1   muted copy
-     umber    #8a5a2b on paper ................  5.1:1   highlighted word
-     paper    on button #231b15 ...............  15.6:1  primary action
-     cream    #f3ece2 on espresso #17120e .....  16.1:1
-     caramel  #c9a27a on espresso .............  8.0:1
+     ink      #0f0f0f on white ............ 19.4:1  body and headlines
+     ink-500  #5c5c60 on white ............  6.7:1  muted copy
+     ink-400  #6a6a6e on #f5f5f5 ..........  4.9:1  smallest labels
+     signature #8a8a8e on white ...........  3.4:1  LARGE headline words only
+     white    on button #1b1b1c ........... 17.2:1  primary action
+     lime     #d2ff00 -- a FILL, never text on white (1.2:1). Text on lime
+              is ink (16.9:1).
 
    HOW THE SCALES WORK -- READ BEFORE ADDING A COLOUR
-   Every scale is defined by ROLE, not lightness, so the same class is right
-   in both registers:
-     `ink`     type and marks, as contrast against the page. `text-ink` is
-               full contrast, `ink-500` muted copy, `ink-50` the faintest fill.
-     `brand`   the accent role. `brand-500` the accent, `brand-700` accent
-               TEXT, `brand-50` a faint tint.
-     `lime`    historical name of the highlight role.
-     `signal`  the primary action (espresso on paper, cream in espresso).
-     `panel`   the contrast panel; always paired with `.scope-dark`.
+   Every scale is defined by ROLE, not lightness, so a class is right in both
+   themes:
+     `ink`     type and marks, as contrast against the page. `text-ink` full
+               contrast, `ink-500` muted copy, `ink-50` the faintest fill.
+     `brand`   the accent role. In this monochrome system accent TEXT
+               (`brand-700`) is simply full-contrast ink, and the light end
+               (`brand-50/100`) is a neutral tint.
+     `lime`    the highlight role: `lime-400` is the acid accent fill.
+     `signal`  the primary action (charcoal on light, white on dark).
+     `panel`   the charcoal contrast panel; always paired with `.scope-dark`.
 
    RGB TRIPLETS for effects (use as `rgba(var(--hi-rgb), 0.08)`):
-     --hi-rgb      hairlines, sheens, faint fills (contrast direction)
-     --glow-rgb    accent light: glows, active borders, rails
-     --accent-rgb  the muted accent, for secondary washes
-     --mesh-rgb    the hero floor
-     --shade-rgb / --shade-k   shadow colour and strength (soft on paper)
+     --hi-rgb      hairlines and faint fills (contrast direction)
+     --glow-rgb    the lime accent, as light
+     --shade-rgb / --shade-k   shadow colour and strength
    ========================================================================== */
 
 @theme {
-  /* Accent role -- burnt umber. */
-  --color-brand-50: #f7f1e8;
-  --color-brand-100: #efe5d6;
-  --color-brand-200: #e2d3bd;
-  --color-brand-300: #c9b294;
-  --color-brand-400: #a4845e;
-  --color-brand-500: #8a5a2b;
-  --color-brand-600: #7a4e25;
-  --color-brand-700: #6e4520;
-  --color-brand-800: #4a2e16;
-  --color-brand-900: #2e1c0e;
+  --color-brand-50: #f5f5f5;
+  --color-brand-100: #ececec;
+  --color-brand-200: #dedede;
+  --color-brand-300: #b4b4b6;
+  --color-brand-400: #8a8a8e;
+  --color-brand-500: #0f0f0f;
+  --color-brand-600: #1b1b1c;
+  --color-brand-700: #0f0f0f;
+  --color-brand-800: #000000;
+  --color-brand-900: #000000;
 
-  /* The primary action: espresso, paper text on it. */
-  --color-signal: #231b15;
-  --color-signal-deep: #8a5a2b;
-  --color-signal-soft: #3a2e25;
+  --color-signal: #1b1b1c;
+  --color-signal-deep: #0f0f0f;
+  --color-signal-soft: #000000;
 
-  /* Highlight role (historical name "lime"). */
-  --color-lime-100: #efe5d6;
-  --color-lime-200: #e2d3bd;
-  --color-lime-300: #4a2e16;
-  --color-lime-400: #8a5a2b;
-  --color-lime-500: #6e4520;
-  --color-lime-600: #6e4520;
+  /* Highlight role -- the acid lime. */
+  --color-lime-100: #f3ffc2;
+  --color-lime-200: #e6ff80;
+  --color-lime-300: #d9ff33;
+  --color-lime-400: #d2ff00;
+  --color-lime-500: #b8e000;
+  --color-lime-600: #3b4700;
 
-  /* Ink -- espresso to parchment. */
-  --color-ink: #1f1914;
-  --color-ink-800: #2e2620;
-  --color-ink-700: #40362e;
-  --color-ink-600: #54483e;
-  --color-ink-500: #6b5d50;
-  --color-ink-400: #6f6155;
-  --color-ink-300: #b8aa98;
-  --color-ink-200: #d6cbbb;
-  --color-ink-100: #e6ddcf;
-  --color-ink-50: #eee6da;
+  --color-ink: #0f0f0f;
+  --color-ink-800: #1b1b1c;
+  --color-ink-700: #2c2c2e;
+  --color-ink-600: #444447;
+  --color-ink-500: #5c5c60;
+  --color-ink-400: #6a6a6e;
+  --color-ink-300: #b4b4b6;
+  --color-ink-200: #dedede;
+  --color-ink-100: #ececec;
+  --color-ink-50: #f5f5f5;
 
-  /* Surfaces. Cards sit LIGHTER than the page, like laid paper on a desk. */
-  --color-page: #f4efe6;
-  --color-surface: #fbf8f2;
-  --color-page-tint: #efe8dc;
-  --color-panel: #17120e;
+  --color-page: #ffffff;
+  --color-surface: #f5f5f5;
+  --color-page-tint: #fafafa;
+  --color-panel: #1b1b1c;
 
-  --color-line: rgba(60, 40, 20, 0.13);
-  --color-line-strong: rgba(60, 40, 20, 0.24);
-  --color-danger: #a3392f;
-  --color-success: #3f6b47;
+  /* The sage of the reference -- a backdrop for imagery, never type. */
+  --color-sage: #677968;
 
-  /* Type -- PRD §18: Poppins for display, DM Sans for text. */
-  --font-display: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
-  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  --color-line: rgba(15, 15, 15, 0.1);
+  --color-line-strong: rgba(15, 15, 15, 0.2);
+  --color-danger: #b42318;
+  --color-success: #2f6b3a;
 
-  --radius-card: 1.5rem;
+  /* One family for everything, as the reference does. Inter Tight is a free,
+     self-hosted neo-grotesk close to its TWK Lausanne. */
+  --font-display: var(--font-inter-tight), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter-tight), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --radius-card: 1rem;
   --radius-pill: 999px;
 
-  --shadow-pill: inset 0 1px 0 rgba(var(--hi-rgb), 0.05),
-    0 12px 32px -14px rgba(var(--shade-rgb), calc(0.95 * var(--shade-k)));
-  --shadow-card: inset 0 1px 0 rgba(var(--hi-rgb), 0.04),
-    0 24px 60px -30px rgba(var(--shade-rgb), var(--shade-k));
-  --shadow-float: inset 0 1px 0 rgba(var(--hi-rgb), 0.06),
-    0 40px 90px -36px rgba(var(--shade-rgb), var(--shade-k));
-  --shadow-glow: 0 0 0 1px rgba(var(--glow-rgb), 0.22),
-    0 14px 34px -14px rgba(var(--shade-rgb), calc(0.95 * var(--shade-k)));
+  --shadow-pill: 0 1px 2px rgba(var(--shade-rgb), calc(0.06 * var(--shade-k)));
+  --shadow-card: 0 1px 2px rgba(var(--shade-rgb), calc(0.04 * var(--shade-k)));
+  --shadow-float: 0 24px 60px -28px rgba(var(--shade-rgb), calc(0.35 * var(--shade-k)));
+  --shadow-glow: none;
 
-  --container-page: 1400px;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+
+  --container-page: 1440px;
 }
 
 :root {
-  --hi-rgb: 31, 25, 20;
-  --glow-rgb: 138, 90, 43;
-  --accent-rgb: 164, 132, 94;
-  --mesh-rgb: 110, 80, 50;
-  --shade-rgb: 74, 50, 28;
-  --shade-k: 0.32;
+  --hi-rgb: 15, 15, 15;
+  --glow-rgb: 210, 255, 0;
+  --accent-rgb: 103, 121, 104;
+  --shade-rgb: 0, 0, 0;
+  --shade-k: 1;
+  --signature: #8a8a8e;
 }
 
 /* --------------------------------------------------------------------------
-   The espresso register -- the DEFAULT theme, and the product panels.
+   The dark register -- the DARK theme, and the charcoal panels.
 
-   `:root[data-theme="dark"]` puts the whole site in it (the default; the
-   inline script in layout.tsx sets the attribute before first paint from the
-   visitor's saved choice -- see ThemeToggle.tsx). `.scope-dark` puts one
-   element in it -- the dashboard, console, footer and CTA panels, which are
-   espresso in BOTH themes. Every token flips: utilities, component CSS and the effect
-   triplets alike.
+   `:root[data-theme="dark"]` puts the whole site in it (the inline script in
+   layout.tsx sets the attribute before first paint from a saved choice --
+   see ThemeToggle.tsx). `.scope-dark` puts one element in it -- the panels
+   that are charcoal in BOTH themes.
    -------------------------------------------------------------------------- */
 
 .scope-dark,
@@ -146,77 +135,66 @@
   color-scheme: dark;
   color: var(--color-ink);
 
-  --color-brand-50: #1b1511;
-  --color-brand-100: #251d16;
-  --color-brand-200: #382b20;
-  --color-brand-300: #5c4633;
-  --color-brand-400: #8b6a4a;
-  --color-brand-500: #c9a27a;
-  --color-brand-600: #d6b590;
-  --color-brand-700: #e2c8a8;
-  --color-brand-800: #eedcc4;
-  --color-brand-900: #f8efe3;
+  --color-brand-50: #232325;
+  --color-brand-100: #2a2a2c;
+  --color-brand-200: #38383b;
+  --color-brand-300: #55555a;
+  --color-brand-400: #8a8a8e;
+  --color-brand-500: #f2f2f2;
+  --color-brand-600: #ffffff;
+  --color-brand-700: #f2f2f2;
+  --color-brand-800: #ffffff;
+  --color-brand-900: #ffffff;
 
-  --color-signal: #efe4d3;
-  --color-signal-deep: #c9a27a;
-  --color-signal-soft: #f8f1e6;
+  --color-signal: #f2f2f2;
+  --color-signal-deep: #ffffff;
+  --color-signal-soft: #ffffff;
 
-  --color-lime-100: #251d16;
-  --color-lime-200: #382b20;
-  --color-lime-300: #eedcc4;
-  --color-lime-400: #e2c8a8;
-  --color-lime-500: #d9c09e;
-  --color-lime-600: #e2c8a8;
+  --color-lime-100: #2b3300;
+  --color-lime-200: #3b4700;
+  --color-lime-300: #d9ff33;
+  --color-lime-400: #d2ff00;
+  --color-lime-500: #d9ff33;
+  --color-lime-600: #d2ff00;
 
-  --color-ink: #f3ece2;
-  --color-ink-800: #e4dbce;
-  --color-ink-700: #d1c5b5;
-  --color-ink-600: #bcae9b;
-  --color-ink-500: #a3927d;
-  --color-ink-400: #998873;
-  --color-ink-300: #574838;
-  --color-ink-200: #3b3026;
-  --color-ink-100: #282019;
-  --color-ink-50: #1f1914;
+  --color-ink: #f2f2f2;
+  --color-ink-800: #e4e4e5;
+  --color-ink-700: #cfcfd1;
+  --color-ink-600: #b8b8bb;
+  --color-ink-500: #a3a3a8;
+  --color-ink-400: #98989d;
+  --color-ink-300: #55555a;
+  --color-ink-200: #38383b;
+  --color-ink-100: #2a2a2c;
+  --color-ink-50: #232325;
 
-  --color-page: #14100c;
-  --color-surface: #1f1914;
-  --color-page-tint: #18130f;
-  --color-panel: #17120e;
+  --color-page: #1b1b1c;
+  --color-surface: #232325;
+  --color-page-tint: #1f1f20;
+  --color-panel: #1b1b1c;
 
-  --color-line: rgba(201, 162, 122, 0.16);
-  --color-line-strong: rgba(201, 162, 122, 0.3);
-  --color-danger: #e89a8a;
-  --color-success: #a9c9a6;
+  --color-line: rgba(242, 242, 242, 0.12);
+  --color-line-strong: rgba(242, 242, 242, 0.24);
+  --color-danger: #f29b8f;
+  --color-success: #9fd3a8;
 
-  --hi-rgb: 255, 250, 242;
-  --glow-rgb: 226, 200, 168;
-  --accent-rgb: 201, 162, 122;
-  --mesh-rgb: 214, 196, 174;
-  --shade-rgb: 0, 0, 0;
+  --hi-rgb: 242, 242, 242;
   --shade-k: 1;
+  --signature: #8a8a8e;
 
   /* Re-declared: a custom property resolves var() where it is declared, so
-     the :root shadows would keep the paper values in here. */
-  --shadow-pill: inset 0 1px 0 rgba(var(--hi-rgb), 0.05),
-    0 12px 32px -14px rgba(var(--shade-rgb), calc(0.95 * var(--shade-k)));
-  --shadow-card: inset 0 1px 0 rgba(var(--hi-rgb), 0.04),
-    0 24px 60px -30px rgba(var(--shade-rgb), var(--shade-k));
-  --shadow-float: inset 0 1px 0 rgba(var(--hi-rgb), 0.06),
-    0 40px 90px -36px rgba(var(--shade-rgb), var(--shade-k));
-  --shadow-glow: 0 0 0 1px rgba(var(--glow-rgb), 0.22),
-    0 14px 34px -14px rgba(var(--shade-rgb), calc(0.95 * var(--shade-k)));
+     the :root shadows would keep the light values in here. */
+  --shadow-pill: 0 1px 2px rgba(var(--shade-rgb), calc(0.3 * var(--shade-k)));
+  --shadow-card: 0 1px 2px rgba(var(--shade-rgb), calc(0.2 * var(--shade-k)));
+  --shadow-float: 0 24px 60px -28px rgba(var(--shade-rgb), calc(0.8 * var(--shade-k)));
 }
 
-/*
-  The dark THEME sits one step deeper than the espresso panels, so a footer,
-  CTA band or dashboard still reads as a raised surface on a dark page rather
-  than dissolving into it. Cards (`surface`) lift above both.
-*/
+/* The dark THEME sits one step deeper than the charcoal panels, so the
+   footer and CTA still read as panels on a dark page. */
 :root[data-theme="dark"] {
-  --color-page: #0f0c09;
-  --color-page-tint: #130f0c;
-  --color-surface: #1c1612;
+  --color-page: #0e0e0f;
+  --color-page-tint: #121213;
+  --color-surface: #1b1b1c;
 }
 
 /* --------------------------------------------------------------------------
@@ -224,16 +202,11 @@
    -------------------------------------------------------------------------- */
 
 :root {
-  /* Paper by default; .scope-dark regions declare their own. */
   color-scheme: light;
-  scroll-behavior: smooth;
-  --header-offset: 6.5rem;
+  --header-offset: 5.5rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :root {
-    scroll-behavior: auto;
-  }
   *,
   *::before,
   *::after {
@@ -253,31 +226,26 @@ html {
 
 body {
   background-color: var(--color-page);
-  /* Warm light from above, so the paper is lit rather than flat. */
-  background-image: radial-gradient(
-    64rem 34rem at 50% -14%,
-    rgba(var(--accent-rgb), 0.16) 0%,
-    rgba(var(--accent-rgb), 0) 62%
-  );
-  background-repeat: no-repeat;
-  background-attachment: scroll;
   color: var(--color-ink);
   font-family: var(--font-sans);
   font-size: 1rem;
-  line-height: 1.65;
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   /* PRD §19 — no horizontal overflow from 320px upward. */
   overflow-x: hidden;
+  transition: background-color 0.4s ease;
 }
 
 /*
-  Element defaults live in `@layer base` so that any utility can override them.
+  Element defaults live in `@layer base` so that any utility can override
+  them (an unlayered rule would beat every Tailwind utility).
 
-  They were unlayered, and an unlayered declaration outranks EVERY layered one
-  -- including all of Tailwind's utilities. So `font-semibold` on the H1, or
-  `font-sans text-sm` on a small h2 label, silently did nothing: every heading
-  on the site was pinned to 700 in the display face whatever its classes said.
+  Headings are set LIGHT, large and tight -- the single biggest part of the
+  reference's look. Weight comes from scale, not from bold.
 */
 @layer base {
   h1,
@@ -285,31 +253,41 @@ body {
   h3,
   h4 {
     font-family: var(--font-display);
-    font-weight: 600;
-    letter-spacing: -0.03em;
-    line-height: 1.06;
+    font-weight: 300;
+    letter-spacing: -0.04em;
+    line-height: 1.04;
     text-wrap: balance;
+  }
+
+  h3,
+  h4 {
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    line-height: 1.15;
   }
 
   p {
     text-wrap: pretty;
   }
+
+  strong,
+  b {
+    font-weight: 500;
+  }
 }
 
 ::selection {
-  background: rgba(var(--glow-rgb), 0.28);
-  color: var(--color-ink);
+  background: var(--color-lime-400);
+  color: #0f0f0f;
 }
 
-/* Accessible focus, visible on every interactive element (PRD §19): the
-   primary-action colour, full contrast in both registers. */
+/* Accessible focus on every interactive element (PRD §19). */
 :focus-visible {
-  outline: 2px solid var(--color-signal);
+  outline: 2px solid var(--color-ink);
   outline-offset: 3px;
-  border-radius: 6px;
+  border-radius: 4px;
 }
 
-/* Anchors land below the fixed header rather than underneath it. */
 [id] {
   scroll-margin-top: var(--header-offset);
 }
@@ -322,109 +300,47 @@ body {
   width: 100%;
   max-width: var(--container-page);
   margin-inline: auto;
-  /* 16px gutter on phones, per the design's edge spacing. */
   padding-inline: 1rem;
   @media (width >= 40rem) {
     padding-inline: 1.5rem;
   }
   @media (width >= 64rem) {
-    padding-inline: 2rem;
+    padding-inline: 2.5rem;
   }
 }
 
-/* The frosted glass pill used by the header, badges and chips. */
-@utility pill-surface {
-  /* 90%: at 72% the pill went grey wherever it crossed an espresso band. */
-  background-color: color-mix(in srgb, var(--color-surface) 90%, transparent);
-  backdrop-filter: blur(14px) saturate(150%);
-  -webkit-backdrop-filter: blur(14px) saturate(150%);
-  border: 1px solid var(--color-line);
-  box-shadow: var(--shadow-pill);
-}
-
-/*
-  The desktop mega-menu hangs BELOW the header pill instead of growing it.
-
-  In flow it was the second child of the pill, so opening it took the sticky
-  header from 95px to 554px and shoved the entire document down 459px -- the
-  <h1> went from y=229 to y=688 while the reader was only trying to look at a
-  menu. A dropdown overlays the page; it never relayouts it.
-
-  This is a plain, unlayered rule on purpose: unlayered declarations outrank
-  every layered one, so it reliably beats the `pill-surface` utility the panel
-  also carries, whichever order Tailwind emits them in.
-
-  The panel keeps `pill-surface` for its background, border and shadow, and
-  only the parts that must differ are set here. The pill above squares off its
-  bottom corners while open (see Header.tsx), so its own bottom border becomes
-  the divider between the two halves and the panel draws no second line --
-  which is why `border-top` goes to zero rather than staying as the `border-t`
-  it used to carry.
-*/
-.mega-dock {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  left: 0;
-  z-index: 10;
-  border-top: 0;
-  border-radius: 0 0 1.75rem 1.75rem;
-}
-
-/*
-  Docked menus are OPAQUE, unlike the pill they hang from.
-
-  `pill-surface` is 88% surface over a backdrop blur, which is right for a
-  slim bar floating on the page and wrong for a 460px panel of link text
-  sitting on top of a 96px headline -- the hero reads straight through it.
-
-  Nor can the blur be relied on to rescue it: `backdrop-filter` is dropped
-  wholesale when Chrome has no GPU to composite with, and the fallback is the
-  bare 88% background. Legibility of navigation should not depend on a filter
-  that can silently vanish, so these go to full opacity instead.
-
-  The pill goes opaque WITH the panel (`[data-mega-shell="open"]`) so the two
-  halves stay one continuous card rather than one frosted and one solid.
-*/
-.mega-dock,
-.drawer-dock,
-[data-mega-shell="open"] {
-  background-color: var(--color-surface);
-  /*
-    No backdrop blur on an opaque surface: there is nothing visible to blur,
-    but the browser still recomputes it every frame -- and on this theme what
-    sits underneath is the hero's canvas, redrawing constantly. Measured with
-    the menu open: 142 -> 105 frames/s with the blur, 134 without it.
-  */
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-
-/*
-  The signature colour on type, solid. Used for ONE word or phrase per
-  section at most. (This replaced a purple -> blue gradient-text utility;
-  gradient type is the single most recognisable "AI template" tell.)
-*/
+/* The second tone of a two-tone headline: the one phrase per heading that
+   carries the point. Grey rather than a colour -- the reference's restraint.
+   LARGE type only (3.4:1). */
 @utility text-signature {
-  /* The accent: umber on paper (5.1:1), caramel in espresso (8.0:1). */
-  color: var(--color-brand-500);
+  color: var(--signature);
 }
 
-/*
-  Glass: a translucent surface with a hairline border, over a backdrop blur.
-  Reads as frosted paper on the page and smoked glass inside .scope-dark.
-*/
+/* The small "✦ Label" eyebrow above a section heading. */
+@utility eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.8125rem;
+  font-weight: 450;
+  letter-spacing: -0.005em;
+  color: var(--color-ink);
+}
+
+/* Thin translucent surface, for the header bar and chips. */
+@utility pill-surface {
+  background-color: color-mix(in srgb, var(--color-page) 86%, transparent);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+}
+
 @utility glass {
-  background-color: color-mix(in srgb, var(--color-surface) 70%, transparent);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-  border: 1px solid var(--color-line);
-  box-shadow: var(--shadow-card);
+  background-color: var(--color-surface);
 }
 
 @utility text-balance-tight {
   text-wrap: balance;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.04em;
 }
 
 /* Long-form article and legal copy. */
@@ -435,13 +351,13 @@ body {
 
   & h2 {
     color: var(--color-ink);
-    font-size: 1.75rem;
-    margin-block: 2.5rem 0.875rem;
+    font-size: 2rem;
+    margin-block: 3rem 1rem;
   }
   & h3 {
     color: var(--color-ink);
-    font-size: 1.25rem;
-    margin-block: 2rem 0.625rem;
+    font-size: 1.375rem;
+    margin-block: 2.25rem 0.75rem;
   }
   & p {
     margin-block: 1rem;
@@ -460,36 +376,20 @@ body {
     list-style: decimal;
   }
   & li::marker {
-    color: var(--color-brand-500);
+    color: var(--color-ink-400);
   }
   & a {
-    color: var(--color-brand-700);
+    color: var(--color-ink);
     text-decoration: underline;
     text-underline-offset: 3px;
     text-decoration-thickness: 1px;
   }
   & a:hover {
-    color: var(--color-brand-800);
+    text-decoration-color: var(--color-lime-500);
   }
   & strong {
     color: var(--color-ink);
-    font-weight: 600;
-  }
-}
-
-/* Entrance animation, disabled automatically under reduced-motion above. */
-@utility rise-in {
-  animation: rise-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-@keyframes rise-in {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
+    font-weight: 500;
   }
 }
 

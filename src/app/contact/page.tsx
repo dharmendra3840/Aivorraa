@@ -81,14 +81,14 @@ export default function ContactPage() {
 
             <div className="grid gap-4 self-start">
               <Card>
-                <h2 className="font-display text-ink text-base font-semibold">
+                <h2 className="font-display text-ink text-base font-normal">
                   Direct channels
                 </h2>
                 <ul className="mt-4 grid gap-3.5 text-sm">
                   <li>
                     <a
                       href={`mailto:${CONTACT.email}`}
-                      className="text-ink-600 hover:text-brand-700 inline-flex items-center gap-2.5 font-medium transition-colors"
+                      className="text-ink-600 hover:text-ink inline-flex items-center gap-2.5 font-medium transition-colors"
                     >
                       <MailIcon className="text-ink-400 h-4 w-4 shrink-0" />
                       {CONTACT.email}
@@ -100,7 +100,7 @@ export default function ContactPage() {
                     <li>
                       <a
                         href={`tel:${CONTACT.phone.replace(/\s/g, "")}`}
-                        className="text-ink-600 hover:text-brand-700 font-medium transition-colors"
+                        className="text-ink-600 hover:text-ink font-medium transition-colors"
                       >
                         {CONTACT.phone}
                       </a>
@@ -115,7 +115,7 @@ export default function ContactPage() {
                         )}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-ink-600 hover:text-brand-700 inline-flex items-center gap-2.5 font-medium transition-colors"
+                        className="text-ink-600 hover:text-ink inline-flex items-center gap-2.5 font-medium transition-colors"
                       >
                         <WhatsAppIcon className="text-ink-400 h-4 w-4 shrink-0" />
                         WhatsApp
@@ -129,7 +129,7 @@ export default function ContactPage() {
                         href={instagram.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-ink-600 hover:text-brand-700 inline-flex items-center gap-2.5 font-medium transition-colors"
+                        className="text-ink-600 hover:text-ink inline-flex items-center gap-2.5 font-medium transition-colors"
                       >
                         <InstagramIcon className="text-ink-400 h-4 w-4 shrink-0" />
                         @aivorraa.official
@@ -140,20 +140,20 @@ export default function ContactPage() {
 
                 <dl className="border-line mt-6 grid gap-3 border-t pt-5 text-sm">
                   <div>
-                    <dt className="text-ink-400 text-xs font-semibold tracking-[0.12em] uppercase">
+                    <dt className="text-ink-400 text-xs">
                       Hours
                     </dt>
                     <dd className="text-ink-600 mt-1">{CONTACT.hours}</dd>
                   </div>
                   <div>
-                    <dt className="text-ink-400 text-xs font-semibold tracking-[0.12em] uppercase">
+                    <dt className="text-ink-400 text-xs">
                       Areas served
                     </dt>
                     <dd className="text-ink-600 mt-1">{CONTACT.serviceArea}</dd>
                   </div>
                   {CONTACT.address ? (
                     <div>
-                      <dt className="text-ink-400 text-xs font-semibold tracking-[0.12em] uppercase">
+                      <dt className="text-ink-400 text-xs">
                         Office
                       </dt>
                       <dd className="text-ink-600 mt-1">
@@ -170,17 +170,17 @@ export default function ContactPage() {
               </Card>
 
               <Card>
-                <h2 className="font-display text-ink text-base font-semibold">
+                <h2 className="font-display text-ink text-base font-normal">
                   What happens next
                 </h2>
                 <ol className="mt-4 grid gap-4">
                   {EXPECTATIONS.map((item, i) => (
                     <li key={item.title} className="flex gap-3">
-                      <span className="bg-ink-50 text-ink-500 font-display flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold">
+                      <span className="bg-ink-50 text-ink-500 font-display flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-normal">
                         {i + 1}
                       </span>
                       <div>
-                        <p className="text-ink text-sm font-semibold">
+                        <p className="text-ink text-sm font-medium">
                           {item.title}
                         </p>
                         <p className="text-ink-500 mt-1 text-sm leading-relaxed">
@@ -220,7 +220,7 @@ export default function ContactPage() {
               },
             ].map((item) => (
               <Card as="li" key={item.title} className="h-full">
-                <h3 className="font-display text-ink text-[0.9375rem] font-semibold">
+                <h3 className="font-display text-ink text-[0.9375rem] font-normal">
                   {item.title}
                 </h3>
                 <p className="text-ink-500 mt-2 text-sm leading-relaxed">

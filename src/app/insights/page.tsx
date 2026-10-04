@@ -71,14 +71,14 @@ export default function InsightsPage() {
               <Card as="article" className="mb-5">
                 <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr] lg:gap-10">
                   <div>
-                    <p className="text-ink-400 text-xs font-semibold tracking-[0.14em] uppercase">
+                    <p className="text-ink-400 text-xs">
                       Latest &middot; {formatDate(featured.publishedAt)} &middot;{" "}
                       {featured.readingMinutes} min read
                     </p>
-                    <h2 className="font-display text-ink mt-3 text-2xl leading-tight font-semibold sm:text-3xl">
+                    <h2 className="font-display text-ink mt-3 text-2xl leading-tight font-normal sm:text-3xl">
                       <Link
                         href={`/insights/${featured.slug}`}
-                        className="hover:text-brand-700 transition-colors"
+                        className="link-draw"
                       >
                         {featured.title}
                       </Link>
@@ -88,7 +88,7 @@ export default function InsightsPage() {
                     </p>
                     <Link
                       href={`/insights/${featured.slug}`}
-                      className="text-brand-700 hover:text-brand-800 mt-6 inline-flex items-center gap-2 text-sm font-semibold"
+                      className="link-draw text-ink mt-6 inline-flex items-center gap-2 text-sm font-medium"
                     >
                       Read the article
                       <ArrowRightIcon className="h-4 w-4" />
@@ -98,7 +98,7 @@ export default function InsightsPage() {
                   {/* PRD §17 — every article links to at least two service
                       pages, which is also how orphan pages get crawled. */}
                   <div className="border-line lg:border-l lg:pl-8">
-                    <p className="text-ink-400 text-xs font-semibold tracking-[0.12em] uppercase">
+                    <p className="text-ink-400 text-xs">
                       Related services
                     </p>
                     <ul className="mt-3.5 grid gap-2">
@@ -109,7 +109,7 @@ export default function InsightsPage() {
                           <li key={slug}>
                             <Link
                               href={`/${slug}`}
-                              className="group text-ink-600 hover:text-brand-700 inline-flex items-center gap-1.5 text-sm font-medium transition-colors"
+                              className="group text-ink-600 hover:text-ink inline-flex items-center gap-1.5 text-sm font-medium transition-colors"
                             >
                               {service.nav}
                               <ArrowRightIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -126,14 +126,14 @@ export default function InsightsPage() {
                 <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {rest.map((article) => (
                     <Card as="li" key={article.slug} className="h-full">
-                      <p className="text-ink-400 text-xs font-semibold tracking-[0.14em] uppercase">
+                      <p className="text-ink-400 text-xs">
                         {formatDate(article.publishedAt)} &middot;{" "}
                         {article.readingMinutes} min
                       </p>
-                      <h2 className="font-display text-ink mt-3 text-[1.0625rem] leading-snug font-semibold">
+                      <h2 className="font-display text-ink mt-3 text-[1.0625rem] leading-snug font-normal">
                         <Link
                           href={`/insights/${article.slug}`}
-                          className="hover:text-brand-700 transition-colors"
+                          className="link-draw"
                         >
                           {article.title}
                         </Link>
@@ -141,7 +141,7 @@ export default function InsightsPage() {
                       <p className="text-ink-500 mt-2.5 text-sm leading-relaxed">
                         {article.description}
                       </p>
-                      <span className="text-brand-700 mt-4 inline-flex items-center gap-1.5 text-sm font-semibold">
+                      <span className="text-brand-700 mt-4 inline-flex items-center gap-1.5 text-sm font-medium">
                         Read
                         <ArrowRightIcon className="h-4 w-4" />
                       </span>

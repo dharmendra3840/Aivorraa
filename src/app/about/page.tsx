@@ -164,7 +164,7 @@ export default function AboutPage() {
             {/* Entity facts panel. Only verified values are rendered. */}
             <div className="lg:pt-20">
               <Card className="rise rise-5">
-                <h2 className="font-display text-ink text-base font-semibold">
+                <h2 className="font-display text-ink text-base font-normal">
                   Company details
                 </h2>
                 <dl className="mt-5 grid gap-4 text-sm">
@@ -255,12 +255,12 @@ export default function AboutPage() {
                 as="li"
                 key={principle.title}
                 style={staggerStyle(i)}
-                className="lift spot-edge sd-enter-soft h-full"
+                className="h-full"
               >
                 <span className="bg-brand-50 text-brand-700 mb-4 flex h-11 w-11 items-center justify-center rounded-2xl">
                   <Icon name={principle.icon} className="h-5 w-5" />
                 </span>
-                <h3 className="font-display text-ink text-[1.0625rem] font-semibold">
+                <h3 className="font-display text-ink text-[1.0625rem] font-normal">
                   {principle.title}
                 </h3>
                 <p className="text-ink-500 mt-2.5 text-sm leading-relaxed">
@@ -299,7 +299,7 @@ function Fact({
 }) {
   return (
     <div>
-      <dt className="text-ink-400 text-xs font-semibold tracking-[0.12em] uppercase">
+      <dt className="text-ink-400 text-xs">
         {label}
       </dt>
       <dd className="text-ink-600 mt-1">{children}</dd>

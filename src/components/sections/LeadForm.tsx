@@ -125,9 +125,9 @@ export function LeadForm({
         <span className="bg-lime-100 text-lime-600 mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full">
           <CheckIcon className="h-7 w-7" strokeWidth={2.5} />
         </span>
-        <h3 className="font-display text-ink text-2xl font-semibold">
+        <h2 className="text-ink text-3xl">
           Enquiry received
-        </h3>
+        </h2>
         <p className="text-ink-500 mx-auto mt-3 max-w-md leading-relaxed">
           {state.message}
         </p>
@@ -138,7 +138,7 @@ export function LeadForm({
   return (
     <form
       action={formAction}
-      className="bg-surface border-line shadow-card rounded-card border p-6 sm:p-8"
+      className="bg-surface rounded-card p-6 sm:p-8"
       noValidate
     >
       {/* Honeypot. Hidden from sight and from assistive technology, but a bot
@@ -163,7 +163,7 @@ export function LeadForm({
           tabIndex={-1}
           role="alert"
           aria-live="assertive"
-          className="border-danger/25 bg-danger/5 text-danger mb-6 rounded-2xl border p-4 text-sm font-medium"
+          className="border-danger/25 bg-danger/5 text-danger mb-6 rounded-md border p-4 text-sm font-medium"
         >
           {state.message}
         </div>
@@ -219,7 +219,10 @@ export function LeadForm({
             value={service}
             onChange={(e) => setService(e.target.value)}
             aria-invalid={Boolean(errors.service) || undefined}
-            className="border-line focus:border-brand-400 mt-2 w-full appearance-none rounded-2xl border bg-ink-50 px-4 py-3 text-[0.9375rem] transition-colors"
+            aria-describedby={
+              errors.service ? `${formId}-service-error` : undefined
+            }
+            className="border-line focus:border-brand-400 mt-2 w-full appearance-none rounded-md border bg-page px-4 py-3 text-[0.9375rem] transition-colors"
           >
             <option value="not-sure">Not sure yet — help me decide</option>
             {SERVICE_NAV.map((s) => (
@@ -228,7 +231,9 @@ export function LeadForm({
               </option>
             ))}
           </select>
-          {errors.service ? <FieldError>{errors.service}</FieldError> : null}
+          {errors.service ? (
+            <FieldError id={`${formId}-service-error`}>{errors.service}</FieldError>
+          ) : null}
         </div>
 
         {showBudget ? (
@@ -280,7 +285,7 @@ export function LeadForm({
               errors.message ? `${formId}-message-error` : undefined
             }
             className={cx(
-              "border-line focus:border-brand-400 placeholder:text-ink-400 mt-2 w-full resize-y rounded-2xl border bg-ink-50 px-4 py-3 text-[0.9375rem] transition-colors",
+              "border-line focus:border-brand-400 placeholder:text-ink-400 mt-2 w-full resize-y rounded-md border bg-page px-4 py-3 text-[0.9375rem] transition-colors",
               errors.message && "border-danger",
             )}
           />
@@ -339,7 +344,7 @@ function FieldLabel({
   return (
     <label
       htmlFor={htmlFor}
-      className="text-ink flex items-baseline gap-2 text-sm font-semibold"
+      className="text-ink flex items-baseline gap-2 text-sm font-medium"
     >
       {label}
       {required ? (
@@ -400,7 +405,7 @@ function Field({
         aria-invalid={Boolean(error) || undefined}
         aria-describedby={error ? `${id}-error` : undefined}
         className={cx(
-          "border-line focus:border-brand-400 mt-2 w-full rounded-2xl border bg-ink-50 px-4 py-3 text-[0.9375rem] transition-colors",
+          "border-line focus:border-brand-400 mt-2 w-full rounded-md border bg-page px-4 py-3 text-[0.9375rem] transition-colors",
           error && "border-danger",
         )}
         {...rest}
@@ -432,7 +437,7 @@ function SelectField({
         id={id}
         name={name}
         defaultValue={defaultValue ?? ""}
-        className="border-line focus:border-brand-400 mt-2 w-full appearance-none rounded-2xl border bg-ink-50 px-4 py-3 text-[0.9375rem] transition-colors"
+        className="border-line focus:border-brand-400 mt-2 w-full appearance-none rounded-md border bg-page px-4 py-3 text-[0.9375rem] transition-colors"
       >
         <option value="">Select…</option>
         {options.map((option) => (

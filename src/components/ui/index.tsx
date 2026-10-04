@@ -2,6 +2,8 @@ import Link from "next/link";
 import type { CSSProperties, ComponentProps, ReactNode } from "react";
 import type { Accent } from "@/content/types";
 import { ArrowRightIcon } from "@/components/icons";
+import { Reveal } from "@/components/motion/Reveal";
+import { splitWords } from "@/components/motion/SplitWords";
 
 export function cx(...parts: Array<string | false | null | undefined>) {
   return parts.filter(Boolean).join(" ");
@@ -21,6 +23,11 @@ export function Container({
   return <div className={cx("container-page", className)}>{children}</div>;
 }
 
+/**
+ * A page band. The reference is almost entirely white with generous air, so
+ * the default is plain; `surface` is the quiet grey band and `ink` the
+ * charcoal contrast panel (its tokens flip via `.scope-dark`).
+ */
 export function Section({
   className,
   children,
@@ -32,19 +39,21 @@ export function Section({
   id?: string;
   tone?: "plain" | "surface" | "ink";
 }) {
+  /*
+    `cx` does not resolve conflicts, and the responsive defaults (`sm:`,
+    `lg:`) are emitted after a plain `pt-8`, so they would win above 640px.
+    A caller that sets its own top or bottom padding therefore gets no
+    default on that side at all.
+  */
+  const ownTop = /(?:^|\s)!?(?:[a-z]+:)?(?:pt|py)-/.test(className ?? "");
+  const ownBottom = /(?:^|\s)!?(?:[a-z]+:)?(?:pb|py)-/.test(className ?? "");
   return (
     <section
       id={id}
       className={cx(
-        "py-16 sm:py-20 lg:py-28",
-        /*
-          A soft vertical wash rather than a flat tinted band: a flat band has
-          hard top and bottom edges that read as a rendering seam.
-        */
-        tone === "surface" &&
-          "bg-[linear-gradient(180deg,transparent,var(--color-page-tint)_18%,var(--color-page-tint)_82%,transparent)]",
-        // "ink" is the historical name for the contrast panel: an espresso
-        // band, with every token inside it flipped by .scope-dark.
+        !ownTop && "pt-20 sm:pt-28 lg:pt-36",
+        !ownBottom && "pb-20 sm:pb-28 lg:pb-36",
+        tone === "surface" && "bg-page-tint",
         tone === "ink" && "scope-dark bg-panel text-ink",
         className,
       )}
@@ -54,45 +63,93 @@ export function Section({
   );
 }
 
-/** Small uppercase label that sits above a section heading. */
-export function Eyebrow({ children }: { children: ReactNode }) {
+/** The small "✦ Label" that sits above a section heading. */
+export function Eyebrow({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
   return (
-    <p className="mb-4 flex items-center gap-2.5 text-[0.7rem] font-semibold tracking-[0.16em] text-ink-400 uppercase">
-      <span
-        aria-hidden="true"
-        className="bg-lime-400 inline-block h-1.5 w-1.5 rounded-full shadow-[0_0_10px_rgba(var(--glow-rgb),0.44)]"
-      />
+    <p className={cx("eyebrow mb-5", className)}>
+      <span aria-hidden="true">&#10022;</span>
       {children}
     </p>
   );
 }
 
+/**
+ * Section heading: eyebrow, a light display headline that rises word by word
+ * (motion.css §1), and an optional lede.
+ *
+ * `layout="split"` is the reference's arrangement -- the headline on the left
+ * and the lede as a small column on the right, aligned to its last line.
+ */
 export function SectionHeading({
   eyebrow,
   title,
   lede,
   align = "left",
+  layout = "stack",
   as: Tag = "h2",
+  action,
 }: {
   eyebrow?: string;
   title: ReactNode;
   lede?: ReactNode;
   align?: "left" | "center";
+  layout?: "stack" | "split";
   as?: "h1" | "h2";
+  /** A link or button set at the end of the heading row. */
+  action?: ReactNode;
 }) {
-  return (
-    <div
-      className={cx(
-        "max-w-3xl",
-        align === "center" && "mx-auto text-center",
-      )}
-    >
-      {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
-      <Tag className="sd-enter text-[2rem] sm:text-[2.5rem] lg:text-[3rem]">
-        {title}
+  const head = (
+    <Reveal className={cx(layout === "stack" && "max-w-4xl", align === "center" && "mx-auto text-center")}>
+      {eyebrow ? <Eyebrow className={align === "center" ? "justify-center" : undefined}>{eyebrow}</Eyebrow> : null}
+      <Tag className="text-[2.35rem] sm:text-[3rem] lg:text-[3.6rem]">
+        {splitWords(title)}
       </Tag>
+    </Reveal>
+  );
+
+  if (layout === "split") {
+    return (
+      <div className="grid gap-8 lg:grid-cols-[1.25fr_1fr] lg:items-end lg:gap-20">
+        {head}
+        <Reveal delay={150} className="flex flex-col gap-6 lg:items-end">
+          {lede ? (
+            <p className="text-ink-500 max-w-md text-[0.9375rem] leading-relaxed">
+              {lede}
+            </p>
+          ) : null}
+          {action}
+        </Reveal>
+      </div>
+    );
+  }
+
+  return (
+    <div className={cx(align === "center" && "mx-auto text-center")}>
+      {action ? (
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          {head}
+          <Reveal delay={150}>{action}</Reveal>
+        </div>
+      ) : (
+        head
+      )}
       {lede ? (
-        <p className="text-ink-500 mt-5 text-lg leading-relaxed">{lede}</p>
+        <Reveal delay={120}>
+          <p
+            className={cx(
+              "text-ink-500 mt-6 max-w-2xl text-lg leading-relaxed",
+              align === "center" && "mx-auto",
+            )}
+          >
+            {lede}
+          </p>
+        </Reveal>
       ) : null}
     </div>
   );
@@ -104,50 +161,38 @@ export function SectionHeading({
 
 /**
  * NOTE ON `className` OVERRIDES
+ * `cx` only concatenates; it does not resolve Tailwind conflicts. Safe to pass:
+ * margin, width, and anything the base does not set. To control visibility or
+ * layout, wrap the component instead.
  *
- * `cx` only concatenates; it does not resolve Tailwind conflicts. Two utilities
- * that set the same property are decided by their order in the generated
- * stylesheet, not by their order in the attribute — so passing `hidden` to a
- * component whose base classes include `inline-flex` does NOT hide it.
+ * `magnetic` (PointerFX) owns the `translate` property, so no variant uses a
+ * translate utility on hover -- the two would fight.
  *
- * Safe to pass: margin, width, and anything the base does not already set.
- * NOT safe: display, padding, font-size, border-radius. To control visibility
- * or layout, wrap the component in an element that carries those classes.
- *
- * `whitespace-nowrap` is in the base deliberately: a wrapped label turns a pill
- * button into a blob, which is what happens to "Let's Talk" at 320px.
- */
-/*
- * `magnetic` makes the button drift a few pixels toward the cursor as it
- * approaches — see PointerFX and motion-advanced.css. It animates the
- * `translate` property, NOT `transform`, so the Tailwind
- * `hover:-translate-y-0.5` in the variants below still applies
- * independently rather than one clobbering the other.
+ * The reference's buttons: small, squared-off (6px), charcoal with a chevron;
+ * here the hover fills them with the lime accent.
  */
 const BUTTON_BASE =
-  "magnetic group/btn inline-flex items-center justify-center gap-2 rounded-pill font-semibold whitespace-nowrap transition duration-200 disabled:pointer-events-none disabled:opacity-60";
+  "magnetic group/btn inline-flex items-center justify-center gap-2.5 rounded-md font-medium whitespace-nowrap tracking-[-0.01em] disabled:pointer-events-none disabled:opacity-60";
 
 const BUTTON_VARIANTS = {
-  /** Espresso with paper text on the page (15.6:1), cream with espresso text
-   *  inside .scope-dark -- the primary conversion action. */
-  primary:
-    "bg-signal text-page shadow-glow hover:bg-signal-soft hover:-translate-y-0.5 active:translate-y-0",
-  /** Solid full-contrast pill -- a strong secondary action. */
-  ink: "bg-ink text-page shadow-pill hover:bg-ink-700 hover:-translate-y-0.5 active:translate-y-0",
-  /** Glass pill with hairline border — secondary action. */
+  /** Charcoal, white text (17.2:1); lime with ink text on hover. */
+  primary: "bg-signal text-page hover:bg-lime-400 hover:text-[#0f0f0f]",
+  /** Same weight as primary -- kept for existing call sites. */
+  ink: "bg-ink text-page hover:bg-lime-400 hover:text-[#0f0f0f]",
+  /** Hairline outline; fills with ink on hover. */
   outline:
-    "bg-[rgba(var(--hi-rgb),0.03)] text-ink border border-line-strong backdrop-blur-sm hover:border-brand-400 hover:bg-[rgba(var(--hi-rgb),0.06)] hover:-translate-y-0.5 active:translate-y-0",
-  /** Transparent, for use inside dark sections. */
+    "text-ink border border-line-strong hover:bg-ink hover:text-page hover:border-ink",
+  /** Outline for charcoal panels. */
   ghostLight:
-    "bg-[rgba(var(--hi-rgb),0.1)] text-ink border border-line hover:bg-[rgba(var(--hi-rgb),0.16)]",
-  /** Text-only with an arrow. */
-  link: "text-brand-700 hover:text-brand-800 underline-offset-4 hover:underline",
+    "text-ink border border-line-strong hover:bg-ink hover:text-page hover:border-ink",
+  /** Text with a drawn underline and an arrow -- the reference's text links. */
+  link: "text-ink",
 } as const;
 
 const BUTTON_SIZES = {
-  sm: "px-4 py-2 text-sm",
-  md: "px-5 py-2.5 text-[0.9375rem]",
-  lg: "px-7 py-4 text-base",
+  sm: "h-9 px-3.5 text-[0.8125rem]",
+  md: "h-11 px-4.5 text-[0.9375rem]",
+  lg: "h-13 px-6 text-base",
 } as const;
 
 type ButtonVariant = keyof typeof BUTTON_VARIANTS;
@@ -168,8 +213,29 @@ function buttonClasses({
   return cx(
     BUTTON_BASE,
     BUTTON_VARIANTS[variant],
-    variant === "link" ? "" : BUTTON_SIZES[size],
+    variant === "link" ? "py-1" : BUTTON_SIZES[size],
     className,
+  );
+}
+
+function ButtonInner({
+  children,
+  variant,
+  withArrow,
+}: {
+  children: ReactNode;
+  variant: ButtonVariant;
+  withArrow: boolean;
+}) {
+  return (
+    <>
+      <span className={variant === "link" ? "link-line" : undefined}>
+        {children}
+      </span>
+      {withArrow || variant === "link" ? (
+        <ArrowRightIcon className="h-[1.05em] w-[1.05em] shrink-0 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/btn:translate-x-1" />
+      ) : null}
+    </>
   );
 }
 
@@ -189,10 +255,9 @@ export function ButtonLink({
       className={buttonClasses({ variant, size, className })}
       {...rest}
     >
-      {children}
-      {withArrow ? (
-        <ArrowRightIcon className="h-[1.1em] w-[1.1em] shrink-0 transition-transform duration-300 group-hover/btn:translate-x-1" />
-      ) : null}
+      <ButtonInner variant={variant} withArrow={withArrow}>
+        {children}
+      </ButtonInner>
     </Link>
   );
 }
@@ -207,10 +272,9 @@ export function Button({
 }: ButtonStyleProps & ComponentProps<"button">) {
   return (
     <button className={buttonClasses({ variant, size, className })} {...rest}>
-      {children}
-      {withArrow ? (
-        <ArrowRightIcon className="h-[1.1em] w-[1.1em] shrink-0 transition-transform duration-300 group-hover/btn:translate-x-1" />
-      ) : null}
+      <ButtonInner variant={variant} withArrow={withArrow}>
+        {children}
+      </ButtonInner>
     </button>
   );
 }
@@ -219,6 +283,7 @@ export function Button({
 /* Surfaces                                                                   */
 /* -------------------------------------------------------------------------- */
 
+/** The reference's quiet grey card: no border, no shadow, generous padding. */
 export function Card({
   className,
   children,
@@ -234,17 +299,14 @@ export function Card({
   return (
     <Tag
       style={style}
-      className={cx(
-        "spot bg-surface border-line shadow-card rounded-card border p-6 sm:p-7",
-        className,
-      )}
+      className={cx("bg-surface rounded-card p-7 sm:p-8", className)}
     >
       {children}
     </Tag>
   );
 }
 
-/** White pill chip — used for the hero feature and tech chips. */
+/** Small outlined tag, as under the reference's project images. */
 export function Chip({
   children,
   icon,
@@ -257,15 +319,11 @@ export function Chip({
   return (
     <span
       className={cx(
-        "pill-surface rounded-pill text-ink inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold",
+        "bg-surface text-ink-600 inline-flex items-center gap-1.5 rounded-[0.3rem] px-2 py-1 text-[0.6875rem] font-medium tracking-[0.01em]",
         className,
       )}
     >
-      {icon ? (
-        <span className="text-brand-600 [&>svg]:h-[1.15em] [&>svg]:w-[1.15em]">
-          {icon}
-        </span>
-      ) : null}
+      {icon}
       {children}
     </span>
   );
@@ -276,28 +334,19 @@ export function Chip({
 /* -------------------------------------------------------------------------- */
 
 /**
- * Per-service accent theming, carried over from the existing site's animated
- * mega-menu scenes (PRD §18 — "a genuine differentiator").
+ * Per-service accent theming. The monochrome system gives every service the
+ * same treatment; the `accent` field stays on each service so a future
+ * treatment can use it.
  */
 export const ACCENT: Record<
   Accent,
   { bg: string; text: string; ring: string; dot: string }
 > = (() => {
-  /*
-    Every service tile shares ONE treatment: a dark tile with a pale icon,
-    which fills with the primary grey on hover.
-
-    This used to be six hues (blue, lime, violet, cyan, amber, rose) -- one
-    per service. PRD §18 framed per-service colour as a differentiator, but
-    the palette study found the opposite at the top tier: one accent, used
-    sparingly -- and a one-hue palette has none at all. Six hues is a rainbow. The
-    `accent` field stays on each service so a future treatment can use it.
-  */
   const unified = {
-    bg: "bg-ink-100",
-    text: "text-ink-700",
-    ring: "group-hover:ring-signal/40",
-    dot: "bg-signal",
+    bg: "bg-surface",
+    text: "text-ink",
+    ring: "group-hover:ring-ink/20",
+    dot: "bg-lime-400",
   };
   return {
     blue: unified,

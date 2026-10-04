@@ -81,7 +81,7 @@ export default async function ArticlePage({ params }: Params) {
 
         <article className="pt-10 sm:pt-14">
           <header className="mx-auto max-w-3xl">
-            <p className="text-brand-700 mb-4 text-[0.7rem] font-semibold tracking-[0.16em] uppercase">
+            <p className="text-brand-700 mb-4 text-[0.7rem]">
               Insights
             </p>
             {/* PRD §15 — exactly one H1 per page. */}
@@ -135,18 +135,18 @@ export default async function ArticlePage({ params }: Params) {
               <ul className="mt-8 grid gap-4 sm:grid-cols-2">
                 {others.map((other) => (
                   <Card as="li" key={other.slug} className="h-full">
-                    <p className="text-ink-400 text-xs font-semibold tracking-[0.14em] uppercase">
+                    <p className="text-ink-400 text-xs">
                       {other.readingMinutes} min read
                     </p>
-                    <h3 className="font-display text-ink mt-3 text-[1.0625rem] leading-snug font-semibold">
+                    <h3 className="font-display text-ink mt-3 text-[1.0625rem] leading-snug font-normal">
                       <Link
                         href={`/insights/${other.slug}`}
-                        className="hover:text-brand-700 transition-colors"
+                        className="link-draw"
                       >
                         {other.title}
                       </Link>
                     </h3>
-                    <span className="text-brand-700 mt-4 inline-flex items-center gap-1.5 text-sm font-semibold">
+                    <span className="text-brand-700 mt-4 inline-flex items-center gap-1.5 text-sm font-medium">
                       Read
                       <ArrowRightIcon className="h-4 w-4" />
                     </span>

@@ -73,6 +73,12 @@ export function PageTransition() {
     }
   }
 
+  // The app is running: tells the inline head script's failsafe to stand
+  // down (see layout.tsx). Mounted once, in the root layout.
+  useEffect(() => {
+    (window as Window & { __aivReady?: boolean }).__aivReady = true;
+  }, []);
+
   // The navigation has landed; accept the next click.
   useEffect(() => {
     busy.current = false;
@@ -130,21 +136,10 @@ export function PageTransition() {
       data-phase={phase}
       aria-hidden="true"
     >
-      <div className="flex flex-col items-center gap-5">
-        {/* The monogram from the logo-reveal video. A plain <img>: the
-            curtain is on screen for well under a second on first load and
-            must not wait on the image optimiser. */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/brand/monogram-160.png"
-          alt=""
-          width={56}
-          height={56}
-          className="curtain-mono"
-        />
-        <span className="curtain-mark">AIVORRAA</span>
-        <span className="curtain-rule" />
-      </div>
+      {/* The name rises out of a mask while the panel holds the screen. */}
+      <span className="curtain-mark">
+        <span>Aivorraa</span>
+      </span>
     </div>
   );
 }

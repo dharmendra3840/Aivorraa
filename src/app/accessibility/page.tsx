@@ -92,9 +92,11 @@ export default function AccessibilityPage() {
                 choice is remembered.
               </li>
               <li>
-                <strong>Content never depends on animation.</strong> Nothing is
-                hidden until an animation runs, so the full content is available
-                with animation off, JavaScript disabled, or a slow connection.
+                <strong>Content never depends on animation.</strong> Sections
+                fade in as you scroll, but nothing is hidden when JavaScript is
+                disabled, and with &ldquo;reduce motion&rdquo; set everything is
+                shown at once. If the page&apos;s scripts fail to load, the
+                content is revealed automatically after a few seconds.
               </li>
               <li>
                 <strong>Forms.</strong> Every field has a visible label, required
@@ -117,10 +119,17 @@ export default function AccessibilityPage() {
             <h2>Known limitations</h2>
             <ul>
               <li>
-                Some decorative illustrations &mdash; the dashboard on the
-                homepage and the small diagrams on service pages &mdash; are
-                drawn for visual interest and are hidden from screen readers.
-                Everything they depict is also described in the page text.
+                Some decorative elements &mdash; the looping background video
+                and the moving dot pattern on the homepage, the automation run
+                log, and the large name in the footer &mdash; are there for
+                visual interest and are hidden from screen readers. Everything
+                they depict is also described in the page text.
+              </li>
+              <li>
+                The navigation at the top of the page inverts its colour against
+                whatever scrolls beneath it. Where it crosses a mid-tone part of
+                a photograph, its contrast can briefly drop. If your device is
+                set to increase contrast, a solid header bar is used instead.
               </li>
               <li>
                 The page-change transition briefly covers the screen (about one

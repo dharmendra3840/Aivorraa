@@ -26,7 +26,7 @@ export default function NotFound() {
     <Section>
       <Container>
         <div className="mx-auto max-w-3xl text-center">
-          <p className="font-display text-brand-200 text-7xl font-bold sm:text-8xl">
+          <p className="font-display text-brand-200 text-7xl font-normal sm:text-8xl">
             404
           </p>
           <h1 className="mt-4 text-[2rem] sm:text-[2.75rem]">
@@ -47,7 +47,7 @@ export default function NotFound() {
         </div>
 
         <div className="mx-auto mt-16 max-w-4xl">
-          <p className="text-ink-400 mb-5 text-center text-xs font-semibold tracking-[0.14em] uppercase">
+          <p className="text-ink-400 mb-5 text-center text-xs">
             All services
           </p>
           <ul className="grid gap-2.5 sm:grid-cols-2">
@@ -68,7 +68,7 @@ export default function NotFound() {
                     >
                       <Icon name={service.icon} className="h-5 w-5" />
                     </span>
-                    <span className="text-ink group-hover:text-brand-700 flex-1 text-[0.9375rem] font-semibold transition-colors">
+                    <span className="text-ink group-hover:text-ink-600 flex-1 text-[0.9375rem] font-medium transition-colors">
                       {service.nav}
                     </span>
                     <ArrowRightIcon className="text-ink-400 h-4 w-4 transition-transform group-hover:translate-x-1" />

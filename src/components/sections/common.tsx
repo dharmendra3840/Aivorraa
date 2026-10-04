@@ -2,20 +2,22 @@ import Link from "next/link";
 
 import type { Faq, Service } from "@/content/types";
 import { SERVICES } from "@/content/services";
+import { SERVICE_MEDIA } from "@/content/media";
 import {
-  ACCENT,
   ButtonLink,
   Card,
   Container,
+  Eyebrow,
   Section,
   SectionHeading,
   cx,
 } from "@/components/ui";
-import { ArrowRightIcon, CheckIcon, Icon, MinusIcon } from "@/components/icons";
+import { ArrowRightIcon, CheckIcon, MinusIcon } from "@/components/icons";
 import { CONTACT } from "@/lib/site-config";
 import { Reveal } from "@/components/motion/Reveal";
-import { MonogramVideo } from "@/components/brand/MonogramVideo";
+import { splitWords } from "@/components/motion/SplitWords";
 import { staggerStyle } from "@/components/motion/stagger";
+import { Photo } from "@/components/media/Photo";
 
 /* -------------------------------------------------------------------------- */
 /* Breadcrumbs                                                                */
@@ -32,28 +34,28 @@ export function Breadcrumbs({
   trail: Array<{ name: string; path: string }>;
 }) {
   return (
-    <nav aria-label="Breadcrumb" className="pt-10 sm:pt-12">
-      <ol className="text-ink-400 flex flex-wrap items-center gap-1.5 text-sm">
+    <nav aria-label="Breadcrumb" className="pt-8 sm:pt-10">
+      <ol className="text-ink-400 flex flex-wrap items-center gap-2 text-[0.8125rem]">
         <li>
-          <Link href="/" className="hover:text-ink transition-colors">
+          <Link href="/" className="link-draw hover:text-ink transition-colors">
             Home
           </Link>
         </li>
         {trail.map((item, i) => {
           const isLast = i === trail.length - 1;
           return (
-            <li key={item.path} className="flex items-center gap-1.5">
-              <span aria-hidden="true" className="text-ink-200">
+            <li key={item.path} className="flex items-center gap-2">
+              <span aria-hidden="true" className="text-ink-300">
                 /
               </span>
               {isLast ? (
-                <span className="text-ink-600 font-medium" aria-current="page">
+                <span className="text-ink" aria-current="page">
                   {item.name}
                 </span>
               ) : (
                 <Link
                   href={item.path}
-                  className="hover:text-ink transition-colors"
+                  className="link-draw hover:text-ink transition-colors"
                 >
                   {item.name}
                 </Link>
@@ -70,6 +72,11 @@ export function Breadcrumbs({
 /* Page header                                                                */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * The top of every inner page, in the reference's arrangement: a very large
+ * light headline that rises word by word on load, and the lede as a small
+ * column to the right.
+ */
 export function PageHeader({
   eyebrow,
   title,
@@ -82,23 +89,25 @@ export function PageHeader({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="pt-10 pb-4 sm:pt-14">
-      <div className="max-w-3xl">
-        {eyebrow ? (
-          <p className="rise rise-1 text-brand-700 mb-4 text-[0.7rem] font-semibold tracking-[0.16em] uppercase">
-            {eyebrow}
-          </p>
-        ) : null}
+    <div className="pt-14 pb-6 sm:pt-20 lg:pt-24">
+      {eyebrow ? (
+        <Eyebrow className="rise rise-1">{eyebrow}</Eyebrow>
+      ) : null}
+      <div className="grid gap-10 lg:grid-cols-[1.5fr_1fr] lg:items-end lg:gap-20">
         {/* PRD §15 — exactly one H1 per page, supplied here. */}
-        <h1 className="rise rise-2 text-[2.25rem] sm:text-[3rem] lg:text-[3.5rem]">
-          {title}
+        <h1 className="split-load max-w-5xl text-[2.6rem] sm:text-[3.6rem] lg:text-[4.5rem]">
+          {splitWords(title)}
         </h1>
-        {lede ? (
-          <p className="rise rise-3 text-ink-500 mt-6 text-lg leading-relaxed sm:text-xl">
-            {lede}
-          </p>
+        {lede || children ? (
+          <div className="rise rise-3 flex flex-col gap-7 lg:pb-3">
+            {lede ? (
+              <p className="text-ink-500 max-w-md text-[1.0625rem] leading-relaxed">
+                {lede}
+              </p>
+            ) : null}
+            {children}
+          </div>
         ) : null}
-        {children ? <div className="rise rise-4 mt-8">{children}</div> : null}
       </div>
     </div>
   );
@@ -108,6 +117,7 @@ export function PageHeader({
 /* Service grid                                                               */
 /* -------------------------------------------------------------------------- */
 
+/** Every service as an image card -- the reference's work-grid treatment. */
 export function ServiceGrid({
   services = SERVICES,
   className,
@@ -118,48 +128,36 @@ export function ServiceGrid({
   return (
     <ul
       className={cx(
-        "grid gap-4 sm:grid-cols-2 lg:grid-cols-4",
+        "grid gap-x-5 gap-y-14 sm:grid-cols-2 lg:grid-cols-4",
         className,
       )}
     >
-      {services.map((service, i) => {
-        const accent = ACCENT[service.accent];
-        return (
-          <li key={service.slug} style={staggerStyle(i)}>
-            <Link
-              href={`/${service.slug}`}
-              className="lift spot-edge card-sweep sd-enter-soft group bg-surface border-line shadow-card hover:border-line-strong flex h-full flex-col rounded-card border p-6"
-            >
-              {/*
-                The icon tile inverts on hover — its pastel wash fills with the
-                brand and the glyph goes to paper. A colour inversion on a small
-                solid shape reads instantly and costs nothing in legibility,
-                which is the opposite of a large translucent wash over the copy.
-              */}
+      {services.map((service, i) => (
+        <li key={service.slug} className="sd-enter-soft" style={staggerStyle(i)}>
+          <Link href={`/${service.slug}`} className="img-zoom group block" data-cursor-text="View">
+            <Photo
+              id={SERVICE_MEDIA[service.slug] ?? "svc-web"}
+              sizes="(min-width: 1024px) 24vw, (min-width: 640px) 48vw, 100vw"
+              className="rounded-card aspect-[4/5]"
+              alt=""
+            />
+            <span className="mt-5 flex items-baseline justify-between gap-4">
+              <span className="text-[1.375rem] font-light tracking-[-0.03em]">
+                <span className="link-draw">{service.nav}</span>
+              </span>
               <span
-                className={cx(
-                  "group-hover:bg-brand-600 mb-5 flex h-12 w-12 items-center justify-center rounded-2xl transition-[transform,background-color,color] duration-500 group-hover:-rotate-6 group-hover:scale-110 group-hover:text-ink",
-                  accent.bg,
-                  accent.text,
-                )}
+                aria-hidden="true"
+                className="text-ink-400 font-mono text-xs"
               >
-                <Icon name={service.icon} className="h-6 w-6" />
+                {String(i + 1).padStart(2, "0")}
               </span>
-              <h3 className="font-display text-ink group-hover:text-brand-700 text-lg font-semibold transition-colors">
-                {service.nav}
-              </h3>
-              <p className="text-ink-500 mt-2.5 flex-1 text-sm leading-relaxed">
-                {service.summary}
-              </p>
-              {/* The rule under "Explore" draws out from the left on hover. */}
-              <span className="text-brand-700 mt-5 inline-flex items-center gap-1.5 self-start text-sm font-semibold">
-                <span className="card-underline relative">Explore</span>
-                <ArrowRightIcon className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-              </span>
-            </Link>
-          </li>
-        );
-      })}
+            </span>
+            <span className="text-ink-500 mt-2 block text-sm leading-relaxed">
+              {service.summary}
+            </span>
+          </Link>
+        </li>
+      ))}
     </ul>
   );
 }
@@ -168,31 +166,29 @@ export function ServiceGrid({
 /* Process                                                                    */
 /* -------------------------------------------------------------------------- */
 
+/** Numbered stages as ruled rows that brighten as they pass (motion §5). */
 export function ProcessSteps({
   steps,
 }: {
   steps: Array<{ title: string; body: string }>;
 }) {
   return (
-    <ol className="timeline-rail grid gap-4 pt-6 sm:grid-cols-2 lg:grid-cols-3">
+    <ol className="border-line border-t">
       {steps.map((step, i) => (
         <li
           key={step.title}
-          style={staggerStyle(i)}
-          className="lift spot-edge card-sweep sd-enter-soft bg-surface border-line rounded-card relative border p-6"
+          className="lit-row border-line grid gap-3 border-b py-8 sm:grid-cols-[6rem_1fr_1.4fr] sm:gap-10 sm:py-10"
         >
           <span
             aria-hidden="true"
-            className="font-display text-brand-100 absolute top-4 right-5 text-4xl font-bold"
+            className="lit-num font-mono text-sm"
           >
             {String(i + 1).padStart(2, "0")}
           </span>
-          <h3 className="font-display text-ink relative text-base font-semibold">
+          <h3 className="text-2xl font-light tracking-[-0.03em] sm:text-[1.75rem]">
             {step.title}
           </h3>
-          <p className="text-ink-500 mt-2.5 text-sm leading-relaxed">
-            {step.body}
-          </p>
+          <p className="text-ink-500 max-w-xl leading-relaxed">{step.body}</p>
         </li>
       ))}
     </ol>
@@ -211,23 +207,21 @@ export function DeliverablesList({
   excluded: string[];
 }) {
   return (
-    <div className="grid gap-8 lg:grid-cols-[1.6fr_1fr] lg:gap-12">
-      <Reveal as="ul" mode="group" className="grid gap-4 sm:grid-cols-2">
+    <div className="grid gap-10 lg:grid-cols-[1.6fr_1fr] lg:gap-16">
+      <Reveal as="ul" mode="group" className="grid gap-x-10 sm:grid-cols-2">
         {included.map((item, i) => (
           <li
             key={item.title}
             style={staggerStyle(i)}
-            className="lift spot-edge card-sweep sd-enter-soft bg-surface border-line rounded-card border p-5"
+            className="border-line border-t py-6"
           >
-            <div className="flex items-start gap-3">
-              <span className="bg-lime-100 text-lime-600 mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
-                <CheckIcon className="h-3.5 w-3.5" strokeWidth={2.5} />
+            <div className="flex items-start gap-3.5">
+              <span className="bg-lime-400 mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[#0f0f0f]">
+                <CheckIcon className="h-3 w-3" strokeWidth={2.5} />
               </span>
               <div>
-                <h3 className="font-display text-ink text-[0.9375rem] font-semibold">
-                  {item.title}
-                </h3>
-                <p className="text-ink-500 mt-1.5 text-sm leading-relaxed">
+                <h3 className="text-[1.0625rem]">{item.title}</h3>
+                <p className="text-ink-500 mt-2 text-sm leading-relaxed">
                   {item.body}
                 </p>
               </div>
@@ -238,20 +232,18 @@ export function DeliverablesList({
 
       {/* PRD §15.3 — deliverables AND exclusions. Stating what is not included
           is what prevents scope disputes later, so it is given equal weight. */}
-      <Reveal className="bg-ink-50 border-line rounded-card h-fit border p-6">
-        <h3 className="font-display text-ink text-base font-semibold">
-          Not included
-        </h3>
-        <p className="text-ink-400 mt-1.5 text-sm">
+      <Reveal className="bg-surface rounded-card h-fit p-7 sm:p-8">
+        <h3 className="text-xl">Not included</h3>
+        <p className="text-ink-500 mt-1.5 text-sm">
           Stated up front rather than discovered mid-project.
         </p>
-        <ul className="mt-4 grid gap-3">
+        <ul className="mt-5 grid gap-3">
           {excluded.map((item) => (
             <li key={item} className="flex items-start gap-2.5">
               <span className="text-ink-400 mt-0.5 shrink-0">
                 <MinusIcon className="h-4 w-4" />
               </span>
-              <span className="text-ink-500 text-sm leading-relaxed">
+              <span className="text-ink-600 text-sm leading-relaxed">
                 {item}
               </span>
             </li>
@@ -267,33 +259,28 @@ export function DeliverablesList({
 /* -------------------------------------------------------------------------- */
 
 /**
- * Native <details>/<summary> accordion.
- *
- * Deliberately not a React state component: it is keyboard accessible and
- * screen-reader correct with no JavaScript at all, which keeps the page inside
- * the PRD §21 budget of <= 200KB compressed JS. The matching FAQPage schema is
+ * Native <details>/<summary> accordion: keyboard accessible and screen-reader
+ * correct with no JavaScript (PRD §21 budget). The matching FAQPage schema is
  * emitted by the page (PRD §16).
  */
 export function FaqList({ faqs }: { faqs: Faq[] }) {
   return (
-    <div className="mx-auto max-w-3xl">
-      <Reveal as="ul" mode="group" className="grid gap-3">
+    <div className="mx-auto max-w-4xl">
+      <Reveal as="ul" mode="group" className="border-line border-t">
         {faqs.map((faq, i) => (
-          <li key={faq.q} style={staggerStyle(i)}>
-            <details className="spot group bg-surface border-line rounded-card border open:shadow-card transition-shadow">
-              <summary className="marker:content-none flex cursor-pointer list-none items-start justify-between gap-4 p-5 sm:p-6">
-                <h3 className="font-display text-ink text-base font-semibold sm:text-[1.0625rem]">
-                  {faq.q}
-                </h3>
+          <li key={faq.q} style={staggerStyle(i)} className="border-line border-b">
+            <details className="group">
+              <summary className="flex cursor-pointer list-none items-start justify-between gap-6 py-6 marker:content-none sm:py-7">
+                <h3 className="text-lg sm:text-xl">{faq.q}</h3>
                 <span
                   aria-hidden="true"
-                  className="border-line text-ink-400 group-open:bg-signal group-open:border-transparent relative mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border transition-colors group-open:text-page"
+                  className="border-line-strong group-open:bg-ink group-open:text-page relative mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-colors duration-300"
                 >
-                  <span className="absolute h-[1.5px] w-3 rounded bg-current" />
-                  <span className="absolute h-3 w-[1.5px] rounded bg-current transition-transform duration-200 group-open:scale-y-0" />
+                  <span className="absolute h-px w-3 bg-current" />
+                  <span className="absolute h-3 w-px bg-current transition-transform duration-300 group-open:scale-y-0" />
                 </span>
               </summary>
-              <p className="text-ink-500 px-5 pb-5 text-[0.9375rem] leading-relaxed sm:px-6 sm:pb-6">
+              <p className="text-ink-500 max-w-3xl pb-7 text-[0.9375rem] leading-relaxed">
                 {faq.a}
               </p>
             </details>
@@ -311,36 +298,28 @@ export function FaqList({ faqs }: { faqs: Faq[] }) {
 export function RelatedServices({ services }: { services: Service[] }) {
   if (services.length === 0) return null;
   return (
-    <ul className="grid gap-4 sm:grid-cols-3">
-      {services.map((service, i) => {
-        const accent = ACCENT[service.accent];
-        return (
-          <li key={service.slug} style={staggerStyle(i)}>
-            <Link
-              href={`/${service.slug}`}
-              className="lift spot-edge card-sweep group bg-surface border-line rounded-card hover:border-line-strong flex h-full items-start gap-3.5 border p-5"
-            >
-              <span
-                className={cx(
-                  "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
-                  accent.bg,
-                  accent.text,
-                )}
-              >
-                <Icon name={service.icon} className="h-5 w-5" />
+    <ul className="grid gap-5 sm:grid-cols-3">
+      {services.map((service, i) => (
+        <li key={service.slug} className="sd-enter-soft" style={staggerStyle(i)}>
+          <Link href={`/${service.slug}`} className="img-zoom group block" data-cursor-text="View">
+            <Photo
+              id={SERVICE_MEDIA[service.slug] ?? "svc-web"}
+              sizes="(min-width: 640px) 32vw, 100vw"
+              className="rounded-card aspect-[16/10]"
+              alt=""
+            />
+            <span className="mt-4 flex items-center justify-between gap-3">
+              <span className="text-xl font-light tracking-[-0.03em]">
+                <span className="link-draw">{service.nav}</span>
               </span>
-              <span>
-                <span className="font-display text-ink group-hover:text-brand-700 block font-semibold transition-colors">
-                  {service.nav}
-                </span>
-                <span className="text-ink-400 mt-1 block text-sm leading-snug">
-                  {service.summary}
-                </span>
-              </span>
-            </Link>
-          </li>
-        );
-      })}
+              <ArrowRightIcon className="h-4 w-4 shrink-0 transition-transform duration-500 group-hover:translate-x-1" />
+            </span>
+            <span className="text-ink-500 mt-1.5 block text-sm leading-snug">
+              {service.summary}
+            </span>
+          </Link>
+        </li>
+      ))}
     </ul>
   );
 }
@@ -360,44 +339,26 @@ export function CtaSection({
   primaryLabel?: string;
 }) {
   return (
-    <Section>
+    <Section className="!pb-0">
       <Container>
-        <div className="sd-settle scope-dark bg-panel border-line rounded-card cta-grid relative overflow-hidden border px-6 py-14 text-center sm:px-12 sm:py-20">
-          <div
-            aria-hidden="true"
-            className="absolute -top-28 left-1/2 h-72 w-[42rem] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(var(--glow-rgb),0.18),transparent)]"
-          />
-          <div
-            aria-hidden="true"
-            className="absolute -bottom-32 left-1/2 h-64 w-[34rem] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(var(--accent-rgb),0.2),transparent)]"
-          />
-          {/* The monogram draws itself behind the closing line, once, when
-              the panel scrolls into view. */}
-          <MonogramVideo className="cta-mono" />
-          <Reveal className="relative mx-auto max-w-2xl">
-            <h2 className="text-[2rem] text-ink sm:text-[2.75rem]">
-              {title}
+        <div className="border-line grid gap-12 border-t pt-16 sm:pt-20 lg:grid-cols-[1.4fr_1fr] lg:items-end lg:gap-20">
+          <Reveal>
+            <Eyebrow>Next step</Eyebrow>
+            <h2 className="text-[2.6rem] sm:text-[3.8rem] lg:text-[5rem]">
+              {splitWords(title)}
             </h2>
-            <p className="mt-5 text-lg leading-relaxed text-ink/65">{lede}</p>
-            <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-              <ButtonLink
-                href="/contact"
-                variant="primary"
-                size="lg"
-                withArrow
-                className="shine"
-              >
+          </Reveal>
+          <Reveal delay={150} className="lg:pb-3">
+            <p className="text-ink-500 max-w-md leading-relaxed">{lede}</p>
+            <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
+              <ButtonLink href="/contact" variant="primary" size="lg" withArrow>
                 {primaryLabel}
               </ButtonLink>
-              <ButtonLink
-                href={`mailto:${CONTACT.email}`}
-                variant="ghostLight"
-                size="lg"
-              >
+              <ButtonLink href={`mailto:${CONTACT.email}`} variant="link">
                 {CONTACT.email}
               </ButtonLink>
             </div>
-            <p className="mt-6 text-sm text-ink/55">
+            <p className="text-ink-400 mt-6 text-sm">
               {CONTACT.hours} &middot; {CONTACT.serviceArea}
             </p>
           </Reveal>

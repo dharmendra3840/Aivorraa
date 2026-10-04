@@ -85,7 +85,7 @@ export default async function CaseStudyPage({ params }: Params) {
                 {study.role}
               </p>
 
-              <h2 className="font-display text-ink mt-12 text-2xl font-semibold">
+              <h2 className="font-display text-ink mt-12 text-2xl font-normal">
                 Approach
               </h2>
               <ol className="mt-6 grid gap-4">
@@ -94,7 +94,7 @@ export default async function CaseStudyPage({ params }: Params) {
                     key={step}
                     className="bg-surface border-line rounded-card flex gap-4 border p-5"
                   >
-                    <span className="bg-ink-50 text-ink-500 font-display flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold">
+                    <span className="bg-ink-50 text-ink-500 font-display flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-normal">
                       {i + 1}
                     </span>
                     <p className="text-ink-600 text-[0.9375rem] leading-relaxed">
@@ -104,7 +104,7 @@ export default async function CaseStudyPage({ params }: Params) {
                 ))}
               </ol>
 
-              <h2 className="font-display text-ink mt-12 text-2xl font-semibold">
+              <h2 className="font-display text-ink mt-12 text-2xl font-normal">
                 Deliverables
               </h2>
               <ul className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -127,13 +127,13 @@ export default async function CaseStudyPage({ params }: Params) {
               */}
               {study.outcomes.length > 0 ? (
                 <>
-                  <h2 className="font-display text-ink mt-12 text-2xl font-semibold">
+                  <h2 className="font-display text-ink mt-12 text-2xl font-normal">
                     Outcomes
                   </h2>
                   <ul className="mt-6 grid gap-4 sm:grid-cols-2">
                     {study.outcomes.map((outcome) => (
                       <Card as="li" key={outcome.label}>
-                        <p className="font-display text-brand-700 text-3xl font-bold">
+                        <p className="font-display text-brand-700 text-3xl font-normal">
                           {outcome.metric}
                         </p>
                         <p className="text-ink-600 mt-1.5 text-sm font-medium">
@@ -150,40 +150,40 @@ export default async function CaseStudyPage({ params }: Params) {
             </div>
 
             <Card className="h-fit">
-              <h2 className="font-display text-ink text-base font-semibold">
+              <h2 className="font-display text-ink text-base font-normal">
                 Project details
               </h2>
               <dl className="mt-5 grid gap-4 text-sm">
                 {study.client ? (
                   <div>
-                    <dt className="text-ink-400 text-xs font-semibold tracking-[0.12em] uppercase">
+                    <dt className="text-ink-400 text-xs">
                       Client
                     </dt>
                     <dd className="text-ink-600 mt-1">{study.client}</dd>
                   </div>
                 ) : null}
                 <div>
-                  <dt className="text-ink-400 text-xs font-semibold tracking-[0.12em] uppercase">
+                  <dt className="text-ink-400 text-xs">
                     Industry
                   </dt>
                   <dd className="text-ink-600 mt-1">{study.industry}</dd>
                 </div>
                 {study.location ? (
                   <div>
-                    <dt className="text-ink-400 text-xs font-semibold tracking-[0.12em] uppercase">
+                    <dt className="text-ink-400 text-xs">
                       Location
                     </dt>
                     <dd className="text-ink-600 mt-1">{study.location}</dd>
                   </div>
                 ) : null}
                 <div>
-                  <dt className="text-ink-400 text-xs font-semibold tracking-[0.12em] uppercase">
+                  <dt className="text-ink-400 text-xs">
                     Year
                   </dt>
                   <dd className="text-ink-600 mt-1">{study.year}</dd>
                 </div>
                 <div>
-                  <dt className="text-ink-400 text-xs font-semibold tracking-[0.12em] uppercase">
+                  <dt className="text-ink-400 text-xs">
                     Services
                   </dt>
                   <dd className="mt-2 flex flex-wrap gap-1.5">

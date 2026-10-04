@@ -125,15 +125,12 @@ export const CLAIMS = {
   // reviews only, and never emitted as AggregateRating schema.
   ratingLabel: "4.9/5 client satisfaction",
   /*
-    The four figures in the hero command dashboard, taken from the "Command
-    Center" theme brief. Wired in and ready -- but OFF, for the same reason as
-    everything else in this object: none of them is documented yet, and the
-    homepage publishes "No invented statistics" two sections further down.
-
-    With `enabled: false` the dashboard shows the live STATUS of the sample
-    workflow it depicts (Online / Running / Lead -> CRM / Auto-synced), which
-    is a description of the illustration rather than a claim about Aivorraa.
-    Flip it once each number has a source you would show a client.
+    Four outcome figures from an earlier theme brief. NOT RENDERED anywhere
+    in the current design (the hero dashboard that carried them was removed
+    in the redesign), and OFF besides: none of them is documented, and the
+    homepage publishes "No invented statistics". Kept so the owner can see
+    what was proposed; wire them into a page only once each number has a
+    source you would show a client.
   */
   showcaseMetrics: {
     enabled: false,

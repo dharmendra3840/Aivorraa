@@ -48,17 +48,17 @@ export default function IndustriesPage() {
           <div className="grid gap-5">
             {INDUSTRIES.map((industry, i) => (
               <Reveal key={industry.slug}>
-              <Card as="article" className="lift spot-edge sd-enter-soft scroll-mt-28">
+              <Card as="article">
                 <div id={industry.slug} className="grid gap-6 lg:grid-cols-[auto_1fr_16rem] lg:gap-10">
                   <span className="bg-ink-50 text-ink-600 flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl">
                     <Icon name={industry.icon} className="h-6 w-6" />
                   </span>
 
                   <div className="min-w-0">
-                    <p className="text-ink-400 font-display text-xs font-bold tracking-[0.14em] uppercase">
+                    <p className="text-ink-400 text-xs">
                       {String(i + 1).padStart(2, "0")}
                     </p>
-                    <h2 className="font-display text-ink mt-1.5 text-2xl font-semibold">
+                    <h2 className="font-display text-ink mt-1.5 text-2xl font-normal">
                       {industry.name}
                     </h2>
                     <p className="text-ink-700 mt-3 text-lg leading-relaxed font-medium">
@@ -70,7 +70,7 @@ export default function IndustriesPage() {
                   </div>
 
                   <div className="border-line lg:border-l lg:pl-8">
-                    <p className="text-ink-400 text-xs font-semibold tracking-[0.12em] uppercase">
+                    <p className="text-ink-400 text-xs">
                       Usually starts with
                     </p>
                     <ul className="mt-3.5 grid gap-2">
@@ -81,7 +81,7 @@ export default function IndustriesPage() {
                           <li key={slug}>
                             <Link
                               href={`/${slug}`}
-                              className="group text-ink-600 hover:text-brand-700 inline-flex items-center gap-1.5 text-sm font-medium transition-colors"
+                              className="group text-ink-600 hover:text-ink inline-flex items-center gap-1.5 text-sm font-medium transition-colors"
                             >
                               {service.nav}
                               <ArrowRightIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -98,7 +98,7 @@ export default function IndustriesPage() {
           </div>
 
           <Reveal className="border-line rounded-card mt-8 border border-dashed p-8 text-center">
-            <h2 className="font-display text-ink text-xl font-semibold">
+            <h2 className="font-display text-ink text-xl font-normal">
               Not one of these?
             </h2>
             <p className="text-ink-500 mx-auto mt-3 max-w-xl leading-relaxed">

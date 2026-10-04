@@ -3,12 +3,11 @@
 import { useEffect } from "react";
 
 /**
- * Drives the pointer-linked effects: card spotlights (`.spot`, `.spot-edge`)
- * and magnetic buttons (`.magnetic`).
+ * Drives the magnetic buttons (`.magnetic`): each drifts a few pixels toward
+ * the pointer as it approaches. (The follower cursor is Cursor.tsx.)
  *
  * WHY ONE DELEGATED HANDLER RATHER THAN A COMPONENT PER ELEMENT
- * A `<SpotlightCard>` wrapper would attach its own listener for every card —
- * roughly forty on the homepage. This is a single `pointermove` listener on
+ * A wrapper component would attach its own listener for every button. This is a single `pointermove` listener on
  * the document that finds the relevant ancestors from `event.target`. One
  * listener, one rAF, no matter how many elements opt in.
  *
@@ -18,7 +17,7 @@ import { useEffect } from "react";
  * keeps the effect inside the PRD §21 INP budget of 200ms.
  *
  * WHERE IT DELIBERATELY DOES NOT RUN
- * Coarse pointers (touch — there is no hover, so a spotlight would stick
+ * Coarse pointers (touch — there is no hover, so a magnet would stick
  * wherever the user last tapped) and anyone who has asked for reduced motion.
  * In both cases the listener is never attached, so it costs nothing rather
  * than being attached and ignored.
@@ -42,20 +41,6 @@ export function PointerFX() {
 
     // The magnetic element currently pulled, so it can be released cleanly.
     let magnetised: HTMLElement | null = null;
-
-    const applySpotlight = (event: PointerEvent) => {
-      const target = event.target;
-      if (!(target instanceof Element)) return;
-
-      const surface = target.closest<HTMLElement>(".spot, .spot-edge");
-      if (!surface) return;
-
-      const rect = surface.getBoundingClientRect();
-      const x = ((event.clientX - rect.left) / rect.width) * 100;
-      const y = ((event.clientY - rect.top) / rect.height) * 100;
-      surface.style.setProperty("--px", `${x.toFixed(1)}%`);
-      surface.style.setProperty("--py", `${y.toFixed(1)}%`);
-    };
 
     const applyMagnet = (event: PointerEvent) => {
       const target = event.target;
@@ -104,7 +89,6 @@ export function PointerFX() {
       frame = requestAnimationFrame(() => {
         frame = 0;
         if (!latest) return;
-        applySpotlight(latest);
         applyMagnet(latest);
       });
     };
