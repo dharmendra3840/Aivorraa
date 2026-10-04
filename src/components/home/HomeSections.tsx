@@ -93,11 +93,11 @@ export function HomeHero() {
             <div className="bg-page/90 rounded-card absolute right-4 bottom-4 left-4 p-5 backdrop-blur-md sm:right-auto sm:max-w-xs">
               <p className="eyebrow">
                 <span aria-hidden="true" className="bg-lime-400 inline-block h-2 w-2 rounded-full" />
-                One team, eight services
+                One team, nine services
               </p>
               <p className="text-ink-600 mt-2 text-sm leading-relaxed">
-                Websites, apps, AI automation, SEO, marketing, brand and video
-                &mdash; scoped in writing, built in your name.
+                Websites, apps, AI automation, SEO, marketing, brand, video and
+                interiors &mdash; scoped in writing, built in your name.
               </p>
             </div>
           </div>
@@ -250,7 +250,7 @@ export function WhySection({ stats, pillars }: { stats: Stat[]; pillars: Pillar[
 /* ========================================================================== */
 
 /**
- * All eight services as large rows; a sticky photograph beside them swaps to
+ * Every service as a large row; a sticky photograph beside them swaps to
  * whichever row is hovered or focused (pure CSS :has(), motion.css §101).
  */
 export function ServicesShowcase({ services = SERVICES }: { services?: Service[] }) {
@@ -259,14 +259,14 @@ export function ServicesShowcase({ services = SERVICES }: { services?: Service[]
       <Container>
         <div className="flex flex-wrap items-end justify-between gap-8">
           <Reveal className="max-w-4xl">
-            <Eyebrow>Eight services, one team</Eyebrow>
+            <Eyebrow>Nine services, one team</Eyebrow>
             <h2
               id="services-heading"
               className="text-[2.35rem] sm:text-[3rem] lg:text-[3.6rem]"
             >
               {splitWords(
                 <>
-                  Eight services. <span className="text-signature">One team</span>{" "}
+                  Nine services. <span className="text-signature">One team</span>{" "}
                   accountable for all of them.
                 </>,
               )}

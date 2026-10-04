@@ -21,7 +21,7 @@ export const metadata: Metadata = buildMetadata({
   // 48 chars.
   title: "Services — Web, App, AI & Marketing | Aivorraa",
   description:
-    "Eight services Aivorraa delivers today: web and app development, UI/UX, AI automation, SEO and ads, marketing, branding and video. Explore each.",
+    "Nine services Aivorraa delivers: web and app development, UI/UX, AI automation, SEO and ads, marketing, branding, video and interior design.",
   path: "services",
 });
 
@@ -39,7 +39,7 @@ export default function ServicesPage() {
         <PageHeader
           eyebrow="Service universe"
           title="Everything Aivorraa delivers today"
-          lede="Eight services, grouped by what they are for. Each has its own page with deliverables, exclusions, process, pricing model and FAQs — because a one-line service list tells you nothing about whether it fits."
+          lede="Nine services, grouped by what they are for. Each has its own page with deliverables, exclusions, process, pricing model and FAQs — because a one-line service list tells you nothing about whether it fits."
         >
           <div className="flex flex-wrap items-center gap-3">
             <ButtonLink href="/contact" variant="primary" size="lg" withArrow>
@@ -157,16 +157,17 @@ export default function ServicesPage() {
               Why only {SERVICES.length} services?
             </h2>
             <p className="text-ink-500 mt-4 leading-relaxed">
-              Aivorraa is building toward a broader multi-sector group, and
-              interiors, project management consultancy and construction are
-              part of that plan. They are not listed here because publishing a
-              service page before the qualifications, licensing, insurance and
-              contracting model are confirmed would mean claiming capability
-              that cannot yet be evidenced.
+              Aivorraa is building toward a broader multi-sector group.
+              Interior design is now part of the offer; project management
+              consultancy and construction are part of the longer plan. They
+              are not listed here because publishing a service page before the
+              qualifications, licensing, insurance and contracting model are
+              confirmed would mean claiming capability that cannot yet be
+              evidenced.
             </p>
             <p className="text-ink-500 mt-4 leading-relaxed">
               Each becomes a full page when it is operational and has a
-              completed project to reference. Until then, eight pages with
+              completed project to reference. Until then, a few pages with
               genuine depth are worth more than sixty shallow ones — to you when
               you are deciding, and to Google when it is assessing whether this
               site knows what it is talking about.

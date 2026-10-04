@@ -120,6 +120,14 @@ export const CartIcon = (p: IconProps) => (
   </Svg>
 );
 
+export const HomeIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M3.5 10.5 12 4l8.5 6.5" />
+    <path d="M5.5 9v10.5h13V9" />
+    <path d="M10 19.5v-5h4v5" />
+  </Svg>
+);
+
 export const ArrowRightIcon = (p: IconProps) => (
   <Svg {...p}>
     <path d="M4.5 12h14" />
@@ -212,6 +220,7 @@ const ICONS: Record<IconKey, (p: IconProps) => React.ReactElement> = {
   shield: ShieldIcon,
   bolt: BoltIcon,
   cart: CartIcon,
+  home: HomeIcon,
 };
 
 /** Renders an icon by its content key. */

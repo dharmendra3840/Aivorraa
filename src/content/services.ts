@@ -1,12 +1,15 @@
 import type { Service } from "./types";
 import { DIGITAL_SERVICES } from "./services.digital";
 import { GROWTH_SERVICES } from "./services.growth";
+import { INTERIOR_SERVICES } from "./services.interiors";
 
 /**
- * PRD §6 — Launch scope: eight evidence-based services.
+ * PRD §6 — Launch scope: eight evidence-based digital services, plus
+ * Interior Design, added at the owner's direction in October 2026 once the
+ * service was confirmed operational.
  *
- * Interiors, PMC, Construction, Realty, Ventures and Labs are deliberately
- * ABSENT from the website. They stay internal brand planning until
+ * PMC, Construction, Realty, Ventures and Labs are deliberately ABSENT from
+ * the website. They stay internal brand planning until
  * qualifications, licensing, insurance, contracting model and geography are
  * confirmed, and each has at least one completed project to reference
  * (PRD §4, §6, §10, §11, §24).
@@ -18,7 +21,11 @@ import { GROWTH_SERVICES } from "./services.growth";
  * Titles must be <= 60 chars and descriptions <= 155 (PRD §15).
  * `npm run check:seo` enforces this and fails on violation.
  */
-export const SERVICES: Service[] = [...DIGITAL_SERVICES, ...GROWTH_SERVICES];
+export const SERVICES: Service[] = [
+  ...DIGITAL_SERVICES,
+  ...GROWTH_SERVICES,
+  ...INTERIOR_SERVICES,
+];
 
 export const SERVICE_SLUGS = SERVICES.map((s) => s.slug);
 
@@ -45,5 +52,10 @@ export const SERVICE_GROUPS = [
     label: "Growth & Media",
     blurb: "Getting found, getting chosen, and looking the part.",
     slugs: ["seo-ads", "digital-marketing", "branding-graphics", "video-motion"],
+  },
+  {
+    label: "Spaces",
+    blurb: "Interiors designed and delivered by one team.",
+    slugs: ["interior-design"],
   },
 ] as const;

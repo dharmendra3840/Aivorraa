@@ -104,6 +104,15 @@ export const SERVICE_NAV: ServiceNavItem[] = [
     icon: "play",
     accent: "blue",
   },
+  {
+    slug: "interior-design",
+    nav: "Interior Design",
+    name: "Interior Design & Build",
+    summary:
+      "Concept, space planning, materials, 3D visuals and execution coordination for homes, offices and retail spaces.",
+    icon: "home",
+    accent: "amber",
+  },
 ];
 
 /** Mega-menu grouping (PRD §19 — grouped services). */
@@ -131,6 +140,11 @@ export const NAV_GROUPS: Array<{
       "branding-graphics",
       "video-motion",
     ],
+  },
+  {
+    label: "Spaces",
+    blurb: "Interiors designed and delivered by one team.",
+    slugs: ["interior-design"],
   },
 ];
 

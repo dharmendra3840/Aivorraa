@@ -296,7 +296,7 @@ export async function submitLead(
     errors.message =
       "Please add a couple of lines about the project — 20 characters or more.";
   }
-  // Service must be one of the eight launch services, or the generic option.
+  // Service must be one of the listed services, or the generic option.
   if (values.service && values.service !== "not-sure") {
     if (!SERVICE_SLUGS.includes(values.service)) {
       errors.service = "Please choose a service from the list.";

@@ -41,6 +41,7 @@ const PAGES = [
   "/services/",
   "/web-development/",
   "/ai-automation/",
+  "/interior-design/",
   "/about/",
   "/contact/",
   "/portfolio/",

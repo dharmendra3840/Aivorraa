@@ -127,14 +127,15 @@ export default function AboutPage() {
                   Aivorraa is a digital agency operating under the brand
                   Aivorraa&trade;, founded by {ORGANISATION.founder}. It builds
                   websites and web applications, designs interfaces, develops
-                  Android and iOS apps, automates business workflows, and runs
-                  search and marketing programmes for growing businesses.
+                  Android and iOS apps, automates business workflows, runs
+                  search and marketing programmes, and designs and delivers
+                  interiors for growing businesses.
                 </p>
                 <p>
-                  The work is organised around eight services rather than a
+                  The work is organised around nine services rather than a
                   broad menu. Aivorraa is building toward a wider multi-sector
-                  group — interiors, project management consultancy and
-                  construction are part of the longer plan — but a service only
+                  group — project management consultancy and construction are
+                  part of the longer plan — but a service only
                   reaches this website once it is operational, properly
                   qualified, and has a completed project behind it. Publishing a
                   capability before then would be claiming something that cannot
@@ -277,7 +278,7 @@ export default function AboutPage() {
           <SectionHeading
             eyebrow="Capabilities"
             title="What Aivorraa delivers"
-            lede="Eight services, each with its own scoped page."
+            lede="Nine services, each with its own scoped page."
           />
           <div className="mt-12">
             <ServiceGrid />

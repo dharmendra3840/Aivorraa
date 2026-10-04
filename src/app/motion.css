@@ -1165,6 +1165,12 @@ html:not(.js) .theme-toggle {
   scale: 1;
 }
 
+.mega-panel:has([data-i="8"]:hover, [data-i="8"]:focus-visible) .mega-preview > .preview-8,
+.svc-showcase:has([data-i="8"]:hover, [data-i="8"]:focus-visible) .svc-preview > .preview-8 {
+  opacity: 1;
+  scale: 1;
+}
+
 
 /* --------------------------------------------------------------------------
    102. AI workflow rail -- fills with lime as the stage scrolls through

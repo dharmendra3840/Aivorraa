@@ -12,7 +12,7 @@ The old site had **only its homepage indexed by Google** (PRD §2, Finding 1), a
 
 2. **Never emit `AggregateRating` or `Review` schema.** PRD §16 prohibits it without real, attributable reviews on the page. `src/lib/schema.ts` has no function capable of producing either, and `npm run check:seo` fails the build if the string appears anywhere in shipped code. Do not add one "temporarily".
 
-3. **Never add a service page for a deferred vertical.** Interiors, PMC, Construction, Realty, Ventures and Labs stay off the website until qualifications, licensing, insurance, contracting model and geography are confirmed (PRD §6, §10, §11, §24). A service only ships with a completed project behind it.
+3. **Never add a service page for a deferred vertical.** PMC, Construction, Realty, Ventures and Labs stay off the website until qualifications, licensing, insurance, contracting model and geography are confirmed (PRD §6, §10, §11, §24). A service only ships with a completed project behind it. (Interior Design was added in October 2026 at the owner's direction, confirming the service is operational; its page carries no figures, prices or timelines until each is documented.)
 
 4. **Never publish a case study without permission.** `src/content/portfolio.ts` gates on both `published` and `permissionOnFile`. Unapproved entries do not render, are not in the sitemap, and are not reachable by guessing a URL (`dynamicParams = false`).
 

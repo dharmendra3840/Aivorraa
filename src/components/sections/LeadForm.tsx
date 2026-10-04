@@ -63,6 +63,8 @@ const PROMPTS: Record<string, string> = {
     "Is this a new identity or a refresh, and which assets and templates do you need day to day?",
   "video-motion":
     "What kind of edits, roughly what volume per month, and which platforms are they for?",
+  "interior-design":
+    "What kind of space is it (home, office, store), roughly how large, where is it, and is it design only or design and build?",
   "not-sure":
     "Describe the problem in a couple of lines and Aivorraa will suggest where to start.",
 };

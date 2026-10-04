@@ -34,7 +34,8 @@ export type MediaKey =
   | "bp-report"
   | "form-voxel"
   | "form-teal"
-  | "form-knot";
+  | "form-knot"
+  | "svc-interior";
 
 export interface MediaItem {
   /** Basename in /public/media; renditions are `<name>-<width>.webp`. */
@@ -228,6 +229,15 @@ export const MEDIA: Record<MediaKey, MediaItem> = {
     lqip: "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAACQAwCdASoYAA0APu1qrU8ppiQiMAgBMB2JZwAAWlPaNAV6btVAAP70JRmC8EfD/L6nboeamlnxZNmSWN/7z8sdt74CmKgCUw8gAA==",
     credit: "https://unsplash.com/photos/abstract-colorful-glass-sculpture-on-black-background-qyJwdg2evZE",
   },
+  "svc-interior": {
+    name: "svc-interior",
+    alt: "A calm grey living room with a low sofa and floor-to-ceiling windows",
+    width: 2400,
+    height: 1500,
+    widths: [640, 1080, 1600, 2200],
+    lqip: "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAAAQBACdASoYAA8APu1iqU2ppaOiMAgBMB2JZwAAXcOUeyKJ1BCjtp3SsAD862iVCTqGAIZFxeIgcMV34EJSCpvUrLg3EuZnBx84UrD6CfJmjZLwAAA=",
+    credit: "https://unsplash.com/photos/a-modern-living-room-with-a-large-window-vIbxvHj9m9g",
+  },
 };
 
 /** The scroll-grown reel (Pexels, free licence), 1280x720, 8.8s loop. */
@@ -249,6 +259,7 @@ export const SERVICE_MEDIA: Record<string, MediaKey> = {
   "digital-marketing": "svc-marketing",
   "branding-graphics": "svc-brand",
   "video-motion": "svc-video",
+  "interior-design": "svc-interior",
 };
 
 /** Industry slug -> its illustrative photo. */

@@ -119,7 +119,7 @@ const PILLARS = [
   Aivorraa works that a client can hold it to on day one.
 */
 const STATS: Array<{ value: number | string; suffix?: string; label: string }> = [
-  { value: 8, label: "Services, one accountable team" },
+  { value: 9, label: "Services, one accountable team" },
   { value: 6, label: "Delivery stages, each signed off" },
   { value: "24/7", label: "Automations that never clock out" },
   { value: 100, suffix: "%", label: "Accounts set up in your name" },

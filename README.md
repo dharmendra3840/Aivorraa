@@ -216,7 +216,7 @@ The headroom is deliberate and easy to lose. The most common way to lose it is i
 
 ## What is deliberately not here
 
-Interior Design, PMC, Construction, Realty, Ventures and Labs. PRD §6 defers all six until qualifications, licensing, insurance, contracting model and geography are confirmed, and each has at least one completed project to reference. They are absent rather than shown as "Coming Soon", because a visitor clicking through to an empty page loses trust and Google reads a site claiming eleven unrelated verticals as unfocused rather than capable.
+PMC, Construction, Realty, Ventures and Labs. PRD §6 defers all of them until qualifications, licensing, insurance, contracting model and geography are confirmed, and each has at least one completed project to reference. They are absent rather than shown as "Coming Soon", because a visitor clicking through to an empty page loses trust and Google reads a site claiming a long list of unrelated verticals as unfocused rather than capable.
 
 The eleven-vertical umbrella architecture is retained as internal brand planning. `/services/` explains the narrower scope honestly instead of hiding it.
 

@@ -113,6 +113,7 @@ function extractPageMetadata(source) {
 const serviceSources = [
   readSrc("content/services.digital.ts"),
   readSrc("content/services.growth.ts"),
+  readSrc("content/services.interiors.ts"),
 ].join("\n");
 
 // Service metadata lives at 4-space indent inside each service object.
@@ -186,9 +187,9 @@ const slugs = extractAtIndent(serviceSources, "slug", 4);
 const h1s = extractAtIndent(serviceSources, "h1", 4);
 const keywords = extractAtIndent(serviceSources, "primaryKeyword", 4);
 
-if (slugs.length !== 8) {
+if (slugs.length !== 9) {
   warnings.push(
-    `Expected 8 launch services (PRD §6), found ${slugs.length}. If a service was added, confirm it has a completed project to reference.`,
+    `Expected 9 services (8 launch services, PRD §6, plus Interior Design), found ${slugs.length}. If a service was added, confirm it has a completed project to reference.`,
   );
 }
 if (h1s.length !== slugs.length) {
@@ -297,7 +298,7 @@ if (navSlugs.join("|") !== slugs.join("|")) {
   });
 }
 
-// The mega-menu must link all eight service pages (PRD §13 — deep internal
+// The mega-menu must link every service page (PRD §13 — deep internal
 // linking from a site-wide element is the strongest crawl lever available).
 const groupedSlugs = [
   ...navSource

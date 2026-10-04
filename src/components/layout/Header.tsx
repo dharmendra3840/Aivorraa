@@ -256,7 +256,7 @@ export function Header() {
           className="mega-panel bg-page border-line fixed inset-x-0 top-0 z-40 hidden border-b pt-[4.5rem] shadow-[var(--shadow-float)] lg:block"
         >
           <Container>
-            <div className="grid gap-10 pt-8 pb-10 lg:grid-cols-[1fr_1fr_20rem]">
+            <div className="grid gap-8 pt-8 pb-10 lg:grid-cols-[1fr_1fr_0.8fr_16rem] xl:gap-10 xl:grid-cols-[1fr_1fr_0.8fr_19rem]">
               {NAV_GROUPS.map((group) => (
                 <div key={group.label}>
                   <p className="eyebrow mb-1">
@@ -275,7 +275,7 @@ export function Header() {
                             data-i={SERVICE_INDEX.get(slug)}
                             className="group block py-1.5"
                           >
-                            <span className="text-[1.6rem] leading-tight font-light tracking-[-0.035em]">
+                            <span className="text-[1.3rem] leading-tight font-light tracking-[-0.035em] xl:text-[1.6rem]">
                               <span className="link-draw">{service.nav}</span>
                             </span>
                             <span className="text-ink-500 block text-[0.8125rem] leading-snug">

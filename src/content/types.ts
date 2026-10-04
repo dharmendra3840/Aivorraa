@@ -10,7 +10,8 @@ export type IconKey =
   | "chart"
   | "shield"
   | "bolt"
-  | "cart";
+  | "cart"
+  | "home";
 
 export type Accent = "blue" | "lime" | "violet" | "cyan" | "amber" | "rose";
 

@@ -21,7 +21,7 @@ import puppeteer from "puppeteer-core";
 
 const CH = "C:/Program Files/Google/Chrome/Application/chrome.exe";
 const BASE = (process.env.BASE_URL || "http://localhost:3000").replace(/\/$/, "");
-const PAGES = ["/", "/services/", "/web-development/", "/ai-automation/", "/about/", "/contact/", "/portfolio/", "/industries/", "/insights/", "/insights/what-is-n8n-automation-used-for/", "/privacy-policy/", "/terms/", "/accessibility/"];
+const PAGES = ["/", "/services/", "/web-development/", "/ai-automation/", "/interior-design/", "/about/", "/contact/", "/portfolio/", "/industries/", "/insights/", "/insights/what-is-n8n-automation-used-for/", "/privacy-policy/", "/terms/", "/accessibility/"];
 const b = await puppeteer.launch({ executablePath: CH, headless: true, args: ["--no-sandbox", "--autoplay-policy=no-user-gesture-required"] });
 const out = [];
 const ck = (n, ok, d = "") => out.push(`  ${ok ? "PASS" : "FAIL"}  ${n}${d ? "  — " + d : ""}`);
