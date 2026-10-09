@@ -53,7 +53,9 @@ for (const path of PAGES) {
     const cv = document.createElement("canvas").getContext("2d", { willReadFrequently: true });
     const rgba = (c) => { cv.clearRect(0, 0, 1, 1); cv.fillStyle = "#000"; cv.fillStyle = c; cv.fillRect(0, 0, 1, 1); const d = cv.getImageData(0, 0, 1, 1).data; return [d[0], d[1], d[2], d[3] / 255]; };
     const L = ([r, g, bl]) => { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(bl); };
-    const bgOf = (el) => { for (let n = el; n; n = n.parentElement) { const c = rgba(getComputedStyle(n).backgroundColor); if (c[3] > 0.5) return c; } return [5, 11, 23, 1]; };
+    // A .world-window is transparent onto the fixed 3D world, which is night (#070b0a)
+    // behind it in both themes -- measure against that, not the page colour below.
+    const bgOf = (el) => { for (let n = el; n; n = n.parentElement) { const c = rgba(getComputedStyle(n).backgroundColor); if (c[3] > 0.5) return c; if (n.classList && n.classList.contains("world-window")) return [7, 11, 10, 1]; } return [5, 11, 23, 1]; };
     const low = [];
     for (const el of document.querySelectorAll("body *")) {
       const cs = getComputedStyle(el);

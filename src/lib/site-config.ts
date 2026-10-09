@@ -63,8 +63,9 @@ export const CONTACT = {
  * Rules encoded here:
  *  - The X/Twitter entry is REMOVED. x.com/aivorraa does not exist and pointing
  *    at a nonexistent profile actively weakens the entity signal.
- *  - LinkedIn and YouTube stay `verified: false` until the profile is confirmed
- *    live. Only `verified: true` entries are emitted into schema.
+ *  - LinkedIn was confirmed live by the owner in October 2026. YouTube stays
+ *    `verified: false` until a channel exists. Only `verified: true` entries
+ *    are emitted into schema and the footer.
  */
 export const SOCIAL_PROFILES = [
   {
@@ -77,7 +78,7 @@ export const SOCIAL_PROFILES = [
     key: "linkedin",
     label: "LinkedIn",
     url: "https://www.linkedin.com/company/aivorraa/",
-    verified: false, // §16.2 — verify the company page is live before listing
+    verified: true, // §16.2 — confirmed live by the owner, October 2026
   },
   {
     key: "youtube",

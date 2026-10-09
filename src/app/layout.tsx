@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter_Tight } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import "./globals.css";
 
 import { Header } from "@/components/layout/Header";
@@ -10,22 +10,21 @@ import { PointerFX } from "@/components/motion/PointerFX";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { ThemeToggle } from "@/components/motion/ThemeToggle";
 import { Cursor } from "@/components/motion/Cursor";
+import { World } from "@/components/world/World";
 import { organizationSchema, schemaGraph } from "@/lib/schema";
 import { SITE } from "@/lib/site-config";
 
 /**
- * One typeface, as the reference design (brandium.nl) uses: Inter Tight, a
- * free neo-grotesk close to its TWK Lausanne, set light and large for display
- * and regular for text. This supersedes PRD §18's Poppins + DM Sans at the
- * client's direction (the full restyle to the reference).
+ * PRD §18 -- DM Sans, which is also the face of the reference design
+ * (nk.studio). One family, regular weight for headlines.
  *
  * Self-hosted via next/font, so there is no external stylesheet request and
  * no font-swap layout shift (PRD §21 — CLS <= 0.1).
  */
-const interTight = Inter_Tight({
+const dmSans = DM_Sans({
   subsets: ["latin"],
-  weight: ["300", "400", "500"],
-  variable: "--font-inter-tight",
+  weight: ["400", "500", "600"],
+  variable: "--font-dm-sans",
   display: "swap",
 });
 
@@ -69,11 +68,11 @@ export const metadata: Metadata = {
       the icons are rebuilt.
     */
     icon: [
-      { url: "/favicon.ico?v=4", sizes: "16x16 32x32 48x48" },
-      { url: "/brand/icon-32.png?v=4", type: "image/png", sizes: "32x32" },
-      { url: "/brand/icon-192.png?v=4", type: "image/png", sizes: "192x192" },
+      { url: "/favicon.ico?v=5", sizes: "16x16 32x32 48x48" },
+      { url: "/brand/icon-32.png?v=5", type: "image/png", sizes: "32x32" },
+      { url: "/brand/icon-192.png?v=5", type: "image/png", sizes: "192x192" },
     ],
-    apple: [{ url: "/brand/apple-touch-icon.png?v=4", sizes: "180x180" }],
+    apple: [{ url: "/brand/apple-touch-icon.png?v=5", sizes: "180x180" }],
   },
   manifest: "/manifest.webmanifest",
   alternates: { canonical: `${SITE.url}/` },
@@ -82,8 +81,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#ffffff",
-  colorScheme: "light",
+  themeColor: "#070b0a",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({
@@ -92,9 +91,9 @@ export default function RootLayout({
   return (
     <html
       lang={SITE.language}
-      className={interTight.variable}
-      // Light is the default theme -- and what renders without JS.
-      data-theme="light"
+      className={dmSans.variable}
+      // Dark (the night world) is the default -- and what renders without JS.
+      data-theme="dark"
       /*
         The inline script below adds `js` to this element BEFORE hydration, so
         React finds a className on the client that differs from the one it
@@ -128,7 +127,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             // "js" gates the motion CSS; "motion-paused" restores a saved
             // WCAG 2.2.2 pause choice BEFORE first paint (MotionToggle), and
-            // data-theme a saved dark-theme choice (ThemeToggle) -- so a
+            // data-theme a saved light-theme choice (ThemeToggle) -- so a
             // returning visitor never sees a frame of the wrong theme.
             //
             // FAILSAFE: reveals are hidden under `js` and shown by React
@@ -136,7 +135,7 @@ export default function RootLayout({
             // chunk), `window.__aivReady` is never set, and after 4s `js` is
             // removed -- every hiding rule switches off and the page shows in
             // full. PageTransition sets the flag on mount.
-            __html: `var d=document.documentElement;d.classList.add("js");try{if(localStorage.getItem("aivorraa:motion")==="paused")d.classList.add("motion-paused");if(localStorage.getItem("aivorraa:theme")==="dark")d.setAttribute("data-theme","dark")}catch(e){}setTimeout(function(){if(!window.__aivReady)d.classList.remove("js")},4000)`,
+            __html: `var d=document.documentElement;d.classList.add("js");try{if(localStorage.getItem("aivorraa:motion")==="paused")d.classList.add("motion-paused");if(localStorage.getItem("aivorraa:theme")==="light")d.setAttribute("data-theme","light")}catch(e){}setTimeout(function(){if(!window.__aivReady)d.classList.remove("js")},4000)`,
           }}
         />
       </head>
@@ -163,6 +162,15 @@ export default function RootLayout({
           from assistive technology.
         */}
         <div className="scroll-progress" aria-hidden="true" />
+
+        {/* The 3D world, fixed behind every page (components/world). */}
+        <World />
+
+        {/* Scroll percentage on the right edge, as on the reference. */}
+        <div className="scroll-meter" aria-hidden="true">
+          <span className="scroll-meter-label">Scroll to discover</span>
+          <span className="scroll-meter-num" />
+        </div>
 
         {/*
           The branded curtain: first load (pure CSS, self-terminating -- see

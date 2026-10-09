@@ -27,11 +27,10 @@ import { SITE } from "@/lib/site-config";
 export const OG_SIZE = { width: 1200, height: 630 };
 export const LOGO_SIZE = { width: 512, height: 512 };
 
-// "Gallery" -- see the palette note in globals.css: charcoal card, white
-// type, the grey second tone and one lime dot.
-const PAGE = "#1b1b1c";
-const SIGNAL = "#d2ff00";
-const SIGNAL_DEEP = "#8a8a8e";
+// "Nocturne" -- see globals.css: night card, off-white type, mint accent.
+const PAGE = "#070b0a";
+const SIGNAL = "#2ee6b4";
+const SIGNAL_DEEP = "#5ff0c8";
 
 const cache = new Map<string, string>();
 function dataUri(name: string): string {
@@ -58,8 +57,8 @@ export function SocialCard() {
         position: "relative",
         background: PAGE,
         backgroundImage:
-          "radial-gradient(900px 520px at 78% 30%, rgba(255,255,255,0.08), transparent 62%)",
-        color: "#f2f2f2",
+          "radial-gradient(900px 520px at 78% 30%, rgba(46,230,180,0.18), transparent 62%)",
+        color: "#f4f6f1",
         fontFamily: "sans-serif",
       }}
     >
@@ -162,7 +161,7 @@ export function SocialCard() {
 }
 
 /**
- * Square mark: the white monogram on charcoal. Used for the
+ * Square mark: the off-white monogram on deep teal, matching the favicon. Used for the
  * Organization schema logo (/logo.png), which is square so it sits correctly
  * in whatever shape the consumer crops it to.
  */
@@ -176,7 +175,7 @@ export function LogoMark({ size = 512 }: { size?: number }) {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        backgroundImage: `linear-gradient(135deg, #2c2c2e 0%, #1b1b1c 60%, #0f0f0f 100%)`,
+        backgroundImage: `linear-gradient(135deg, #23735d 0%, #17503f 55%, #0d2a22 100%)`,
       }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}

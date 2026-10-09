@@ -1,104 +1,94 @@
 @import "tailwindcss";
 @import "./motion.css";
+@import "./world.css";
 
 /* ==========================================================================
-   AIVORRAA design tokens — "Gallery"
+   AIVORRAA design tokens — "Nocturne"
    --------------------------------------------------------------------------
-   An editorial, image-led system after the reference the client chose
-   (brandium.nl): a white page, near-black type set LIGHT and large, quiet
-   grey panels, a charcoal footer, and one acid-lime accent used sparingly.
-   The photography carries the colour; the interface stays out of its way.
+   After the reference the client chose (nk.studio): the site is a window
+   onto a 3D world -- a night valley with glowing water, crystals, an aurora
+   and Aivorraa's portal ring (components/world). Type sits directly on it:
+   DM Sans at regular weight, warm off-white, with one mint accent that
+   matches the light in the world.
 
-     LIGHT  the DEFAULT theme: white page, ink #0f0f0f.
-     DARK   the alternative (ThemeToggle, bottom-right): ink-black page,
-            light type -- the same system inverted, never a different one.
-
-   The charcoal panels -- the footer, the AI workflow stage, the "Why" stat
-   panel, the reel and the page curtain -- are charcoal in BOTH themes
-   (`.scope-dark`).
+     DARK   the DEFAULT theme: near-black green page; every section is
+            transparent, so the world shows through the whole scroll.
+     LIGHT  the alternative (ThemeToggle, bottom-right): the reading sections
+            turn to warm paper, as the reference's middle sections do, while
+            the hero, the workflow stage and the footer stay windows onto the
+            world (`.world-window`, always dark).
 
    CONTRAST (WCAG 2.2 AA, measured)
-     ink      #0f0f0f on white ............ 19.4:1  body and headlines
-     ink-500  #5c5c60 on white ............  6.7:1  muted copy
-     ink-400  #6a6a6e on #f5f5f5 ..........  4.9:1  smallest labels
-     signature #8a8a8e on white ...........  3.4:1  LARGE headline words only
-     white    on button #1b1b1c ........... 17.2:1  primary action
-     lime     #d2ff00 -- a FILL, never text on white (1.2:1). Text on lime
-              is ink (16.9:1).
+     ink      #f4f6f1 on #070b0a ............ 18.6:1 body and headlines
+     ink-500  #95a29c on #070b0a ............  7.4:1 muted copy
+     ink-400  #86938d on surface #0d1412 ....  5.7:1 smallest labels
+     mint     #5ff0c8 on #070b0a ............ 13.1:1 accent text
+     page     on mint button #2ee6b4 ........ 11.6:1 primary action
+     light:   ink #0a0f0d on #f6f6f1 18:1; brand-700 #0a6650 6.4:1;
+              signature #0f8a6c 4.3:1 -- LARGE headline words only
 
    HOW THE SCALES WORK -- READ BEFORE ADDING A COLOUR
    Every scale is defined by ROLE, not lightness, so a class is right in both
    themes:
-     `ink`     type and marks, as contrast against the page. `text-ink` full
-               contrast, `ink-500` muted copy, `ink-50` the faintest fill.
-     `brand`   the accent role. In this monochrome system accent TEXT
-               (`brand-700`) is simply full-contrast ink, and the light end
-               (`brand-50/100`) is a neutral tint.
-     `lime`    the highlight role: `lime-400` is the acid accent fill.
-     `signal`  the primary action (charcoal on light, white on dark).
-     `panel`   the charcoal contrast panel; always paired with `.scope-dark`.
-
-   RGB TRIPLETS for effects (use as `rgba(var(--hi-rgb), 0.08)`):
-     --hi-rgb      hairlines and faint fills (contrast direction)
-     --glow-rgb    the lime accent, as light
-     --shade-rgb / --shade-k   shadow colour and strength
+     `ink`     type and marks, as contrast against the page
+     `brand`   the accent role -- mint. `brand-700` is accent TEXT.
+     `lime`    historical name of the highlight role: `lime-400` is the mint
+               FILL (text on it is always dark)
+     `signal`  the primary action
+     `panel`   the night panel; always paired with `.scope-dark`
    ========================================================================== */
 
 @theme {
-  --color-brand-50: #f5f5f5;
-  --color-brand-100: #ececec;
-  --color-brand-200: #dedede;
-  --color-brand-300: #b4b4b6;
-  --color-brand-400: #8a8a8e;
-  --color-brand-500: #0f0f0f;
-  --color-brand-600: #1b1b1c;
-  --color-brand-700: #0f0f0f;
-  --color-brand-800: #000000;
-  --color-brand-900: #000000;
+  /* LIGHT values. The dark (default) values follow in the scope block. */
+  --color-brand-50: #e3f5ef;
+  --color-brand-100: #cdeee3;
+  --color-brand-200: #9fdfca;
+  --color-brand-300: #5fc9a8;
+  --color-brand-400: #1fae88;
+  --color-brand-500: #0f8a6c;
+  --color-brand-600: #0b7258;
+  --color-brand-700: #0a6650;
+  --color-brand-800: #08503f;
+  --color-brand-900: #05352a;
 
-  --color-signal: #1b1b1c;
-  --color-signal-deep: #0f0f0f;
-  --color-signal-soft: #000000;
+  --color-signal: #0a0f0d;
+  --color-signal-deep: #0a0f0d;
+  --color-signal-soft: #1a221f;
 
-  /* Highlight role -- the acid lime. */
-  --color-lime-100: #f3ffc2;
-  --color-lime-200: #e6ff80;
-  --color-lime-300: #d9ff33;
-  --color-lime-400: #d2ff00;
-  --color-lime-500: #b8e000;
-  --color-lime-600: #3b4700;
+  --color-lime-100: #dcf7ee;
+  --color-lime-200: #b5efdc;
+  --color-lime-300: #7fe5c5;
+  --color-lime-400: #2ee6b4;
+  --color-lime-500: #1fc99b;
+  --color-lime-600: #0a6650;
 
-  --color-ink: #0f0f0f;
-  --color-ink-800: #1b1b1c;
-  --color-ink-700: #2c2c2e;
-  --color-ink-600: #444447;
-  --color-ink-500: #5c5c60;
-  --color-ink-400: #6a6a6e;
-  --color-ink-300: #b4b4b6;
-  --color-ink-200: #dedede;
-  --color-ink-100: #ececec;
-  --color-ink-50: #f5f5f5;
+  --color-ink: #0a0f0d;
+  --color-ink-800: #1a221f;
+  --color-ink-700: #2b3531;
+  --color-ink-600: #3f4a46;
+  --color-ink-500: #53605b;
+  --color-ink-400: #59645f;
+  --color-ink-300: #a9b2ae;
+  --color-ink-200: #d3d8d5;
+  --color-ink-100: #e4e7e4;
+  --color-ink-50: #ecece6;
 
-  --color-page: #ffffff;
-  --color-surface: #f5f5f5;
-  --color-page-tint: #fafafa;
-  --color-panel: #1b1b1c;
+  --color-page: #f6f6f1;
+  --color-surface: #ecece6;
+  --color-page-tint: #f1f1ec;
+  --color-panel: #070b0a;
 
-  /* The sage of the reference -- a backdrop for imagery, never type. */
-  --color-sage: #677968;
-
-  --color-line: rgba(15, 15, 15, 0.1);
-  --color-line-strong: rgba(15, 15, 15, 0.2);
+  --color-line: rgba(10, 15, 13, 0.1);
+  --color-line-strong: rgba(10, 15, 13, 0.22);
   --color-danger: #b42318;
-  --color-success: #2f6b3a;
+  --color-success: #0a6650;
 
-  /* One family for everything, as the reference does. Inter Tight is a free,
-     self-hosted neo-grotesk close to its TWK Lausanne. */
-  --font-display: var(--font-inter-tight), ui-sans-serif, system-ui, sans-serif;
-  --font-sans: var(--font-inter-tight), ui-sans-serif, system-ui, sans-serif;
+  /* PRD §18 -- DM Sans, which is also the reference's face. */
+  --font-display: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 
-  --radius-card: 1rem;
+  --radius-card: 0.75rem;
   --radius-pill: 999px;
 
   --shadow-pill: 0 1px 2px rgba(var(--shade-rgb), calc(0.06 * var(--shade-k)));
@@ -113,21 +103,16 @@
 }
 
 :root {
-  --hi-rgb: 15, 15, 15;
-  --glow-rgb: 210, 255, 0;
-  --accent-rgb: 103, 121, 104;
+  --hi-rgb: 10, 15, 13;
+  --glow-rgb: 46, 230, 180;
+  --accent-rgb: 46, 230, 180;
   --shade-rgb: 0, 0, 0;
   --shade-k: 1;
-  --signature: #8a8a8e;
+  --signature: #0f8a6c;
 }
 
 /* --------------------------------------------------------------------------
-   The dark register -- the DARK theme, and the charcoal panels.
-
-   `:root[data-theme="dark"]` puts the whole site in it (the inline script in
-   layout.tsx sets the attribute before first paint from a saved choice --
-   see ThemeToggle.tsx). `.scope-dark` puts one element in it -- the panels
-   that are charcoal in BOTH themes.
+   The night register -- the DEFAULT theme, and every `.scope-dark` panel.
    -------------------------------------------------------------------------- */
 
 .scope-dark,
@@ -135,66 +120,55 @@
   color-scheme: dark;
   color: var(--color-ink);
 
-  --color-brand-50: #232325;
-  --color-brand-100: #2a2a2c;
-  --color-brand-200: #38383b;
-  --color-brand-300: #55555a;
-  --color-brand-400: #8a8a8e;
-  --color-brand-500: #f2f2f2;
-  --color-brand-600: #ffffff;
-  --color-brand-700: #f2f2f2;
-  --color-brand-800: #ffffff;
-  --color-brand-900: #ffffff;
+  --color-brand-50: #10201b;
+  --color-brand-100: #143027;
+  --color-brand-200: #183d33;
+  --color-brand-300: #1d5a49;
+  --color-brand-400: #2a8f74;
+  --color-brand-500: #2ee6b4;
+  --color-brand-600: #8ff5d8;
+  --color-brand-700: #5ff0c8;
+  --color-brand-800: #b8f9e6;
+  --color-brand-900: #e6fdf5;
 
-  --color-signal: #f2f2f2;
-  --color-signal-deep: #ffffff;
-  --color-signal-soft: #ffffff;
+  --color-signal: #2ee6b4;
+  --color-signal-deep: #2ee6b4;
+  --color-signal-soft: #6ff2cf;
 
-  --color-lime-100: #2b3300;
-  --color-lime-200: #3b4700;
-  --color-lime-300: #d9ff33;
-  --color-lime-400: #d2ff00;
-  --color-lime-500: #d9ff33;
-  --color-lime-600: #d2ff00;
+  --color-lime-100: #0e2a22;
+  --color-lime-200: #12382d;
+  --color-lime-300: #8ff5d8;
+  --color-lime-400: #2ee6b4;
+  --color-lime-500: #5ff0c8;
+  --color-lime-600: #5ff0c8;
 
-  --color-ink: #f2f2f2;
-  --color-ink-800: #e4e4e5;
-  --color-ink-700: #cfcfd1;
-  --color-ink-600: #b8b8bb;
-  --color-ink-500: #a3a3a8;
-  --color-ink-400: #98989d;
-  --color-ink-300: #55555a;
-  --color-ink-200: #38383b;
-  --color-ink-100: #2a2a2c;
-  --color-ink-50: #232325;
+  --color-ink: #f4f6f1;
+  --color-ink-800: #e2e8e3;
+  --color-ink-700: #c9d2cc;
+  --color-ink-600: #b0bbb5;
+  --color-ink-500: #95a29c;
+  --color-ink-400: #86938d;
+  --color-ink-300: #3c4945;
+  --color-ink-200: #24302c;
+  --color-ink-100: #17201d;
+  --color-ink-50: #111916;
 
-  --color-page: #1b1b1c;
-  --color-surface: #232325;
-  --color-page-tint: #1f1f20;
-  --color-panel: #1b1b1c;
+  --color-page: #070b0a;
+  --color-surface: #0d1412;
+  --color-page-tint: #0a100e;
+  --color-panel: #070b0a;
 
-  --color-line: rgba(242, 242, 242, 0.12);
-  --color-line-strong: rgba(242, 242, 242, 0.24);
+  --color-line: rgba(244, 246, 241, 0.1);
+  --color-line-strong: rgba(244, 246, 241, 0.22);
   --color-danger: #f29b8f;
-  --color-success: #9fd3a8;
+  --color-success: #5ff0c8;
 
-  --hi-rgb: 242, 242, 242;
-  --shade-k: 1;
-  --signature: #8a8a8e;
+  --hi-rgb: 244, 246, 241;
+  --signature: #5ff0c8;
 
-  /* Re-declared: a custom property resolves var() where it is declared, so
-     the :root shadows would keep the light values in here. */
   --shadow-pill: 0 1px 2px rgba(var(--shade-rgb), calc(0.3 * var(--shade-k)));
   --shadow-card: 0 1px 2px rgba(var(--shade-rgb), calc(0.2 * var(--shade-k)));
   --shadow-float: 0 24px 60px -28px rgba(var(--shade-rgb), calc(0.8 * var(--shade-k)));
-}
-
-/* The dark THEME sits one step deeper than the charcoal panels, so the
-   footer and CTA still read as panels on a dark page. */
-:root[data-theme="dark"] {
-  --color-page: #0e0e0f;
-  --color-page-tint: #121213;
-  --color-surface: #1b1b1c;
 }
 
 /* --------------------------------------------------------------------------
@@ -231,21 +205,18 @@ body {
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.6;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.005em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   /* PRD §19 — no horizontal overflow from 320px upward. */
   overflow-x: hidden;
-  transition: background-color 0.4s ease;
 }
 
 /*
   Element defaults live in `@layer base` so that any utility can override
-  them (an unlayered rule would beat every Tailwind utility).
-
-  Headings are set LIGHT, large and tight -- the single biggest part of the
-  reference's look. Weight comes from scale, not from bold.
+  them. Headings are regular weight, large and gently tight -- the
+  reference's voice: confident without shouting.
 */
 @layer base {
   h1,
@@ -253,16 +224,15 @@ body {
   h3,
   h4 {
     font-family: var(--font-display);
-    font-weight: 300;
-    letter-spacing: -0.04em;
-    line-height: 1.04;
+    font-weight: 400;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
     text-wrap: balance;
   }
 
   h3,
   h4 {
-    font-weight: 400;
-    letter-spacing: -0.025em;
+    letter-spacing: -0.02em;
     line-height: 1.15;
   }
 
@@ -272,18 +242,18 @@ body {
 
   strong,
   b {
-    font-weight: 500;
+    font-weight: 600;
   }
 }
 
 ::selection {
   background: var(--color-lime-400);
-  color: #0f0f0f;
+  color: #070b0a;
 }
 
 /* Accessible focus on every interactive element (PRD §19). */
 :focus-visible {
-  outline: 2px solid var(--color-ink);
+  outline: 2px solid var(--color-brand-500);
   outline-offset: 3px;
   border-radius: 4px;
 }
@@ -309,38 +279,40 @@ body {
   }
 }
 
-/* The second tone of a two-tone headline: the one phrase per heading that
-   carries the point. Grey rather than a colour -- the reference's restraint.
-   LARGE type only (3.4:1). */
+/* The accent phrase of a headline: mint in the night, deep teal on paper.
+   LARGE type only in the light theme (4.3:1). */
 @utility text-signature {
   color: var(--signature);
 }
 
-/* The small "✦ Label" eyebrow above a section heading. */
+/* The reference's small label: a short mint rule, then tiny capitals. */
 @utility eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  font-size: 0.8125rem;
-  font-weight: 450;
-  letter-spacing: -0.005em;
-  color: var(--color-ink);
+  gap: 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-ink-600);
 }
 
-/* Thin translucent surface, for the header bar and chips. */
+/* Translucent surface, for the nav pill and floating cards. */
 @utility pill-surface {
-  background-color: color-mix(in srgb, var(--color-page) 86%, transparent);
-  backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  background-color: color-mix(in srgb, var(--color-page) 72%, transparent);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
 }
 
 @utility glass {
-  background-color: var(--color-surface);
+  background-color: color-mix(in srgb, var(--color-surface) 78%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 @utility text-balance-tight {
   text-wrap: balance;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.03em;
 }
 
 /* Long-form article and legal copy. */
@@ -376,20 +348,17 @@ body {
     list-style: decimal;
   }
   & li::marker {
-    color: var(--color-ink-400);
+    color: var(--color-brand-500);
   }
   & a {
-    color: var(--color-ink);
+    color: var(--color-brand-700);
     text-decoration: underline;
     text-underline-offset: 3px;
     text-decoration-thickness: 1px;
   }
-  & a:hover {
-    text-decoration-color: var(--color-lime-500);
-  }
   & strong {
     color: var(--color-ink);
-    font-weight: 500;
+    font-weight: 600;
   }
 }
 
@@ -401,6 +370,7 @@ body {
   }
   header,
   footer,
+  .world,
   [data-print-hide] {
     display: none !important;
   }

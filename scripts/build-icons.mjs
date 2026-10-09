@@ -1,85 +1,135 @@
 /**
- * Builds the favicon set: a light "a" in the site's typeface (Inter Tight) on
- * charcoal, with a lime full stop -- the brand initial set the way the site
- * sets its headlines.
+ * Builds the favicon set from public/brand/monogram.png.
  *
  *   node scripts/build-icons.mjs
  *
- * Rendered through headless Chrome (puppeteer-core) rather than an SVG
- * rasteriser, because the glyph must be the real Inter Tight outline and the
- * SVG rasteriser cannot load a web font. The font file is the variable Latin
- * subset, kept at scripts/assets/inter-tight-latin.woff2 (SIL Open Font
- * License).
- *
- * PER-SIZE TUNING
- * At 512px the "a" is set light (300), as the site's headlines are. Scaled
- * straight down to a 16px tab, a 300 stroke falls below a pixel and greys
- * out, so the small sizes are drawn heavier and larger -- what type designers
- * call optical sizing. Each size is rendered at 8x and downscaled once.
+ * WHY THIS EXISTS INSTEAD OF A SINGLE GENERATED ICON
+ * The monogram is calligraphic: hairline strokes a few pixels wide at 512px.
+ * Scaled straight down to a 16px browser tab they fall below a pixel and
+ * dissolve into the gradient -- the old 64px icon read as a pale smudge. So
+ * each size gets its own rendering, with the strokes thickened in proportion
+ * to how far it is being reduced (a morphological dilation of the alpha), and
+ * the mark filling more of the square the smaller it gets. This is what logo
+ * systems do by hand for their smallest sizes.
  *
  * Also writes a real /favicon.ico (16/32/48, PNG-in-ICO). Browsers, bookmark
  * managers and Google Search request /favicon.ico directly whatever the
- * <link> tags say.
+ * <link> tags say; it was returning 404.
  *
  * Outputs (public/):
  *   favicon.ico                      16, 32, 48
  *   brand/icon-32.png                <link rel="icon"> for tabs
  *   brand/icon-192.png, icon-512.png manifest, "any"
- *   brand/icon-maskable-512.png      manifest, "maskable" (glyph inside the
+ *   brand/icon-maskable-512.png      manifest, "maskable" (mark inside the
  *                                    80% safe zone, full-bleed background)
  *   brand/apple-touch-icon.png       180, full-bleed (iOS applies its mask)
  */
 import fs from "node:fs";
-import path from "node:path";
-import puppeteer from "puppeteer-core";
 import sharp from "sharp";
 
-const CHROME =
-  process.env.CHROME_PATH ?? "C:/Program Files/Google/Chrome/Application/chrome.exe";
-const FONT = fs.readFileSync(path.join("scripts", "assets", "inter-tight-latin.woff2")).toString("base64");
+const SRC = "public/brand/monogram.png";
+const M = 512; // working resolution
 
-const BG = "#1b1b1c"; // --color-panel
-const INK = "#ffffff";
-const DOT = "#d2ff00"; // --color-lime-400
+const { data: mono } = await sharp(SRC)
+  .resize(M, M)
+  .ensureAlpha()
+  .raw()
+  .toBuffer({ resolveWithObject: true });
+const alpha = new Uint8Array(M * M);
+for (let i = 0; i < M * M; i++) alpha[i] = mono[i * 4 + 3];
+
+/** Square max-filter (dilation) of the alpha channel, radius r px. */
+function dilate(a, r) {
+  if (r <= 0) return a;
+  const tmp = new Uint8Array(M * M);
+  const out = new Uint8Array(M * M);
+  for (let y = 0; y < M; y++)
+    for (let x = 0; x < M; x++) {
+      let m = 0;
+      for (let k = Math.max(0, x - r); k <= Math.min(M - 1, x + r); k++) {
+        const v = a[y * M + k];
+        if (v > m) m = v;
+      }
+      tmp[y * M + x] = m;
+    }
+  for (let y = 0; y < M; y++)
+    for (let x = 0; x < M; x++) {
+      let m = 0;
+      for (let k = Math.max(0, y - r); k <= Math.min(M - 1, y + r); k++) {
+        const v = tmp[k * M + x];
+        if (v > m) m = v;
+      }
+      out[y * M + x] = m;
+    }
+  return out;
+}
+
+/** Pale mark (given alpha) as a PNG buffer at M x M. */
+async function markPng(a) {
+  const rgba = Buffer.alloc(M * M * 4);
+  for (let i = 0; i < M * M; i++) {
+    // Off-white mark (#F4F6F1) on deep teal -- 7.6:1.
+    rgba[i * 4] = 244;
+    rgba[i * 4 + 1] = 246;
+    rgba[i * 4 + 2] = 241;
+    rgba[i * 4 + 3] = a[i];
+  }
+  return sharp(rgba, { raw: { width: M, height: M, channels: 4 } }).png().toBuffer();
+}
 
 /*
-  weight: glyph weight. scale: glyph size as a share of the tile.
-  radius: corner radius as a share of the tile (0 = full-bleed, where the
-  platform applies its own mask).
+  Deep teal (the world's water, darkened) with the off-white monogram, as
+  the logo appears in the header. A mid-dark tile keeps an edge on both
+  light and dark tab strips, where the night colour would vanish on a dark
+  one and off-white on a light one.
+*/
+function background(size, radius) {
+  const r = Math.round(size * radius);
+  return Buffer.from(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">
+      <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#23735d"/><stop offset="0.55" stop-color="#17503f"/><stop offset="1" stop-color="#0d2a22"/>
+      </linearGradient></defs>
+      <rect width="${size}" height="${size}" rx="${r}" ry="${r}" fill="url(#g)"/>
+    </svg>`,
+  );
+}
+
+/**
+ * One icon: dilate for the target size, place the mark at `fill` of the
+ * square, render at 512 and downscale once (a single high-quality resample).
+ */
+async function icon(size, { dilateAt512, fill, radius }) {
+  const mark = await markPng(dilate(alpha, dilateAt512));
+  const inner = Math.round(M * fill);
+  const markSized = await sharp(mark).resize(inner, inner).toBuffer();
+  const off = Math.round((M - inner) / 2);
+  // Two passes: sharp runs resize BEFORE composite whatever the call order,
+  // so compositing and downscaling in one chain shrinks the background first.
+  const full = await sharp(background(M, radius))
+    .composite([{ input: markSized, top: off, left: off }])
+    .png()
+    .toBuffer();
+  return sharp(full)
+    .resize(size, size, { kernel: "lanczos3" })
+    .png({ compressionLevel: 9 })
+    .toBuffer();
+}
+
+/*
+  Dilation radius is in 512px units: 14px at 512 is ~0.45px at 16 -- enough to
+  turn a 0.2px hairline into a stroke that survives, without closing the A's
+  counter. Tuned by eye at each size against a real tab strip.
 */
 const SPEC = {
-  16: { weight: 560, scale: 1.02, radius: 0.2 },
-  32: { weight: 460, scale: 0.94, radius: 0.22 },
-  48: { weight: 400, scale: 0.9, radius: 0.22 },
-  180: { weight: 320, scale: 0.78, radius: 0 },
-  192: { weight: 320, scale: 0.8, radius: 0.22 },
-  512: { weight: 300, scale: 0.8, radius: 0.22 },
-  maskable: { weight: 320, scale: 0.6, radius: 0 },
+  16: { dilateAt512: 14, fill: 0.9, radius: 0.22 },
+  32: { dilateAt512: 9, fill: 0.86, radius: 0.22 },
+  48: { dilateAt512: 6, fill: 0.84, radius: 0.22 },
+  180: { dilateAt512: 2, fill: 0.72, radius: 0 },
+  192: { dilateAt512: 2, fill: 0.78, radius: 0.22 },
+  512: { dilateAt512: 0, fill: 0.78, radius: 0.22 },
+  maskable: { dilateAt512: 1, fill: 0.58, radius: 0 },
 };
-
-const browser = await puppeteer.launch({ executablePath: CHROME, headless: true });
-const page = await browser.newPage();
-
-async function icon(size, { weight, scale, radius }) {
-  const R = size * 8; // render resolution
-  await page.setViewport({ width: R, height: R });
-  await page.setContent(`<!doctype html><html><head><style>
-    @font-face { font-family: IT; src: url(data:font/woff2;base64,${FONT}) format("woff2"); font-weight: 100 900; }
-    html, body { margin: 0; background: transparent; }
-    #t {
-      width: ${R}px; height: ${R}px; border-radius: ${radius * R}px;
-      background: ${BG}; color: ${INK};
-      display: grid; place-items: center; overflow: hidden;
-      font-family: IT; font-weight: ${weight};
-    }
-    /* Optically centred: the x-height block sits on the tile's centre. */
-    #t span { font-size: ${scale * R}px; line-height: 1; letter-spacing: -0.06em; translate: 0.02em -0.1em; }
-    #t i { font-style: normal; color: ${DOT}; }
-  </style></head><body><div id="t"><span>a<i>.</i></span></div></body></html>`);
-  await page.evaluate(() => document.fonts.ready);
-  const shot = await (await page.$("#t")).screenshot({ omitBackground: true });
-  return sharp(shot).resize(size, size, { kernel: "lanczos3" }).png({ compressionLevel: 9 }).toBuffer();
-}
 
 fs.mkdirSync("public/brand", { recursive: true });
 const png = {};
@@ -90,7 +140,6 @@ fs.writeFileSync("public/brand/icon-192.png", await icon(192, SPEC[192]));
 fs.writeFileSync("public/brand/icon-512.png", await icon(512, SPEC[512]));
 fs.writeFileSync("public/brand/icon-maskable-512.png", await icon(512, SPEC.maskable));
 fs.writeFileSync("public/brand/apple-touch-icon.png", await icon(180, SPEC[180]));
-await browser.close();
 
 // ---- favicon.ico: PNG-in-ICO, understood by every current browser ----
 const sizes = [16, 32, 48];

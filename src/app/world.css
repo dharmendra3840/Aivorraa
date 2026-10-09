@@ -1,0 +1,196 @@
+/* ==========================================================================
+   AIVORRAA — the world layer (components/world)
+   --------------------------------------------------------------------------
+   One fixed full-viewport layer behind the whole site. The page content
+   sits above it (z-index 1); sections are transparent by default, so the
+   world shows through as the reader scrolls.
+
+   Stacking: the body paints its background, the fixed .world paints over it
+   (a positioned child), and main/footer paint over the world.
+   ========================================================================== */
+
+.world {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  /* The poster: a still of the same world. Shown until the canvas draws,
+     and for good without JavaScript, WebGL2 or with reduced motion. */
+  background:
+    radial-gradient(60% 40% at 70% 18%, rgba(46, 230, 180, 0.16), transparent 70%),
+    url("/media/world-poster.webp") center 40% / cover no-repeat,
+    #070b0a;
+}
+
+.world-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+
+.world[data-live="true"] .world-canvas {
+  opacity: 1;
+}
+
+/* Everything the reader reads rides above the world. */
+main,
+footer {
+  position: relative;
+  z-index: 1;
+}
+
+/* --------------------------------------------------------------------------
+   Windows onto the world: always the night register, in both themes.
+   -------------------------------------------------------------------------- */
+
+.world-window {
+  position: relative;
+}
+
+/* A soft shade behind the hero copy, so type never sits on bright water. */
+.world-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(7, 11, 10, 0.78) 0%, rgba(7, 11, 10, 0.5) 38%, rgba(7, 11, 10, 0) 70%),
+    linear-gradient(0deg, rgba(7, 11, 10, 0.85) 0%, rgba(7, 11, 10, 0) 35%);
+}
+
+@media (width < 64rem) {
+  .world-scrim {
+    background: linear-gradient(0deg, rgba(7, 11, 10, 0.92) 0%, rgba(7, 11, 10, 0.6) 55%, rgba(7, 11, 10, 0.1) 100%);
+  }
+}
+
+/* Night sections: a light veil so long copy stays calm over the stars. */
+:root[data-theme="dark"] main > section:not(.world-window),
+:root[data-theme="dark"] main > div > section:not(.world-window) {
+  background-color: rgba(7, 11, 10, 0.35);
+}
+
+/* --------------------------------------------------------------------------
+   Light theme: the reading sections become warm paper; the windows stay.
+   -------------------------------------------------------------------------- */
+
+:root[data-theme="light"] main > *:not(.world-window) {
+  background-color: var(--color-page);
+}
+
+/* Pages that do not open on a window: paper under the fixed header too. */
+:root[data-theme="light"] main:not(:has(> section.world-window:first-of-type)) {
+  background: linear-gradient(var(--color-page), var(--color-page)) top / 100% 4.5rem no-repeat;
+}
+
+/* --------------------------------------------------------------------------
+   Scroll meter -- the reference's percentage on the right edge
+   -------------------------------------------------------------------------- */
+
+@property --pct {
+  syntax: "<integer>";
+  inherits: false;
+  initial-value: 0;
+}
+
+.scroll-meter {
+  position: fixed;
+  right: max(1.1rem, env(safe-area-inset-right));
+  bottom: 5.25rem;
+  z-index: 40;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  color: #f4f6f1;
+  mix-blend-mode: difference;
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.scroll-meter-label {
+  writing-mode: vertical-rl;
+  rotate: 180deg;
+}
+
+.scroll-meter-num {
+  writing-mode: vertical-rl;
+  rotate: 180deg;
+  counter-reset: pct var(--pct);
+}
+
+.scroll-meter-num::before {
+  content: counter(pct) "%";
+}
+
+@supports (animation-timeline: scroll()) {
+  @media (width >= 64rem) {
+    .js .scroll-meter {
+      display: flex;
+    }
+  }
+
+  .js .scroll-meter-num {
+    animation: pct linear both;
+    animation-timeline: scroll(root);
+  }
+}
+
+@keyframes pct {
+  from {
+    --pct: 0;
+  }
+  to {
+    --pct: 100;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .world-canvas {
+    display: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Header fade -- a soft band behind the fixed header, so content scrolling
+   under it never collides with the logo. It appears only after the first
+   screen, so the world runs clear to the top edge of the hero.
+   -------------------------------------------------------------------------- */
+
+.header-fade {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 49;
+  height: 6rem;
+  pointer-events: none;
+  background: linear-gradient(180deg, var(--color-page) 0%, color-mix(in srgb, var(--color-page) 70%, transparent) 55%, transparent 100%);
+  opacity: 0;
+}
+
+@supports (animation-timeline: scroll()) {
+  .js .header-fade {
+    animation: header-fade linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 100vh;
+  }
+}
+
+@supports not (animation-timeline: scroll()) {
+  .header-fade {
+    opacity: 1;
+  }
+}
+
+@keyframes header-fade {
+  from {
+    opacity: 0;
+  }
+  70%,
+  to {
+    opacity: 1;
+  }
+}

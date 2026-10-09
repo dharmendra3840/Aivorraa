@@ -73,7 +73,7 @@ export function Eyebrow({
 }) {
   return (
     <p className={cx("eyebrow mb-5", className)}>
-      <span aria-hidden="true">&#10022;</span>
+      <span aria-hidden="true" className="bg-brand-500 inline-block h-px w-6" />
       {children}
     </p>
   );
@@ -172,21 +172,22 @@ export function SectionHeading({
  * here the hover fills them with the lime accent.
  */
 const BUTTON_BASE =
-  "magnetic group/btn inline-flex items-center justify-center gap-2.5 rounded-md font-medium whitespace-nowrap tracking-[-0.01em] disabled:pointer-events-none disabled:opacity-60";
+  "magnetic group/btn inline-flex items-center justify-center gap-2.5 rounded-md font-medium whitespace-nowrap disabled:pointer-events-none disabled:opacity-60";
 
 const BUTTON_VARIANTS = {
-  /** Charcoal, white text (17.2:1); lime with ink text on hover. */
-  primary: "bg-signal text-page hover:bg-lime-400 hover:text-[#0f0f0f]",
+  /** Mint with night text in the dark theme (11.6:1); ink with paper text
+   *  in the light one. */
+  primary: "bg-signal text-page hover:bg-signal-soft",
   /** Same weight as primary -- kept for existing call sites. */
-  ink: "bg-ink text-page hover:bg-lime-400 hover:text-[#0f0f0f]",
+  ink: "bg-signal text-page hover:bg-signal-soft",
   /** Hairline outline; fills with ink on hover. */
   outline:
     "text-ink border border-line-strong hover:bg-ink hover:text-page hover:border-ink",
   /** Outline for charcoal panels. */
   ghostLight:
     "text-ink border border-line-strong hover:bg-ink hover:text-page hover:border-ink",
-  /** Text with a drawn underline and an arrow -- the reference's text links. */
-  link: "text-ink",
+  /** The reference's text link: small capitals over a mint rule. */
+  link: "text-ink text-[0.75rem] font-medium uppercase tracking-[0.08em]",
 } as const;
 
 const BUTTON_SIZES = {

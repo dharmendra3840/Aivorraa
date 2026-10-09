@@ -145,7 +145,7 @@ export default function HomePage() {
         <Container>
           <div className="flex flex-wrap items-center justify-between gap-4">
             <h2 id="stack-heading" className="eyebrow">
-              <span aria-hidden="true">&#10022;</span>
+              <span aria-hidden="true" className="bg-brand-500 inline-block h-px w-6" />
               Built with the tools your business already runs
             </h2>
             {/* WCAG 2.2.2 -- beside the looping motion it controls (the

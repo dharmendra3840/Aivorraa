@@ -5,10 +5,10 @@ import { useEffect, useRef, useState } from "react";
 /**
  * Light / dark theme switch, fixed to the bottom-right corner.
  *
- * Light (white) is the default; dark (ink) is the alternative. The theme is
- * the `data-theme` attribute on <html> -- globals.css flips every token on
- * it -- rendered as "light" by the server, so a visitor without JavaScript
- * gets the default. A saved "dark" choice is restored by the
+ * Dark (the night world) is the default; light (paper) is the alternative.
+ * The theme is the `data-theme` attribute on <html> -- globals.css flips every
+ * token on it -- rendered as "dark" by the server, so a visitor without
+ * JavaScript gets the default. A saved "light" choice is restored by the
  * inline script in the root layout BEFORE first paint, so a returning visitor
  * never sees a frame of the wrong theme. Stored in localStorage as a
  * functional preference (see the privacy policy), like the motion toggle.
@@ -24,12 +24,12 @@ import { useEffect, useRef, useState } from "react";
  */
 
 const KEY = "aivorraa:theme";
-const THEME_COLOR = { dark: "#0e0e0f", light: "#ffffff" } as const;
+const THEME_COLOR = { dark: "#070b0a", light: "#f6f6f1" } as const;
 
 type Theme = keyof typeof THEME_COLOR;
 
 function currentTheme(): Theme {
-  return document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+  return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
 }
 
 function applyTheme(next: Theme) {
@@ -38,7 +38,7 @@ function applyTheme(next: Theme) {
     .querySelector('meta[name="theme-color"]')
     ?.setAttribute("content", THEME_COLOR[next]);
   try {
-    if (next === "dark") localStorage.setItem(KEY, "dark");
+    if (next === "light") localStorage.setItem(KEY, "light");
     else localStorage.removeItem(KEY);
   } catch {
     // Storage blocked: the switch still works for this page view.
@@ -47,8 +47,8 @@ function applyTheme(next: Theme) {
 
 export function ThemeToggle() {
   const ref = useRef<HTMLButtonElement>(null);
-  // Matches the server render (light); synced to the real theme on mount.
-  const [theme, setTheme] = useState<Theme>("light");
+  // Matches the server render (dark); synced to the real theme on mount.
+  const [theme, setTheme] = useState<Theme>("dark");
 
   useEffect(() => {
     const root = document.documentElement;

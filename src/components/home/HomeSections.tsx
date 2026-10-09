@@ -38,22 +38,27 @@ import { SITE } from "@/lib/site-config";
  */
 export function HomeHero() {
   return (
-    <section aria-labelledby="hero-heading" className="pt-12 sm:pt-16 lg:pt-24">
-      <Container>
-        {/*
-          Two columns from lg up: the copy on the left, a tall photograph on
-          the right, so the first screen is balanced rather than a headline
-          beside an empty half. Below lg it stacks, photo after the copy.
-        */}
-        <div className="grid gap-12 lg:grid-cols-[1.2fr_0.8fr] lg:items-stretch lg:gap-16">
-          <div className="flex flex-col">
+    <>
+      {/*
+        A full-screen window onto the 3D world (components/world): the copy
+        on the left over a soft scrim, the portal and crystals filling the
+        right -- the reference's opening. Pulled up under the fixed header so
+        the world runs to the top edge.
+      */}
+      <section
+        aria-labelledby="hero-heading"
+        className="world-window scope-dark -mt-[4.5rem] flex min-h-[100svh] flex-col justify-end pt-32 pb-16 sm:pb-20"
+      >
+        <span className="world-scrim" aria-hidden="true" />
+        <Container>
+          <div className="max-w-3xl">
             <Eyebrow className="rise rise-1">
               Digital agency &middot; Delhi NCR &amp; across India
             </Eyebrow>
 
             <h1
               id="hero-heading"
-              className="split-load text-[3rem] leading-[0.98] sm:text-[4.4rem] lg:text-[4.6rem] xl:text-[5.4rem]"
+              className="split-load text-[2.9rem] leading-[1.02] sm:text-[4.2rem] lg:text-[5.2rem]"
             >
               {splitWords(
                 <>
@@ -65,12 +70,12 @@ export function HomeHero() {
             </h1>
 
             {/* PRD §5 — the H1 is paired with the one proposition, verbatim. */}
-            <p className="rise rise-3 text-ink-500 mt-10 max-w-lg text-[1.0625rem] leading-relaxed lg:mt-auto lg:pt-12">
+            <p className="rise rise-3 text-ink-600 mt-8 max-w-xl text-[1.0625rem] leading-relaxed">
               {SITE.proposition} Sites that load fast and get found, apps people
               keep using, and automation that takes repetitive work off your
               team.
             </p>
-            <div className="rise rise-4 mt-8 flex flex-wrap items-center gap-x-7 gap-y-4">
+            <div className="rise rise-4 mt-9 flex flex-wrap items-center gap-x-8 gap-y-4">
               <ButtonLink href="/contact" variant="primary" size="lg" withArrow>
                 Start a project
               </ButtonLink>
@@ -79,46 +84,28 @@ export function HomeHero() {
               </ButtonLink>
             </div>
           </div>
+        </Container>
+      </section>
 
-          <div className="rise rise-5 relative">
-            <Photo
-              id="form-teal"
-              sizes="(min-width: 1024px) 38vw, 100vw"
-              className="rounded-card aspect-[4/5] h-full lg:aspect-auto lg:min-h-[34rem]"
-              priority
-              reveal={false}
-              alt=""
+      <section aria-label="Where Aivorraa starts" className="pt-24 sm:pt-32">
+        <Container>
+          <div className="grid gap-x-5 gap-y-12 sm:grid-cols-2">
+            <HeroTile
+              href="/web-development"
+              media="hero-desk"
+              title="Websites & apps"
+              tags={["Web Development", "UI/UX", "Apps"]}
             />
-            {/* A caption card on the photo: what Aivorraa does, not a claim. */}
-            <div className="bg-page/90 rounded-card absolute right-4 bottom-4 left-4 p-5 backdrop-blur-md sm:right-auto sm:max-w-xs">
-              <p className="eyebrow">
-                <span aria-hidden="true" className="bg-lime-400 inline-block h-2 w-2 rounded-full" />
-                One team, nine services
-              </p>
-              <p className="text-ink-600 mt-2 text-sm leading-relaxed">
-                Websites, apps, AI automation, SEO, marketing, brand, video and
-                interiors &mdash; scoped in writing, built in your name.
-              </p>
-            </div>
+            <HeroTile
+              href="/ai-automation"
+              media="hero-form"
+              title="AI automation"
+              tags={["n8n", "Make", "AI agents"]}
+            />
           </div>
-        </div>
-
-        <div className="mt-20 grid gap-x-5 gap-y-12 sm:grid-cols-2 lg:mt-28">
-          <HeroTile
-            href="/web-development"
-            media="hero-desk"
-            title="Websites & apps"
-            tags={["Web Development", "UI/UX", "Apps"]}
-          />
-          <HeroTile
-            href="/ai-automation"
-            media="hero-form"
-            title="AI automation"
-            tags={["n8n", "Make", "AI agents"]}
-          />
-        </div>
-      </Container>
-    </section>
+        </Container>
+      </section>
+    </>
   );
 }
 
@@ -189,7 +176,7 @@ export function WhySection({ stats, pillars }: { stats: Stat[]; pillars: Pillar[
         >
           {stats.map((stat, i) => {
             const tone =
-              i === 1 ? "scope-dark bg-panel" : i === 3 ? "bg-lime-400 text-[#0f0f0f]" : "bg-surface";
+              i === 1 ? "scope-dark glass border border-line" : i === 3 ? "bg-lime-400 text-[#070b0a]" : "glass border border-line";
             return (
               <li
                 key={stat.label}
@@ -200,7 +187,7 @@ export function WhySection({ stats, pillars }: { stats: Stat[]; pillars: Pillar[
                 <p className="relative max-w-[16ch] text-[1.0625rem] leading-snug">
                   {stat.label}
                 </p>
-                <p className="relative text-[4rem] leading-none font-light tracking-[-0.06em] sm:text-[4.75rem]">
+                <p className="relative text-[4rem] leading-none tracking-[-0.06em] sm:text-[4.75rem]">
                   {typeof stat.value === "number" ? (
                     <>
                       {/* The counter is painted by CSS, which assistive tech
@@ -225,18 +212,20 @@ export function WhySection({ stats, pillars }: { stats: Stat[]; pillars: Pillar[
           })}
         </Reveal>
 
-        <Reveal
-          as="ul"
-          mode="group"
-          className="mt-16 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:mt-24 lg:grid-cols-4"
-        >
+        {/* The reference's values list: ruled rows, the commitment on the
+            left and what it means on the right. */}
+        <Reveal as="ul" mode="group" className="border-line mt-16 border-t lg:mt-24">
           {pillars.map((pillar, i) => (
-            <li key={pillar.title} style={staggerStyle(i)} className="border-line border-t pt-6">
-              <span aria-hidden="true" className="text-ink-400 font-mono text-xs">
+            <li
+              key={pillar.title}
+              style={staggerStyle(i)}
+              className="border-line grid gap-3 border-b py-7 sm:grid-cols-[3rem_1fr_1.3fr] sm:gap-8 sm:py-9"
+            >
+              <span aria-hidden="true" className="text-brand-700 font-mono text-xs sm:pt-2">
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <h3 className="mt-4 text-xl">{pillar.title}</h3>
-              <p className="text-ink-500 mt-3 text-sm leading-relaxed">{pillar.body}</p>
+              <h3 className="text-2xl sm:text-[1.75rem]">{pillar.title}</h3>
+              <p className="text-ink-500 max-w-xl leading-relaxed sm:pt-1">{pillar.body}</p>
             </li>
           ))}
         </Reveal>
@@ -315,7 +304,7 @@ export function ServicesShowcase({ services = SERVICES }: { services?: Service[]
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <span>
-                    <span className="block text-[1.85rem] leading-tight font-light tracking-[-0.04em] transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-2 sm:text-[2.6rem]">
+                    <span className="block text-[1.85rem] leading-tight tracking-[-0.04em] transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-2 sm:text-[2.6rem]">
                       {service.nav}
                     </span>
                     <span className="text-ink-500 mt-2 block max-w-lg text-sm leading-relaxed">
@@ -395,46 +384,61 @@ export function WorkGrid() {
           }
         />
 
-        <ul className="mt-14 grid gap-x-5 gap-y-16 sm:grid-cols-2 lg:mt-20">
+        {/*
+          The reference's "standout works": one screen per build, the title
+          set large in the middle with the photograph floating beside it, and
+          the before/after where the reference puts its figures. Each item
+          rises in and dims out as it passes (motion.css, .work-item).
+        */}
+        <ol className="mt-10 lg:mt-16">
           {BLUEPRINTS.map((bp, i) => (
-            <li key={bp.title} className={i === 2 ? "sm:col-span-2" : undefined}>
-              <Photo
-                id={bp.media}
-                sizes={i === 2 ? "100vw" : "(min-width: 640px) 48vw, 100vw"}
-                className={
-                  i === 2
-                    ? "rounded-card aspect-[4/3] sm:aspect-[21/9]"
-                    : "rounded-card aspect-[4/3]"
-                }
-              />
-              <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-                <h3 className="text-[1.375rem]">{bp.title}</h3>
+            <li
+              key={bp.title}
+              className="work-item border-line grid min-h-[78svh] items-center gap-10 border-t py-16 lg:grid-cols-[1.4fr_1fr] lg:gap-16"
+            >
+              <div className="relative">
+                <p className="eyebrow mb-6">
+                  <span aria-hidden="true" className="bg-brand-500 inline-block h-px w-6" />
+                  Example build {String(i + 1).padStart(2, "0")}
+                </p>
+                <h3 className="work-title relative z-[1] max-w-[14ch] text-[2.4rem] leading-[1.02] tracking-[-0.03em] sm:text-[3.6rem] lg:text-[4.4rem]">
+                  {bp.title}
+                </h3>
+                <div className="work-photo mt-8 w-full max-w-md lg:absolute lg:top-1/2 lg:right-0 lg:mt-0 lg:w-[46%] lg:-translate-y-1/2">
+                  <Photo
+                    id={bp.media}
+                    sizes="(min-width: 1024px) 26vw, 100vw"
+                    className="rounded-card aspect-[4/3]"
+                    still
+                  />
+                </div>
+              </div>
+
+              <div className="lg:pt-24">
                 <ul className="flex flex-wrap gap-1.5" aria-label="Built with">
-                  <li>
-                    <span className="bg-lime-400 inline-flex items-center rounded-[0.3rem] px-2 py-1 text-[0.6875rem] font-medium text-[#0f0f0f]">
-                      Example build
-                    </span>
-                  </li>
                   {bp.stack.map((tool) => (
                     <li key={tool}>
                       <Chip>{tool}</Chip>
                     </li>
                   ))}
                 </ul>
+                <dl className="mt-8 grid gap-6 text-[0.9375rem]">
+                  <div>
+                    <dt className="eyebrow">Before</dt>
+                    <dd className="text-ink-500 mt-2 leading-relaxed">{bp.before}</dd>
+                  </div>
+                  <div>
+                    <dt className="eyebrow">
+                      <span aria-hidden="true" className="bg-brand-500 inline-block h-px w-6" />
+                      After
+                    </dt>
+                    <dd className="text-ink mt-2 text-lg leading-snug">{bp.after}</dd>
+                  </div>
+                </dl>
               </div>
-              <dl className="mt-5 grid gap-x-8 gap-y-3 text-sm sm:grid-cols-2">
-                <div>
-                  <dt className="text-ink-400 text-xs">Before</dt>
-                  <dd className="text-ink-600 mt-1 leading-relaxed">{bp.before}</dd>
-                </div>
-                <div>
-                  <dt className="text-ink-400 text-xs">After</dt>
-                  <dd className="text-ink mt-1 leading-relaxed">{bp.after}</dd>
-                </div>
-              </dl>
             </li>
           ))}
-        </ul>
+        </ol>
       </Container>
     </Section>
   );
@@ -474,8 +478,8 @@ const NODES: Array<{ title: string; body: string; log: [string, string] }> = [
 
 export function WorkflowStage() {
   return (
-    <Section tone="ink" className="relative overflow-clip">
-      <span className="dot-field opacity-40" aria-hidden="true" />
+    // A window onto the world: night in both themes, the stars behind it.
+    <section className="world-window scope-dark relative overflow-clip py-20 sm:py-28 lg:py-36">
       <Container className="relative">
         <SectionHeading
           layout="split"
@@ -512,7 +516,7 @@ export function WorkflowStage() {
         {/* A run log of the same five steps. Decorative: the steps above are
             the content; this is the same story in the machine's words. */}
         <div
-          className="bg-surface rounded-card mt-10 overflow-x-auto p-6 font-mono text-[0.75rem] leading-7 sm:p-8"
+          className="glass border-line rounded-card mt-10 border overflow-x-auto p-6 font-mono text-[0.75rem] leading-7 sm:p-8"
           aria-hidden="true"
         >
           {NODES.map(({ log }) => (
@@ -524,7 +528,7 @@ export function WorkflowStage() {
           ))}
         </div>
       </Container>
-    </Section>
+    </section>
   );
 }
 
@@ -578,7 +582,7 @@ export function ProcessSection({
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <div>
-                  <h3 className="text-[1.85rem] font-light tracking-[-0.04em] sm:text-[2.4rem]">
+                  <h3 className="text-[1.85rem] tracking-[-0.04em] sm:text-[2.4rem]">
                     {step.title}
                   </h3>
                   <p className="text-ink-500 mt-4 max-w-xl leading-relaxed">{step.body}</p>
@@ -623,7 +627,7 @@ export function IndustryCards({ industries }: { industries: Industry[] }) {
                 <span aria-hidden="true" className="text-ink-400 font-mono text-xs">
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <h3 className="text-[1.6rem] font-light tracking-[-0.035em]">
+                <h3 className="text-[1.6rem] tracking-[-0.035em]">
                   {industry.name}
                 </h3>
               </div>
@@ -698,7 +702,7 @@ export function JournalGrid({ articles }: { articles: Article[] }) {
                 {article.readingMinutes} min read
               </span>
             </span>
-            <span className="mt-5 block text-[1.5rem] leading-tight font-light tracking-[-0.035em]">
+            <span className="mt-5 block text-[1.5rem] leading-tight tracking-[-0.035em]">
               <span className="link-draw">{article.title}</span>
             </span>
             <span className="text-ink-500 mt-3 block text-sm leading-relaxed">

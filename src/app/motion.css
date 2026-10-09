@@ -430,7 +430,7 @@
   display: flex;
   justify-content: center;
   overflow: clip;
-  font-weight: 300;
+  font-weight: 400;
   line-height: 0.8;
   letter-spacing: -0.06em;
   white-space: nowrap;
@@ -516,7 +516,7 @@
 .dot-field {
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.85) 1.15px, transparent 1.7px);
+  background-image: radial-gradient(circle, rgba(46, 230, 180, 0.75) 1.15px, transparent 1.7px);
   background-size: 26px 26px;
   background-position: 13px 13px;
   -webkit-mask-image: radial-gradient(60% 70% at var(--dx, 50%) var(--dy, 50%), #000 0%, rgba(0, 0, 0, 0.18) 70%);
@@ -559,7 +559,7 @@
 
 /* Underline that draws from the left on hover (the reference's text links). */
 .link-line {
-  background-image: linear-gradient(currentColor, currentColor);
+  background-image: linear-gradient(var(--color-brand-500), var(--color-brand-500));
   background-size: 100% 1px;
   background-position: 0 100%;
   background-repeat: no-repeat;
@@ -718,8 +718,9 @@ button:hover .roll > span {
   width: 4.5rem;
   height: 4.5rem;
   border-radius: 50%;
-  background: #0f0f0f;
-  scale: 0.2;
+  background: #2ee6b4;
+  /* ~11px at rest (4.5rem x 0.155). */
+  scale: 0.155;
   transition:
     scale 0.45s cubic-bezier(0.16, 1, 0.3, 1),
     background-color 0.3s ease,
@@ -727,11 +728,11 @@ button:hover .roll > span {
 }
 
 .cursor[data-tone="light"] .cursor-dot {
-  background: #f2f2f2;
+  background: #2ee6b4;
 }
 
 .cursor[data-state="pointer"] .cursor-dot {
-  scale: 0.12;
+  scale: 0.1;
 }
 
 .cursor[data-state="hidden"] .cursor-dot {
@@ -740,20 +741,20 @@ button:hover .roll > span {
 
 .cursor[data-state="text"] .cursor-dot {
   scale: 1.25;
-  background: rgba(15, 15, 15, 0.86);
+  background: rgba(46, 230, 180, 0.92);
 }
 
 /* On dark ground the labelled disc inverts too. */
 .cursor[data-tone="light"][data-state="text"] .cursor-dot {
-  background: rgba(242, 242, 242, 0.92);
+  background: rgba(46, 230, 180, 0.92);
 }
 
 .cursor[data-tone="light"] .cursor-label {
-  color: #0f0f0f;
+  color: #070b0a;
 }
 
 .cursor[data-pressed="true"] .cursor-dot {
-  scale: 0.16;
+  scale: 0.12;
 }
 
 .cursor[data-pressed="true"][data-state="text"] .cursor-dot {
@@ -761,7 +762,7 @@ button:hover .roll > span {
 }
 
 .cursor-label {
-  color: #fff;
+  color: #070b0a;
   font-size: 0.75rem;
   font-weight: 400;
   letter-spacing: -0.01em;
@@ -847,8 +848,8 @@ button:hover .roll > span {
   z-index: 100;
   display: grid;
   place-items: center;
-  background: #1b1b1c;
-  color: #f2f2f2;
+  background: #070b0a;
+  color: #f4f6f1;
   pointer-events: none;
   translate: 0 100%;
 }
@@ -860,8 +861,8 @@ html:not(.js) .page-curtain {
 .curtain-mark {
   font-family: var(--font-display);
   font-size: clamp(2rem, 6vw, 4.5rem);
-  font-weight: 300;
-  letter-spacing: -0.05em;
+  font-weight: 400;
+  letter-spacing: -0.04em;
   overflow: clip;
 }
 
@@ -959,7 +960,7 @@ html:not(.js) .page-curtain {
   width: 1.5rem;
   height: 1.5rem;
   border-radius: 50%;
-  color: #0f0f0f;
+  color: #070b0a;
   background: var(--color-lime-400);
 }
 
@@ -1207,4 +1208,65 @@ html:not(.js) .theme-toggle {
   .js .wf-rail-fill {
     animation: none !important;
   }
+}
+
+/* --------------------------------------------------------------------------
+   103. Standout works (WorkGrid) -- each build rises in and dims out
+   -------------------------------------------------------------------------- */
+
+@supports (animation-timeline: view()) {
+  .js .work-item {
+    animation: work-pass linear both;
+    animation-timeline: view();
+    animation-range: cover 0% cover 100%;
+  }
+
+  .js .work-item .work-photo {
+    animation: work-float linear both;
+    animation-timeline: view();
+    animation-range: cover 0% cover 100%;
+  }
+}
+
+@keyframes work-pass {
+  0% {
+    opacity: 0.15;
+  }
+  30%,
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.15;
+  }
+}
+
+/* `rotate`/`scale` only: the photo's lg positioning owns `translate`. */
+@keyframes work-float {
+  from {
+    rotate: 4deg;
+    scale: 0.86;
+  }
+  50% {
+    rotate: 0deg;
+    scale: 1;
+  }
+  to {
+    rotate: -3deg;
+    scale: 0.92;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .work-item,
+  .js .work-item .work-photo {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+}
+
+/* The reel footage is blue; turned toward the world's teal so the page keeps
+   one hue. The frame carries the filter, so poster and video both turn. */
+.reel-frame {
+  filter: hue-rotate(-62deg) saturate(0.85);
 }

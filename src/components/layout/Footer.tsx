@@ -52,12 +52,18 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="scope-dark bg-panel text-ink relative mt-28 overflow-clip sm:mt-36">
-      <Container className="pt-16 sm:pt-20 lg:pt-24">
+    <footer className="world-window scope-dark text-ink relative mt-28 overflow-clip sm:mt-36">
+      {/* A window onto the world, as the reference closes: the camera has
+          flown back down to the portal by the time the footer arrives. */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(7,11,10,0.2)_0%,rgba(7,11,10,0.72)_45%,rgba(7,11,10,0.92)_100%)]"
+      />
+      <Container className="pt-32 sm:pt-44 lg:pt-56">
         <div className="grid gap-14 lg:grid-cols-[1.2fr_1fr_1fr_1fr] lg:gap-10">
           {/* Closing line + brand */}
           <div className="max-w-md">
-            <p className="text-[1.9rem] leading-[1.1] font-light tracking-[-0.04em] sm:text-[2.35rem]">
+            <p className="text-[1.9rem] leading-[1.1] tracking-[-0.03em] sm:text-[2.6rem]">
               Websites that get found, apps that get used, and automation that
               gives your team{" "}
               <span className="text-signature">its week back.</span>
@@ -167,7 +173,7 @@ export function Footer() {
 
         <div className="border-line text-ink-500 mt-16 flex flex-col gap-4 border-t pt-7 text-[0.8125rem] sm:flex-row sm:items-center sm:justify-between">
           <p className="flex flex-wrap items-center gap-x-1.5">
-            <span aria-hidden="true">&#10022;</span>
+            <span aria-hidden="true" className="bg-brand-500 inline-block h-px w-6" />
             &copy; {year}{" "}
             {/* §29 — the registered legal name replaces the brand name here
                 once confirmed. */}

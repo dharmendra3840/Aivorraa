@@ -31,15 +31,16 @@ import { Logo } from "./Logo";
  * PRD §19 — grouped services, keyboard support, clear focus states, mobile
  * menu.
  *
- * THE REFERENCE'S HEADER (brandium.nl), reproduced:
- *   - it is never a bar: no background, fixed in place, always there -- the
- *     page scrolls UNDER it rather than the header scrolling away
- *   - the name and the links are white in a `mix-blend-mode: difference`
- *     layer (.header-blend, motion.css §8d), so they invert against whatever
- *     passes beneath: black over white, white over charcoal and photographs
- *   - the action button is a separate, normal layer, so it stays solid
- * Two fixed layers rather than one: a blend only works on the fixed element
- * itself; any positioned wrapper with a z-index would isolate it.
+ * THE REFERENCE'S HEADER (nk.studio), reproduced:
+ *   - never a bar: fixed, transparent, the world running beneath it
+ *   - the name, a small tagline and the contact link on the outer edges, in
+ *     a `mix-blend-mode: difference` layer (.header-blend, motion.css §8d)
+ *     so they read over the night world and over paper alike
+ *   - the navigation in a centred pill with its own surface (layer 2)
+ *   - a soft fade behind it once the reader is past the first screen
+ *     (.header-fade, world.css), so scrolling text never collides with it
+ * Separate fixed layers: a blend only works on the fixed element itself;
+ * any positioned wrapper with a z-index would isolate it.
  */
 
 /*
@@ -145,13 +146,15 @@ export function Header() {
 
   return (
     <header>
+      <div className="header-fade" aria-hidden="true" />
       <div
         ref={navRef}
         onMouseLeave={scheduleCloseMega}
         onBlur={handleFocusOut}
         data-mega-shell={megaOpen ? "open" : "closed"}
       >
-        {/* Layer 1 -- the name and the links, difference-blended. */}
+        {/* Layer 1 -- the name, the tagline and the contact link, all
+            difference-blended so they read over the world and over paper. */}
         <div className="header-blend">
           <Container>
             <div className="flex h-[4.5rem] items-center gap-6">
@@ -163,11 +166,27 @@ export function Header() {
               >
                 <Logo />
               </Link>
+              <span className="hidden text-[0.625rem] font-medium tracking-[0.12em] uppercase opacity-80 xl:inline">
+                Digital agency
+              </span>
+              <Link
+                href="/contact"
+                className="link-line ml-auto hidden text-[0.75rem] font-medium tracking-[0.08em] uppercase lg:inline"
+              >
+                Start a project
+              </Link>
+            </div>
+          </Container>
+        </div>
 
-              {/* Desktop navigation, centred in the bar. */}
+        {/* Layer 2 -- the navigation pill (centred) and, below lg, the menu
+            toggle. A normal layer, so the pill keeps its own surface. */}
+        <div className="header-actions w-full">
+          <Container>
+            <div className="relative flex h-[4.5rem] items-center justify-end gap-2">
               <nav
                 aria-label="Primary"
-                className="mx-auto hidden items-center gap-1 lg:flex xl:gap-4"
+                className="pill-surface border-line absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-0.5 rounded-lg border px-2 py-1 lg:flex"
               >
                 {NAV.map((item) =>
                   item.mega ? (
@@ -179,7 +198,7 @@ export function Header() {
                         onFocus={openMega}
                         onClick={() => setMegaOpen(false)}
                         data-cursor="hidden"
-                        className="flex items-center gap-1 rounded-md px-2.5 py-2 text-[0.9375rem] whitespace-nowrap"
+                        className="text-ink flex items-center gap-1 rounded-md px-3 py-1.5 text-[0.8125rem] font-medium whitespace-nowrap"
                       >
                         <span className="roll">
                           <span data-text={item.label}>{item.label}</span>
@@ -199,8 +218,8 @@ export function Header() {
                       aria-current={isActive(item.href) ? "page" : undefined}
                       data-cursor="hidden"
                       className={cx(
-                        "rounded-md px-2.5 py-2 text-[0.9375rem] whitespace-nowrap",
-                        isActive(item.href) && "underline decoration-1 underline-offset-[6px]",
+                        "rounded-md px-3 py-1.5 text-[0.8125rem] font-medium whitespace-nowrap",
+                        isActive(item.href) ? "text-brand-700" : "text-ink",
                       )}
                     >
                       <span className="roll">
@@ -211,20 +230,11 @@ export function Header() {
                 )}
               </nav>
 
-              {/* Holds the space the action layer occupies on the right. */}
-              <span aria-hidden="true" className="ml-auto w-11 shrink-0 sm:w-40 lg:ml-0" />
-            </div>
-          </Container>
-        </div>
-
-        {/* Layer 2 -- the solid action button and the menu toggle. */}
-        <div className="header-actions w-full">
-          <Container>
-            <div className="flex h-[4.5rem] items-center justify-end gap-2">
-              {/* Wrapped: a display utility on the button would lose to its
-                  own base `inline-flex` (see the note in components/ui). */}
-              <span className="hidden sm:block">
-                <ButtonLink href="/contact" variant="primary" size="md" withArrow>
+              {/* Below lg: a compact action and the menu toggle. Wrapped: a
+                  display utility on the button would lose to its own base
+                  `inline-flex` (see the note in components/ui). */}
+              <span className="hidden sm:block lg:hidden">
+                <ButtonLink href="/contact" variant="primary" size="sm" withArrow>
                   Start a project
                 </ButtonLink>
               </span>
@@ -260,7 +270,7 @@ export function Header() {
               {NAV_GROUPS.map((group) => (
                 <div key={group.label}>
                   <p className="eyebrow mb-1">
-                    <span aria-hidden="true">&#10022;</span>
+                    <span aria-hidden="true" className="bg-brand-500 inline-block h-px w-6" />
                     {group.label}
                   </p>
                   <p className="text-ink-500 mb-6 text-sm">{group.blurb}</p>
@@ -275,7 +285,7 @@ export function Header() {
                             data-i={SERVICE_INDEX.get(slug)}
                             className="group block py-1.5"
                           >
-                            <span className="text-[1.3rem] leading-tight font-light tracking-[-0.035em] xl:text-[1.6rem]">
+                            <span className="text-[1.2rem] leading-tight tracking-[-0.02em] xl:text-[1.45rem]">
                               <span className="link-draw">{service.nav}</span>
                             </span>
                             <span className="text-ink-500 block text-[0.8125rem] leading-snug">
@@ -305,7 +315,7 @@ export function Header() {
                   ))}
                 </div>
                 <div>
-                  <p className="text-lg leading-snug font-light tracking-[-0.02em]">
+                  <p className="text-lg leading-snug">
                     Not sure which one you need?
                   </p>
                   <p className="text-ink-500 mt-2 text-sm leading-relaxed">
@@ -343,7 +353,7 @@ export function Header() {
                 href={item.href}
                 aria-current={isActive(item.href) ? "page" : undefined}
                 className={cx(
-                  "border-line border-b py-3.5 text-[2rem] leading-tight font-light tracking-[-0.04em]",
+                  "border-line border-b py-3.5 text-[2rem] leading-tight tracking-[-0.03em]",
                   isActive(item.href) ? "text-ink" : "text-ink-600",
                 )}
               >
@@ -353,7 +363,7 @@ export function Header() {
           </nav>
 
           <p className="eyebrow mt-10 mb-3">
-            <span aria-hidden="true">&#10022;</span>
+            <span aria-hidden="true" className="bg-brand-500 inline-block h-px w-6" />
             All services
           </p>
           <ul className="grid grid-cols-2 gap-x-4 gap-y-2.5">
