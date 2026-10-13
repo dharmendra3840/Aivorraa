@@ -1,0 +1,204 @@
+/* ==========================================================================
+   AIVORRAA — spatial UI
+   --------------------------------------------------------------------------
+   Surfaces as floating glass over the world, after visionOS:
+
+     .spatial        the material: frosted translucency, a light rim catching
+                     light from the top-left, layered depth shadows, and a
+                     specular highlight that follows the pointer
+     .spatial-tilt   the panel turns toward the pointer and lifts (the "gaze"
+                     response); inner layers shift by depth
+     .depth-1/2/3    layers inside a tilting panel: the higher, the further
+                     they move, so the panel reads as having thickness
+     .spatial-solid  a denser glass for menus, where text must stay crisp
+                     over anything moving behind it
+
+   PointerFX.tsx writes --mx/--my (highlight), --rx/--ry (tilt) and --px/--py
+   (depth). No pointer, touch, or reduced motion: none of them are written,
+   and every panel rests flat -- the material alone still reads as glass.
+
+   Properties are split so nothing fights: the tilt is on `transform`; the
+   reveals own `translate`/`opacity`; the inner depth layers use `translate`
+   on elements the reveals never touch.
+   ========================================================================== */
+
+:root {
+  /* Paper: white glass, warm-neutral shadow. */
+  --glass-top: rgba(255, 255, 255, 0.78);
+  --glass-bottom: rgba(255, 255, 255, 0.52);
+  --glass-rim-hi: rgba(255, 255, 255, 0.95);
+  --glass-rim-lo: rgba(10, 15, 13, 0.08);
+  --glass-rim-tint: rgba(15, 138, 108, 0.18);
+  --glass-spec: rgba(255, 255, 255, 0.55);
+  --glass-shadow:
+    0 1px 2px rgba(10, 15, 13, 0.06), 0 12px 28px -16px rgba(10, 15, 13, 0.22),
+    0 40px 80px -48px rgba(10, 15, 13, 0.35);
+  --glass-shadow-lift:
+    0 1px 2px rgba(10, 15, 13, 0.06), 0 22px 44px -18px rgba(10, 15, 13, 0.3),
+    0 60px 110px -50px rgba(10, 15, 13, 0.42);
+}
+
+.scope-dark,
+:root[data-theme="dark"] {
+  /* Night: smoked glass that lets the world glow through. */
+  --glass-top: rgba(255, 255, 255, 0.085);
+  --glass-bottom: rgba(255, 255, 255, 0.025);
+  --glass-rim-hi: rgba(255, 255, 255, 0.32);
+  --glass-rim-lo: rgba(255, 255, 255, 0.04);
+  --glass-rim-tint: rgba(46, 230, 180, 0.22);
+  --glass-spec: rgba(255, 255, 255, 0.1);
+  --glass-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 14px 30px -18px rgba(0, 0, 0, 0.7),
+    0 50px 90px -50px rgba(0, 0, 0, 0.9);
+  --glass-shadow-lift:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 24px 48px -20px rgba(0, 0, 0, 0.8),
+    0 70px 120px -50px rgba(0, 0, 0, 0.95), 0 0 60px -30px rgba(46, 230, 180, 0.35);
+}
+
+/* In the components layer, so any utility on the element (rounded-full on
+   a capsule button, a padding, a radius) still wins. */
+@layer components {
+  .spatial {
+    --rx: 0deg;
+    --ry: 0deg;
+    --px: 0;
+    --py: 0;
+    position: relative;
+    isolation: isolate;
+    border-radius: 1.5rem;
+    background: linear-gradient(160deg, var(--glass-top), var(--glass-bottom));
+    -webkit-backdrop-filter: blur(26px) saturate(170%);
+    backdrop-filter: blur(26px) saturate(170%);
+    box-shadow: var(--glass-shadow);
+    transition:
+      box-shadow 0.6s var(--ease-expo),
+      transform 0.6s var(--ease-expo);
+  }
+
+  /* The rim: a 1px gradient border, bright where light falls (top-left) and
+     tinted with the world's mint at the opposite corner. */
+  .spatial::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    padding: 1px;
+    border-radius: inherit;
+    background: linear-gradient(
+      150deg,
+      var(--glass-rim-hi) 0%,
+      var(--glass-rim-lo) 38%,
+      var(--glass-rim-lo) 62%,
+      var(--glass-rim-tint) 100%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* The specular: soft light that follows the pointer across the glass. */
+  .spatial::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: radial-gradient(
+      28rem circle at var(--mx, 30%) var(--my, 0%),
+      var(--glass-spec),
+      transparent 55%
+    );
+    opacity: 0.35;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+  }
+
+  .spatial:hover::after {
+    opacity: 1;
+  }
+
+  /* The rim and highlight sit at z-index -1 inside the panel's own stacking
+     context (isolation), so they paint over the glass but under the content
+     -- without forcing a position on the panel's children. */
+
+  .spatial-solid {
+    --glass-top: color-mix(in srgb, var(--color-page) 88%, transparent);
+    --glass-bottom: color-mix(in srgb, var(--color-page) 80%, transparent);
+    -webkit-backdrop-filter: blur(34px) saturate(180%);
+    backdrop-filter: blur(34px) saturate(180%);
+  }
+
+  /* --------------------------------------------------------------------------
+     Gaze response
+     -------------------------------------------------------------------------- */
+
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    .spatial-tilt {
+      transform: perspective(1100px) rotateX(var(--rx)) rotateY(var(--ry));
+    }
+
+    .spatial-tilt:hover {
+      box-shadow: var(--glass-shadow-lift);
+      transform: perspective(1100px) rotateX(var(--rx)) rotateY(var(--ry)) translateZ(14px);
+    }
+
+    .spatial-tilt .depth-1,
+    .spatial-tilt .depth-2,
+    .spatial-tilt .depth-3 {
+      transition: translate 0.6s var(--ease-expo);
+    }
+
+    .spatial-tilt .depth-1 {
+      translate: calc(var(--px) * 4px) calc(var(--py) * 4px);
+    }
+    .spatial-tilt .depth-2 {
+      translate: calc(var(--px) * 9px) calc(var(--py) * 9px);
+    }
+    .spatial-tilt .depth-3 {
+      translate: calc(var(--px) * 15px) calc(var(--py) * 15px);
+    }
+  }
+
+  /* --------------------------------------------------------------------------
+     Capsules -- the visionOS control shape, for the nav and the toggles
+     -------------------------------------------------------------------------- */
+
+  .capsule {
+    border-radius: 999px;
+  }
+
+  /* An "ornament": a small glass bar floating below a window. */
+  .ornament {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.3rem;
+    border-radius: 999px;
+  }
+
+}
+
+/* Inside a reveal group the reveal's transition rule (motion.css) would
+   replace the panel's own, and the tilt would snap. Per-property timing:
+   the reveal keeps its stagger delay; the tilt and lift respond at once. */
+.js [data-reveal-group="visible"] > .spatial {
+  transition:
+    opacity 0.9s var(--ease-expo) calc(var(--stagger-index, 0) * 90ms),
+    translate 0.9s var(--ease-expo) calc(var(--stagger-index, 0) * 90ms),
+    transform 0.6s var(--ease-expo) 0s,
+    box-shadow 0.6s var(--ease-expo) 0s;
+}
+
+/* Firefox and others without backdrop-filter: denser glass, still legible. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .spatial {
+    --glass-top: color-mix(in srgb, var(--color-surface) 94%, transparent);
+    --glass-bottom: color-mix(in srgb, var(--color-surface) 90%, transparent);
+  }
+}

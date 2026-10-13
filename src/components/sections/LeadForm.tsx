@@ -122,7 +122,7 @@ export function LeadForm({
         tabIndex={-1}
         role="status"
         aria-live="polite"
-        className="bg-surface border-line rounded-card border p-8 text-center sm:p-10"
+        className="spatial p-8 text-center sm:p-10"
       >
         <span className="bg-lime-100 text-lime-600 mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full">
           <CheckIcon className="h-7 w-7" strokeWidth={2.5} />
@@ -140,7 +140,7 @@ export function LeadForm({
   return (
     <form
       action={formAction}
-      className="bg-surface rounded-card p-6 sm:p-8"
+      className="spatial spatial-solid p-6 sm:p-8"
       noValidate
     >
       {/* Honeypot. Hidden from sight and from assistive technology, but a bot

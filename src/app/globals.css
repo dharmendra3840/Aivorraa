@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "./motion.css";
 @import "./world.css";
+@import "./spatial.css";
 
 /* ==========================================================================
    AIVORRAA design tokens — "Nocturne"
@@ -300,14 +301,14 @@ body {
 /* Translucent surface, for the nav pill and floating cards. */
 @utility pill-surface {
   background-color: color-mix(in srgb, var(--color-page) 72%, transparent);
-  backdrop-filter: blur(14px) saturate(140%);
   -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
 }
 
 @utility glass {
   background-color: color-mix(in srgb, var(--color-surface) 78%, transparent);
-  backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
 }
 
 @utility text-balance-tight {

@@ -92,7 +92,7 @@ export default async function CaseStudyPage({ params }: Params) {
                 {study.approach.map((step, i) => (
                   <li
                     key={step}
-                    className="bg-surface border-line rounded-card flex gap-4 border p-5"
+                    className="spatial flex gap-4 p-5"
                   >
                     <span className="bg-ink-50 text-ink-500 font-display flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-normal">
                       {i + 1}

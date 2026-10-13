@@ -57,7 +57,7 @@ export default function NotFound() {
                 <li key={service.slug}>
                   <Link
                     href={`/${service.slug}`}
-                    className="group bg-surface border-line hover:border-line-strong flex items-center gap-3.5 rounded-2xl border p-4 transition"
+                    className="group spatial spatial-tilt flex items-center gap-3.5 p-4"
                   >
                     <span
                       className={cx(

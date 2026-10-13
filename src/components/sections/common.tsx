@@ -128,21 +128,21 @@ export function ServiceGrid({
   return (
     <ul
       className={cx(
-        "grid gap-x-5 gap-y-14 sm:grid-cols-2 lg:grid-cols-4",
+        "grid gap-5 sm:grid-cols-2 lg:grid-cols-4",
         className,
       )}
     >
       {services.map((service, i) => (
         <li key={service.slug} className="sd-enter-soft" style={staggerStyle(i)}>
-          <Link href={`/${service.slug}`} className="img-zoom group block" data-cursor-text="View">
+          <Link href={`/${service.slug}`} className="img-zoom group spatial spatial-tilt block h-full p-3 [&>span]:px-2 [&>span:last-child]:pb-3" data-cursor-text="View">
             <Photo
               id={SERVICE_MEDIA[service.slug] ?? "svc-web"}
               sizes="(min-width: 1024px) 24vw, (min-width: 640px) 48vw, 100vw"
-              className="rounded-card aspect-[4/5]"
+              className="aspect-[4/5] rounded-[1.1rem]"
               alt=""
             />
             <span className="mt-5 flex items-baseline justify-between gap-4">
-              <span className="text-[1.375rem] font-light tracking-[-0.03em]">
+              <span className="text-[1.375rem] tracking-[-0.02em]">
                 <span className="link-draw">{service.nav}</span>
               </span>
               <span
@@ -185,7 +185,7 @@ export function ProcessSteps({
           >
             {String(i + 1).padStart(2, "0")}
           </span>
-          <h3 className="text-2xl font-light tracking-[-0.03em] sm:text-[1.75rem]">
+          <h3 className="text-2xl tracking-[-0.02em] sm:text-[1.75rem]">
             {step.title}
           </h3>
           <p className="text-ink-500 max-w-xl leading-relaxed">{step.body}</p>
@@ -232,7 +232,7 @@ export function DeliverablesList({
 
       {/* PRD §15.3 — deliverables AND exclusions. Stating what is not included
           is what prevents scope disputes later, so it is given equal weight. */}
-      <Reveal className="bg-surface rounded-card h-fit p-7 sm:p-8">
+      <Reveal className="spatial spatial-tilt h-fit p-7 sm:p-8">
         <h3 className="text-xl">Not included</h3>
         <p className="text-ink-500 mt-1.5 text-sm">
           Stated up front rather than discovered mid-project.
@@ -301,15 +301,15 @@ export function RelatedServices({ services }: { services: Service[] }) {
     <ul className="grid gap-5 sm:grid-cols-3">
       {services.map((service, i) => (
         <li key={service.slug} className="sd-enter-soft" style={staggerStyle(i)}>
-          <Link href={`/${service.slug}`} className="img-zoom group block" data-cursor-text="View">
+          <Link href={`/${service.slug}`} className="img-zoom group spatial spatial-tilt block h-full p-3 [&>span]:px-2 [&>span:last-child]:pb-3" data-cursor-text="View">
             <Photo
               id={SERVICE_MEDIA[service.slug] ?? "svc-web"}
               sizes="(min-width: 640px) 32vw, 100vw"
-              className="rounded-card aspect-[16/10]"
+              className="aspect-[16/10] rounded-[1.1rem]"
               alt=""
             />
             <span className="mt-4 flex items-center justify-between gap-3">
-              <span className="text-xl font-light tracking-[-0.03em]">
+              <span className="text-xl tracking-[-0.02em]">
                 <span className="link-draw">{service.nav}</span>
               </span>
               <ArrowRightIcon className="h-4 w-4 shrink-0 transition-transform duration-500 group-hover:translate-x-1" />

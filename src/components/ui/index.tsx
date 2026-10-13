@@ -172,7 +172,7 @@ export function SectionHeading({
  * here the hover fills them with the lime accent.
  */
 const BUTTON_BASE =
-  "magnetic group/btn inline-flex items-center justify-center gap-2.5 rounded-md font-medium whitespace-nowrap disabled:pointer-events-none disabled:opacity-60";
+  "magnetic group/btn inline-flex items-center justify-center gap-2.5 rounded-full font-medium whitespace-nowrap disabled:pointer-events-none disabled:opacity-60";
 
 const BUTTON_VARIANTS = {
   /** Mint with night text in the dark theme (11.6:1); ink with paper text
@@ -181,19 +181,18 @@ const BUTTON_VARIANTS = {
   /** Same weight as primary -- kept for existing call sites. */
   ink: "bg-signal text-page hover:bg-signal-soft",
   /** Hairline outline; fills with ink on hover. */
-  outline:
-    "text-ink border border-line-strong hover:bg-ink hover:text-page hover:border-ink",
+  /** Glass capsule (spatial.css) -- the visionOS secondary control. */
+  outline: "spatial text-ink hover:text-brand-700",
   /** Outline for charcoal panels. */
-  ghostLight:
-    "text-ink border border-line-strong hover:bg-ink hover:text-page hover:border-ink",
+  ghostLight: "spatial text-ink hover:text-brand-700",
   /** The reference's text link: small capitals over a mint rule. */
   link: "text-ink text-[0.75rem] font-medium uppercase tracking-[0.08em]",
 } as const;
 
 const BUTTON_SIZES = {
-  sm: "h-9 px-3.5 text-[0.8125rem]",
-  md: "h-11 px-4.5 text-[0.9375rem]",
-  lg: "h-13 px-6 text-base",
+  sm: "h-9 px-4 text-[0.8125rem]",
+  md: "h-11 px-5.5 text-[0.9375rem]",
+  lg: "h-13 px-7 text-base",
 } as const;
 
 type ButtonVariant = keyof typeof BUTTON_VARIANTS;
@@ -284,23 +283,30 @@ export function Button({
 /* Surfaces                                                                   */
 /* -------------------------------------------------------------------------- */
 
-/** The reference's quiet grey card: no border, no shadow, generous padding. */
+/**
+ * A floating glass panel (spatial.css): it turns toward the pointer and lifts.
+ * Pass `flat` for cards that hold forms or long text, where movement would
+ * get in the way of reading.
+ */
 export function Card({
   className,
   children,
   as: Tag = "div",
   style,
+  flat = false,
 }: {
   className?: string;
   children: ReactNode;
   as?: "div" | "article" | "li";
+  /** No tilt -- the glass material only. */
+  flat?: boolean;
   /** Used to pass motion custom properties such as --stagger-index. */
   style?: CSSProperties;
 }) {
   return (
     <Tag
       style={style}
-      className={cx("bg-surface rounded-card p-7 sm:p-8", className)}
+      className={cx("spatial p-7 sm:p-8", !flat && "spatial-tilt", className)}
     >
       {children}
     </Tag>
@@ -320,7 +326,7 @@ export function Chip({
   return (
     <span
       className={cx(
-        "bg-surface text-ink-600 inline-flex items-center gap-1.5 rounded-[0.3rem] px-2 py-1 text-[0.6875rem] font-medium tracking-[0.01em]",
+        "border-line text-ink-600 inline-flex items-center gap-1.5 rounded-full border bg-[rgba(var(--hi-rgb),0.04)] px-2.5 py-1 text-[0.6875rem] font-medium tracking-[0.01em]",
         className,
       )}
     >

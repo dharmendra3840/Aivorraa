@@ -198,7 +198,7 @@ export default async function ServicePage({ params }: Params) {
                 <li
                   key={item}
                   style={staggerStyle(i)}
-                  className="bg-surface border-line rounded-card flex items-start gap-3.5 border p-5"
+                  className="spatial spatial-tilt flex items-start gap-3.5 p-5"
                 >
                   <span
                     aria-hidden="true"

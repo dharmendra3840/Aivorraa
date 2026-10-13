@@ -186,7 +186,7 @@ export function Header() {
             <div className="relative flex h-[4.5rem] items-center justify-end gap-2">
               <nav
                 aria-label="Primary"
-                className="pill-surface border-line absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-0.5 rounded-lg border px-2 py-1 lg:flex"
+                className="spatial spatial-solid capsule absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-0.5 px-2 py-1 lg:flex"
               >
                 {NAV.map((item) =>
                   item.mega ? (
@@ -198,7 +198,7 @@ export function Header() {
                         onFocus={openMega}
                         onClick={() => setMegaOpen(false)}
                         data-cursor="hidden"
-                        className="text-ink flex items-center gap-1 rounded-md px-3 py-1.5 text-[0.8125rem] font-medium whitespace-nowrap"
+                        className="text-ink flex items-center gap-1 rounded-full px-3.5 py-1.5 text-[0.8125rem] font-medium whitespace-nowrap transition-colors hover:bg-[rgba(var(--hi-rgb),0.08)]"
                       >
                         <span className="roll">
                           <span data-text={item.label}>{item.label}</span>
@@ -218,8 +218,10 @@ export function Header() {
                       aria-current={isActive(item.href) ? "page" : undefined}
                       data-cursor="hidden"
                       className={cx(
-                        "rounded-md px-3 py-1.5 text-[0.8125rem] font-medium whitespace-nowrap",
-                        isActive(item.href) ? "text-brand-700" : "text-ink",
+                        "rounded-full px-3.5 py-1.5 text-[0.8125rem] font-medium whitespace-nowrap transition-colors hover:bg-[rgba(var(--hi-rgb),0.08)]",
+                        isActive(item.href)
+                          ? "text-brand-700 bg-[rgba(var(--hi-rgb),0.08)]"
+                          : "text-ink",
                       )}
                     >
                       <span className="roll">
@@ -245,7 +247,7 @@ export function Header() {
                 aria-expanded={mobileOpen}
                 aria-controls="mobile-nav"
                 aria-label={mobileOpen ? "Close menu" : "Open menu"}
-                className="bg-signal text-page inline-flex h-11 w-11 items-center justify-center rounded-md lg:hidden"
+                className="bg-signal text-page inline-flex h-11 w-11 items-center justify-center rounded-full lg:hidden"
               >
                 {mobileOpen ? (
                   <CloseIcon className="h-5 w-5" />
@@ -263,10 +265,10 @@ export function Header() {
         <div
           id={megaId}
           hidden={!megaOpen}
-          className="mega-panel bg-page border-line fixed inset-x-0 top-0 z-40 hidden border-b pt-[4.5rem] shadow-[var(--shadow-float)] lg:block"
+          className="mega-panel spatial spatial-solid fixed inset-x-6 top-[4.75rem] z-40 hidden rounded-[1.75rem] lg:block xl:inset-x-10"
         >
           <Container>
-            <div className="grid gap-8 pt-8 pb-10 lg:grid-cols-[1fr_1fr_0.8fr_16rem] xl:gap-10 xl:grid-cols-[1fr_1fr_0.8fr_19rem]">
+            <div className="grid gap-8 pt-8 pb-9 lg:grid-cols-[1fr_1fr_0.8fr_16rem] xl:gap-10 xl:grid-cols-[1fr_1fr_0.8fr_19rem]">
               {NAV_GROUPS.map((group) => (
                 <div key={group.label}>
                   <p className="eyebrow mb-1">
@@ -301,7 +303,7 @@ export function Header() {
 
               <div className="flex flex-col gap-5">
                 {/* Decorative preview of the hovered service. */}
-                <div className="mega-preview rounded-card relative aspect-[4/3] overflow-hidden" aria-hidden="true">
+                <div className="mega-preview relative aspect-[4/3] overflow-hidden rounded-[1.1rem]" aria-hidden="true">
                   {SERVICE_NAV.map((s, i) => (
                     <Photo
                       key={s.slug}

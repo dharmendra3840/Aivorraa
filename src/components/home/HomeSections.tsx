@@ -50,7 +50,7 @@ export function HomeHero() {
         className="world-window scope-dark -mt-[4.5rem] flex min-h-[100svh] flex-col justify-end pt-32 pb-16 sm:pb-20"
       >
         <span className="world-scrim" aria-hidden="true" />
-        <Container>
+        <Container className="relative">
           <div className="max-w-3xl">
             <Eyebrow className="rise rise-1">
               Digital agency &middot; Delhi NCR &amp; across India
@@ -83,6 +83,41 @@ export function HomeHero() {
                 See our services
               </ButtonLink>
             </div>
+          </div>
+
+          {/*
+            A floating window over the world -- the visionOS signature. Glass
+            that tilts toward the pointer, a window grabber beneath it, and an
+            ornament of three entry points. Desktop only: on a phone the hero
+            copy is the whole screen.
+          */}
+          <div className="rise rise-5 absolute right-10 bottom-2 hidden w-[18rem] xl:block">
+            <div className="spatial spatial-tilt p-6">
+              <p className="depth-1 eyebrow">
+                <span aria-hidden="true" className="bg-brand-500 inline-block h-px w-6" />
+                One team
+              </p>
+              <p className="depth-2 mt-4 text-[1.6rem] leading-[1.1] tracking-[-0.02em]">
+                Nine services,{" "}
+                <span className="text-signature">one accountable team.</span>
+              </p>
+              <p className="depth-1 text-ink-500 mt-3 text-sm leading-relaxed">
+                Websites, apps, AI automation, growth, brand, video and
+                interiors &mdash; scoped in writing, built in your name.
+              </p>
+            </div>
+            <span aria-hidden="true" className="mx-auto mt-2.5 block h-1 w-12 rounded-full bg-[rgba(var(--hi-rgb),0.35)]" />
+            <nav aria-label="Start with" className="spatial spatial-solid ornament mt-3 w-full justify-between">
+              <Link href="/web-development" className="text-ink rounded-full px-2.5 py-1.5 text-[0.8125rem] font-medium whitespace-nowrap transition-colors hover:bg-[rgba(var(--hi-rgb),0.1)]">
+                Websites
+              </Link>
+              <Link href="/ai-automation" className="text-ink rounded-full px-2.5 py-1.5 text-[0.8125rem] font-medium whitespace-nowrap transition-colors hover:bg-[rgba(var(--hi-rgb),0.1)]">
+                AI automation
+              </Link>
+              <Link href="/interior-design" className="text-ink rounded-full px-2.5 py-1.5 text-[0.8125rem] font-medium whitespace-nowrap transition-colors hover:bg-[rgba(var(--hi-rgb),0.1)]">
+                Interiors
+              </Link>
+            </nav>
           </div>
         </Container>
       </section>
@@ -123,15 +158,15 @@ function HeroTile({
   priority?: boolean;
 }) {
   return (
-    <Link href={href} className="img-zoom group block" data-cursor-text="View">
+    <Link href={href} className="img-zoom group spatial spatial-tilt block p-3" data-cursor-text="View">
       <Photo
         id={media}
         sizes="(min-width: 640px) 48vw, 100vw"
-        className="rounded-card aspect-[4/5] lg:aspect-[5/6]"
+        className="aspect-[4/5] rounded-[1.1rem] lg:aspect-[5/6]"
         priority={priority}
         reveal={!priority}
       />
-      <span className="mt-4 flex flex-wrap items-center justify-between gap-3">
+      <span className="depth-2 mt-4 flex flex-wrap items-center justify-between gap-3 px-2 pb-1">
         <span className="text-lg">
           <span className="link-draw">{title}</span>
         </span>
@@ -176,18 +211,18 @@ export function WhySection({ stats, pillars }: { stats: Stat[]; pillars: Pillar[
         >
           {stats.map((stat, i) => {
             const tone =
-              i === 1 ? "scope-dark glass border border-line" : i === 3 ? "bg-lime-400 text-[#070b0a]" : "glass border border-line";
+              i === 1 ? "scope-dark spatial spatial-tilt bg-panel" : i === 3 ? "spatial spatial-tilt bg-lime-400 text-[#070b0a]" : "spatial spatial-tilt";
             return (
               <li
                 key={stat.label}
                 style={staggerStyle(i)}
-                className={`rounded-card relative flex min-h-[17rem] flex-col justify-between overflow-hidden p-7 lg:min-h-[21rem] ${tone}`}
+                className={`relative flex min-h-[17rem] flex-col justify-between overflow-hidden p-7 lg:min-h-[21rem] ${tone}`}
               >
                 {i === 1 ? <span className="dot-field" aria-hidden="true" /> : null}
-                <p className="relative max-w-[16ch] text-[1.0625rem] leading-snug">
+                <p className="depth-1 relative max-w-[16ch] text-[1.0625rem] leading-snug">
                   {stat.label}
                 </p>
-                <p className="relative text-[4rem] leading-none tracking-[-0.06em] sm:text-[4.75rem]">
+                <p className="depth-3 relative text-[4rem] leading-none tracking-[-0.06em] sm:text-[4.75rem]">
                   {typeof stat.value === "number" ? (
                     <>
                       {/* The counter is painted by CSS, which assistive tech
@@ -516,7 +551,7 @@ export function WorkflowStage() {
         {/* A run log of the same five steps. Decorative: the steps above are
             the content; this is the same story in the machine's words. */}
         <div
-          className="glass border-line rounded-card mt-10 border overflow-x-auto p-6 font-mono text-[0.75rem] leading-7 sm:p-8"
+          className="spatial mt-10 overflow-x-auto p-6 font-mono text-[0.75rem] leading-7 sm:p-8"
           aria-hidden="true"
         >
           {NODES.map(({ log }) => (
@@ -615,13 +650,16 @@ export function IndustryCards({ industries }: { industries: Industry[] }) {
           lede="Framed as the problem rather than the sector, because the problem is what you actually recognise."
         />
 
-        <ul className="mt-14 grid gap-x-5 gap-y-16 sm:grid-cols-2 lg:mt-20">
+        <ul className="mt-14 grid gap-5 sm:grid-cols-2 lg:mt-20">
           {industries.map((industry, i) => (
-            <li key={industry.slug}>
+            <li
+              key={industry.slug}
+              className="spatial spatial-tilt p-3 pb-7 [&>*:not(.media)]:px-3 sm:[&>*:not(.media)]:px-4"
+            >
               <Photo
                 id={INDUSTRY_MEDIA[industry.slug] ?? "ind-startup"}
                 sizes="(min-width: 640px) 48vw, 100vw"
-                className="rounded-card aspect-[16/11]"
+                className="aspect-[16/11] rounded-[1.1rem]"
               />
               <div className="mt-6 flex items-baseline gap-4">
                 <span aria-hidden="true" className="text-ink-400 font-mono text-xs">
@@ -692,21 +730,23 @@ export function JournalGrid({ articles }: { articles: Article[] }) {
     <ul className="mt-14 grid gap-x-5 gap-y-14 sm:grid-cols-2 lg:mt-16 lg:grid-cols-3">
       {articles.map((article, i) => (
         <li key={article.slug} className="sd-enter-soft" style={staggerStyle(i)}>
-          <Link href={`/insights/${article.slug}`} className="group block" data-cursor-text="Read">
+          <Link href={`/insights/${article.slug}`} className="group spatial spatial-tilt block h-full p-3" data-cursor-text="Read">
             <span
-              className="rounded-card relative block aspect-[4/5] overflow-hidden bg-cover bg-center [image-rendering:pixelated]"
+              className="relative block aspect-[4/5] overflow-hidden rounded-[1.1rem] bg-cover bg-center [image-rendering:pixelated]"
               style={{ backgroundImage: `url(${JOURNAL_COVERS[i % JOURNAL_COVERS.length]})` }}
               aria-hidden="true"
             >
-              <span className="absolute bottom-4 left-4 rounded-[0.3rem] bg-[#0f0f0f]/75 px-2 py-1 text-[0.6875rem] font-medium text-white backdrop-blur-sm">
+              <span className="absolute bottom-4 left-4 rounded-full bg-[#070b0a]/70 px-2.5 py-1 text-[0.6875rem] font-medium text-white backdrop-blur-md">
                 {article.readingMinutes} min read
               </span>
             </span>
-            <span className="mt-5 block text-[1.5rem] leading-tight tracking-[-0.035em]">
-              <span className="link-draw">{article.title}</span>
-            </span>
-            <span className="text-ink-500 mt-3 block text-sm leading-relaxed">
-              {article.description}
+            <span className="depth-2 block px-2 pb-2">
+              <span className="mt-5 block text-[1.5rem] leading-tight tracking-[-0.035em]">
+                <span className="link-draw">{article.title}</span>
+              </span>
+              <span className="text-ink-500 mt-3 block text-sm leading-relaxed">
+                {article.description}
+              </span>
             </span>
           </Link>
         </li>

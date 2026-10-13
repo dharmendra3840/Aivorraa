@@ -114,7 +114,7 @@ export function ThemeToggle() {
       aria-pressed={theme === "dark"}
       aria-label="Dark theme"
       title={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
-      className="theme-toggle"
+      className="theme-toggle spatial spatial-solid"
       data-print-hide
     >
       <span aria-hidden="true" className="theme-toggle-knob" />

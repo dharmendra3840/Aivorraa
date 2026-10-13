@@ -179,7 +179,7 @@ export default function HomePage() {
               {STACK_MARKS.map((mark) => (
                 <li
                   key={mark}
-                  className="text-ink-400 shrink-0 text-[2rem] font-light tracking-[-0.04em] whitespace-nowrap sm:text-[2.75rem]"
+                  className="text-ink-400 shrink-0 text-[2rem] tracking-[-0.04em] whitespace-nowrap sm:text-[2.75rem]"
                 >
                   {mark}
                 </li>
@@ -197,7 +197,7 @@ export default function HomePage() {
           <ul className="border-line grid grid-cols-2 gap-6 border-y py-8 sm:grid-cols-4">
             {CLAIMS.trustStrip.map((stat) => (
               <li key={stat.label}>
-                <p className="text-4xl font-light">{stat.value}</p>
+                <p className="text-4xl">{stat.value}</p>
                 <p className="text-ink-500 mt-1 text-sm">{stat.label}</p>
               </li>
             ))}
@@ -273,7 +273,7 @@ export default function HomePage() {
             <Reveal as="ul" mode="group" className="mt-12 grid gap-4 lg:grid-cols-3">
               {CLAIMS.testimonials.map((t, i) => (
                 <Card as="li" key={t.name} style={staggerStyle(i)}>
-                  <blockquote className="text-xl leading-snug font-light">
+                  <blockquote className="text-xl leading-snug">
                     &ldquo;{t.quote}&rdquo;
                   </blockquote>
                   <p className="mt-6 text-sm">{t.name}</p>
