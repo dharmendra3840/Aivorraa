@@ -2,6 +2,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 import {
+  AutomationsBento,
+  FounderSection,
+  PricingSection,
   HomeHero,
   IndustryCards,
   JournalSection,
@@ -11,7 +14,6 @@ import {
   WorkGrid,
   WorkflowStage,
 } from "@/components/home/HomeSections";
-import { Reel } from "@/components/media/Reel";
 import { MotionToggle } from "@/components/motion/MotionToggle";
 import { Reveal } from "@/components/motion/Reveal";
 import { staggerStyle } from "@/components/motion/stagger";
@@ -95,19 +97,19 @@ const HOW_WE_WORK = [
  */
 const PILLARS = [
   {
-    title: "The diagnosis comes first",
+    title: "We find the real problem first",
     body: "Every engagement starts with an audit and a recorded baseline. If the real problem is that your pages are not indexed, you will hear that before anyone proposes a redesign.",
   },
   {
-    title: "Design led, system built",
+    title: "Built to grow with you",
     body: "Interfaces are built as component systems against shared tokens, so the site still looks like itself after your team has added twenty pages to it.",
   },
   {
-    title: "Nothing published that isn't true",
-    body: "No invented statistics, no fabricated reviews, no schema describing something that does not exist on the page. Claims are approved before they ship.",
+    title: "Straight answers, in writing",
+    body: "Scope, price, timeline and what is not included are agreed in writing before work starts. No surprises on the invoice, and no promises nobody can keep.",
   },
   {
-    title: "Handover, not lock-in",
+    title: "Everything stays in your name",
     body: "Domain, hosting, analytics and Search Console are set up in your name. Code, files and documentation transfer to you. You are never locked out of your own site.",
   },
 ];
@@ -137,6 +139,8 @@ export default function HomePage() {
       <JsonLd json={schemaGraph(websiteSchema(), localBusinessSchema())} />
 
       <HomeHero />
+
+      <AutomationsBento />
 
       {/* ----------------------------------------------------------------- */}
       {/* Stack strip                                                       */}
@@ -205,14 +209,7 @@ export default function HomePage() {
         </Container>
       ) : null}
 
-      {/* The reel: a card that opens to full-bleed as you scroll. */}
-      <div className="pt-10">
-        <Reel />
-      </div>
-
-      <WhySection stats={STATS} pillars={PILLARS} />
-
-      <ServicesShowcase />
+      <WorkflowStage />
 
       {/* ----------------------------------------------------------------- */}
       {/* Work — PRD §17: permission required before publishing             */}
@@ -251,12 +248,19 @@ export default function HomePage() {
         <WorkGrid />
       )}
 
-      <WorkflowStage />
+      <WhySection stats={STATS} pillars={PILLARS} />
+
+      {/* The founder and the price ranges: hidden until the client's real
+          material is in content/proof.ts. */}
+      <FounderSection />
+      <PricingSection />
+
+      <ServicesShowcase />
 
       <ProcessSection
         eyebrow="How Aivorraa works"
         title="Six stages, and you know what happens in each"
-        lede="Nothing here is unusual. It is written down because the projects that go wrong are almost always the ones where nobody agreed what happens when, or who approves what."
+        lede="Every project runs on the same six stages, each with a named output and your sign-off — because the projects that go wrong are the ones where nobody agreed what happens when, or who approves what."
         steps={HOW_WE_WORK}
       />
 

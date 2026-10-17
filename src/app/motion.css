@@ -120,8 +120,11 @@
 }
 
 /* Load-time rise for page headers (`rise rise-1` ... `rise-5`). */
+/* backwards, not both: once finished, the animation must leave NO effect.
+   A retained opacity effect makes the element a backdrop root, and the glass
+   (.spatial) inside it would stop blurring what is behind the page. */
 .js .rise {
-  animation: rise-in 1s var(--ease-expo) both;
+  animation: rise-in 1s var(--ease-expo) backwards;
 }
 .js .rise-1 { animation-delay: 0.05s; }
 .js .rise-2 { animation-delay: 0.15s; }

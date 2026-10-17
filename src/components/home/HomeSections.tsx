@@ -18,11 +18,13 @@ import {
   SectionHeading,
 } from "@/components/ui";
 import { ArrowRightIcon } from "@/components/icons";
+import { AutomationDemo } from "./AutomationDemo";
 import { Photo } from "@/components/media/Photo";
 import { Reveal } from "@/components/motion/Reveal";
 import { splitWords } from "@/components/motion/SplitWords";
 import { staggerStyle } from "@/components/motion/stagger";
 import { SITE } from "@/lib/site-config";
+import { FOUNDER, PRICES, TEAM } from "@/content/proof";
 
 /* ========================================================================== */
 /* Hero                                                                       */
@@ -40,103 +42,56 @@ export function HomeHero() {
   return (
     <>
       {/*
-        A full-screen window onto the 3D world (components/world): the copy
-        on the left over a soft scrim, the portal and crystals filling the
-        right -- the reference's opening. Pulled up under the fixed header so
-        the world runs to the top edge.
+        The opening: the headline and proposition on the left, and on the
+        right the product itself -- a live automation answering a customer
+        while the systems behind it update (AutomationDemo). The 3D world
+        runs underneath.
       */}
       <section
         aria-labelledby="hero-heading"
-        className="world-window scope-dark -mt-[4.5rem] flex min-h-[100svh] flex-col justify-end pt-32 pb-16 sm:pb-20"
+        className="world-window scope-dark -mt-[4.5rem] flex min-h-[100svh] flex-col justify-center pt-32 pb-16 sm:pb-20"
       >
         <span className="world-scrim" aria-hidden="true" />
-        <Container className="relative">
-          <div className="max-w-3xl">
-            <Eyebrow className="rise rise-1">
-              Digital agency &middot; Delhi NCR &amp; across India
-            </Eyebrow>
-
-            <h1
-              id="hero-heading"
-              className="split-load text-[2.9rem] leading-[1.02] sm:text-[4.2rem] lg:text-[5.2rem]"
-            >
-              {splitWords(
-                <>
-                  {SITE.heroHeadline[0]}{" "}
-                  <span className="text-signature">{SITE.heroHeadline[1]}</span>{" "}
-                  {SITE.heroHeadline[2]}
-                </>,
-              )}
-            </h1>
-
-            {/* PRD §5 — the H1 is paired with the one proposition, verbatim. */}
-            <p className="rise rise-3 text-ink-600 mt-8 max-w-xl text-[1.0625rem] leading-relaxed">
-              {SITE.proposition} Sites that load fast and get found, apps people
-              keep using, and automation that takes repetitive work off your
-              team.
-            </p>
-            <div className="rise rise-4 mt-9 flex flex-wrap items-center gap-x-8 gap-y-4">
-              <ButtonLink href="/contact" variant="primary" size="lg" withArrow>
-                Start a project
-              </ButtonLink>
-              <ButtonLink href="/services" variant="link">
-                See our services
-              </ButtonLink>
-            </div>
-          </div>
-
-          {/*
-            A floating window over the world -- the visionOS signature. Glass
-            that tilts toward the pointer, a window grabber beneath it, and an
-            ornament of three entry points. Desktop only: on a phone the hero
-            copy is the whole screen.
-          */}
-          <div className="rise rise-5 absolute right-10 bottom-2 hidden w-[18rem] xl:block">
-            <div className="spatial spatial-tilt p-6">
-              <p className="depth-1 eyebrow">
-                <span aria-hidden="true" className="bg-brand-500 inline-block h-px w-6" />
-                One team
-              </p>
-              <p className="depth-2 mt-4 text-[1.6rem] leading-[1.1] tracking-[-0.02em]">
-                Nine services,{" "}
-                <span className="text-signature">one accountable team.</span>
-              </p>
-              <p className="depth-1 text-ink-500 mt-3 text-sm leading-relaxed">
-                Websites, apps, AI automation, growth, brand, video and
-                interiors &mdash; scoped in writing, built in your name.
-              </p>
-            </div>
-            <span aria-hidden="true" className="mx-auto mt-2.5 block h-1 w-12 rounded-full bg-[rgba(var(--hi-rgb),0.35)]" />
-            <nav aria-label="Start with" className="spatial spatial-solid ornament mt-3 w-full justify-between">
-              <Link href="/web-development" className="text-ink rounded-full px-2.5 py-1.5 text-[0.8125rem] font-medium whitespace-nowrap transition-colors hover:bg-[rgba(var(--hi-rgb),0.1)]">
-                Websites
-              </Link>
-              <Link href="/ai-automation" className="text-ink rounded-full px-2.5 py-1.5 text-[0.8125rem] font-medium whitespace-nowrap transition-colors hover:bg-[rgba(var(--hi-rgb),0.1)]">
-                AI automation
-              </Link>
-              <Link href="/interior-design" className="text-ink rounded-full px-2.5 py-1.5 text-[0.8125rem] font-medium whitespace-nowrap transition-colors hover:bg-[rgba(var(--hi-rgb),0.1)]">
-                Interiors
-              </Link>
-            </nav>
-          </div>
-        </Container>
-      </section>
-
-      <section aria-label="Where Aivorraa starts" className="pt-24 sm:pt-32">
         <Container>
-          <div className="grid gap-x-5 gap-y-12 sm:grid-cols-2">
-            <HeroTile
-              href="/web-development"
-              media="hero-desk"
-              title="Websites & apps"
-              tags={["Web Development", "UI/UX", "Apps"]}
-            />
-            <HeroTile
-              href="/ai-automation"
-              media="hero-form"
-              title="AI automation"
-              tags={["n8n", "Make", "AI agents"]}
-            />
+          <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_1fr] lg:gap-14">
+            <div>
+              <Eyebrow className="rise rise-1">
+                AI automation studio &middot; Delhi NCR &amp; across India
+              </Eyebrow>
+
+              {/* PRD §5 — the H1 keeps its words; exactly one H1 per page. */}
+              <h1
+                id="hero-heading"
+                className="split-load text-[2.9rem] leading-[1.02] sm:text-[4rem] lg:text-[4.4rem] xl:text-[5rem]"
+              >
+                {splitWords(
+                  <>
+                    {SITE.heroHeadline[0]}{" "}
+                    <span className="text-signature">{SITE.heroHeadline[1]}</span>{" "}
+                    {SITE.heroHeadline[2]}
+                  </>,
+                )}
+              </h1>
+
+              {/* PRD §5 — the H1 is paired with the one proposition, verbatim. */}
+              <p className="rise rise-3 text-ink-600 mt-7 max-w-xl text-[1.0625rem] leading-relaxed">
+                {SITE.proposition} The enquiries, bookings and follow-ups your
+                team answers by hand every day can run on their own — on
+                WhatsApp, your website and the tools you already use.
+              </p>
+              <div className="rise rise-4 mt-9 flex flex-wrap items-center gap-x-8 gap-y-4">
+                <ButtonLink href="/contact" variant="primary" size="lg" withArrow>
+                  Start a project
+                </ButtonLink>
+                <ButtonLink href="/ai-automation" variant="link">
+                  See what we automate
+                </ButtonLink>
+              </div>
+            </div>
+
+            <div className="rise rise-5">
+              <AutomationDemo />
+            </div>
           </div>
         </Container>
       </section>
@@ -144,45 +99,131 @@ export function HomeHero() {
   );
 }
 
-function HeroTile({
-  href,
-  media,
-  title,
-  tags,
-  priority = false,
-}: {
-  href: string;
-  media: MediaKey;
+/* ========================================================================== */
+/* What Aivorraa automates -- a bento of concrete jobs                        */
+/* ========================================================================== */
+
+/*
+  Specific jobs, described by what they do -- not by outcomes, which need a
+  documented source. Each points at the service page that delivers it.
+*/
+const AUTOMATIONS: Array<{
   title: string;
-  tags: string[];
-  priority?: boolean;
-}) {
+  before: string;
+  after: string;
+  tools: string[];
+  href: string;
+  size: "wide" | "tall" | "base";
+}> = [
+  {
+    title: "Every enquiry answered, any hour",
+    before: "Messages on WhatsApp, Instagram and the website wait until someone is free.",
+    after: "An assistant replies in your tone, answers the routine questions and hands the rest to a person with the context attached.",
+    tools: ["WhatsApp", "Instagram", "Website chat"],
+    href: "/ai-automation",
+    size: "wide",
+  },
+  {
+    title: "Leads that never go cold",
+    before: "Form fills sit in an inbox.",
+    after: "Every lead lands in your CRM, gets qualified and a follow-up goes out on its own.",
+    tools: ["Forms", "CRM"],
+    href: "/ai-automation",
+    size: "tall",
+  },
+  {
+    title: "Bookings and reminders",
+    before: "Slots arranged over calls and texts.",
+    after: "Customers book themselves; reminders and reschedules go out automatically.",
+    tools: ["Calendar", "WhatsApp"],
+    href: "/ai-automation",
+    size: "base",
+  },
+  {
+    title: "Orders, stock and invoices",
+    before: "The same order typed into three systems.",
+    after: "One order updates the store, the stock sheet and the invoice together.",
+    tools: ["Shopify", "WooCommerce", "Sheets"],
+    href: "/ai-automation",
+    size: "base",
+  },
+  {
+    title: "Reports that write themselves",
+    before: "Monday mornings spent copying numbers from Ads and Analytics.",
+    after: "A dashboard that stays current, and a plain-English summary in your inbox.",
+    tools: ["GA4", "Google Ads", "Sheets"],
+    href: "/seo-ads",
+    size: "base",
+  },
+  {
+    title: "The site and app it all runs on",
+    before: "A website that looks fine and does nothing.",
+    after: "Fast pages that rank, capture the enquiry and feed it straight into the automations above.",
+    tools: ["Next.js", "WordPress", "Apps"],
+    href: "/web-development",
+    size: "wide",
+  },
+];
+
+export function AutomationsBento() {
   return (
-    <Link href={href} className="img-zoom group spatial spatial-tilt block p-3" data-cursor-text="View">
-      <Photo
-        id={media}
-        sizes="(min-width: 640px) 48vw, 100vw"
-        className="aspect-[4/5] rounded-[1.1rem] lg:aspect-[5/6]"
-        priority={priority}
-        reveal={!priority}
-      />
-      <span className="depth-2 mt-4 flex flex-wrap items-center justify-between gap-3 px-2 pb-1">
-        <span className="text-lg">
-          <span className="link-draw">{title}</span>
-        </span>
-        <span className="flex flex-wrap gap-1.5">
-          {tags.map((t) => (
-            <Chip key={t}>{t}</Chip>
+    <Section>
+      <Container>
+        <SectionHeading
+          layout="split"
+          eyebrow="What we automate"
+          title={
+            <>
+              The work your team repeats every day,{" "}
+              <span className="text-signature">done on its own</span>
+            </>
+          }
+          lede="Six jobs Aivorraa builds most often for growing businesses. Each one is scoped to your tools, quoted on its own, and stays yours to run."
+        />
+        <ul className="mt-14 grid auto-rows-[minmax(15rem,auto)] gap-4 sm:grid-cols-2 lg:mt-20 lg:grid-cols-3">
+          {AUTOMATIONS.map((job, i) => (
+            <li
+              key={job.title}
+              className={
+                "sd-enter-soft " +
+                (job.size === "wide" ? "lg:col-span-2" : job.size === "tall" ? "lg:row-span-2" : "")
+              }
+              style={staggerStyle(i)}
+            >
+              <Link
+                href={job.href}
+                className="group spatial spatial-tilt flex h-full flex-col p-6 sm:p-7"
+                data-cursor-text="Explore"
+              >
+                <span aria-hidden="true" className="depth-1 text-brand-700 font-mono text-xs">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className="depth-2 mt-5 block text-[1.6rem] leading-[1.1] tracking-[-0.02em] sm:text-[1.85rem]">
+                  {job.title}
+                </span>
+                <span className="depth-1 mt-auto grid gap-3 pt-8 text-sm leading-relaxed">
+                  <span className="text-ink-500 block">
+                    <span className="text-ink-400 mr-2 text-[0.6875rem] tracking-[0.08em] uppercase">Now</span>
+                    {job.before}
+                  </span>
+                  <span className="text-ink block">
+                    <span className="text-brand-700 mr-2 text-[0.6875rem] tracking-[0.08em] uppercase">After</span>
+                    {job.after}
+                  </span>
+                </span>
+                <span className="depth-1 mt-5 flex flex-wrap gap-1.5">
+                  {job.tools.map((t) => (
+                    <Chip key={t}>{t}</Chip>
+                  ))}
+                </span>
+              </Link>
+            </li>
           ))}
-        </span>
-      </span>
-    </Link>
+        </ul>
+      </Container>
+    </Section>
   );
 }
-
-/* ========================================================================== */
-/* Why Aivorraa -- stats as the reference's panel row, then the commitments   */
-/* ========================================================================== */
 
 type Stat = { value: number | string; suffix?: string; label: string };
 type Pillar = { title: string; body: string };
@@ -196,10 +237,11 @@ export function WhySection({ stats, pillars }: { stats: Stat[]; pillars: Pillar[
           eyebrow="Why Aivorraa"
           title={
             <>
-              Commitments, <span className="text-signature">not superlatives</span>
+              What working with Aivorraa{" "}
+              <span className="text-signature">actually feels like</span>
             </>
           }
-          lede="No superlatives and no claims about being the leading anything. What follows is how the work is actually run — each point is something within Aivorraa's control to keep."
+          lede="A straight diagnosis before any proposal, a scope you can hold us to, a system built to grow, and every account in your name at the end."
         />
 
         {/* Four panels: grey, charcoal with the dot field, grey, lime -- the
@@ -283,15 +325,15 @@ export function ServicesShowcase({ services = SERVICES }: { services?: Service[]
       <Container>
         <div className="flex flex-wrap items-end justify-between gap-8">
           <Reveal className="max-w-4xl">
-            <Eyebrow>Nine services, one team</Eyebrow>
+            <Eyebrow>Services</Eyebrow>
             <h2
               id="services-heading"
               className="text-[2.35rem] sm:text-[3rem] lg:text-[3.6rem]"
             >
               {splitWords(
                 <>
-                  Nine services. <span className="text-signature">One team</span>{" "}
-                  accountable for all of them.
+                  Automation first —{" "}
+                  <span className="text-signature">and everything it runs on.</span>
                 </>,
               )}
             </h2>
@@ -411,7 +453,7 @@ export function WorkGrid() {
               <span className="text-signature">in practice</span>
             </>
           }
-          lede="Example builds, not client case studies. Aivorraa publishes a case study only with the client's written permission — these show the before and after each engagement is designed to deliver."
+          lede="Three systems Aivorraa builds often, shown as examples. Client projects appear here as each client approves its case study."
           action={
             <ButtonLink href="/portfolio" variant="link" className="text-sm">
               How case studies are published
@@ -595,10 +637,6 @@ export function ProcessSection({
             </Reveal>
             <Reveal delay={120}>
               <p className="text-ink-500 mt-6 max-w-md leading-relaxed">{lede}</p>
-              <p className="text-ink-500 mt-4 max-w-md text-sm leading-relaxed">
-                Every stage has a named output and an approval point, so you
-                always know what is being decided and by whom.
-              </p>
               <div className="mt-8">
                 <ButtonLink href="/contact" variant="link">
                   Start at stage one
@@ -752,5 +790,115 @@ export function JournalGrid({ articles }: { articles: Article[] }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+/* ========================================================================== */
+/* The founder -- shown once content/proof.ts has the real material           */
+/* ========================================================================== */
+
+export function FounderSection() {
+  if (!FOUNDER) return null;
+  const f = FOUNDER;
+  return (
+    <Section>
+      <Container>
+        <div className="grid items-center gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
+          <div className="spatial spatial-tilt p-3">
+            {/* eslint-disable-next-line @next/next/no-img-element -- client-supplied photo */}
+            <img
+              src={f.photo}
+              alt={`${f.name}, ${f.role}`}
+              width={1200}
+              height={1500}
+              loading="lazy"
+              className="aspect-[4/5] w-full rounded-[1.1rem] object-cover"
+            />
+          </div>
+          <Reveal>
+            <Eyebrow>The founder</Eyebrow>
+            {f.quote ? (
+              <p className="text-[2rem] leading-[1.1] tracking-[-0.02em] sm:text-[2.6rem]">
+                &ldquo;{f.quote}&rdquo;
+              </p>
+            ) : null}
+            <div className="text-ink-500 mt-8 grid max-w-xl gap-4 leading-relaxed">
+              {f.story.map((para) => (
+                <p key={para.slice(0, 24)}>{para}</p>
+              ))}
+            </div>
+            <p className="mt-8">
+              <span className="text-ink block text-lg">{f.name}</span>
+              <span className="text-ink-500 block text-sm">{f.role}</span>
+            </p>
+          </Reveal>
+        </div>
+        {TEAM ? (
+          <figure className="spatial mt-16 p-3">
+            {/* eslint-disable-next-line @next/next/no-img-element -- client-supplied photo */}
+            <img
+              src={TEAM.photo}
+              alt={TEAM.caption}
+              width={2000}
+              height={1000}
+              loading="lazy"
+              className="aspect-[2/1] w-full rounded-[1.1rem] object-cover"
+            />
+            <figcaption className="text-ink-500 px-2 pt-3 pb-1 text-sm">{TEAM.caption}</figcaption>
+          </figure>
+        ) : null}
+      </Container>
+    </Section>
+  );
+}
+
+/* ========================================================================== */
+/* Where projects start -- shown once real price ranges are in proof.ts       */
+/* ========================================================================== */
+
+export function PricingSection() {
+  if (PRICES.length === 0) return null;
+  return (
+    <Section>
+      <Container>
+        <SectionHeading
+          layout="split"
+          eyebrow="Pricing"
+          title={
+            <>
+              Where projects <span className="text-signature">start</span>
+            </>
+          }
+          lede="Real starting points, so you can tell in a minute whether a conversation is worth having. Every project is then quoted in writing against an agreed scope."
+        />
+        <ul className="mt-14 grid gap-4 sm:grid-cols-2 lg:mt-20 lg:grid-cols-3">
+          {PRICES.map((price, i) => {
+            const service = getService(price.service);
+            return (
+              <li key={price.service} className="sd-enter-soft" style={staggerStyle(i)}>
+                <div className="spatial spatial-tilt flex h-full flex-col p-7">
+                  <span className="depth-1 eyebrow">{service?.nav ?? price.service}</span>
+                  <span className="depth-3 mt-6 block">
+                    <span className="text-ink-500 mr-2 text-sm">from</span>
+                    <span className="text-[2.6rem] leading-none tracking-[-0.03em]">{price.from}</span>
+                  </span>
+                  <span className="depth-1 text-ink-600 mt-5 block text-sm leading-relaxed">{price.includes}</span>
+                  {price.typical ? (
+                    <span className="depth-1 text-ink-500 mt-2 block text-sm">{price.typical}</span>
+                  ) : null}
+                  {service ? (
+                    <span className="mt-auto pt-6">
+                      <ButtonLink href={`/${service.slug}`} variant="link">
+                        What is included
+                      </ButtonLink>
+                    </span>
+                  ) : null}
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </Container>
+    </Section>
   );
 }

@@ -202,3 +202,51 @@
     --glass-bottom: color-mix(in srgb, var(--color-surface) 90%, transparent);
   }
 }
+
+/* --------------------------------------------------------------------------
+   The hero demo (AutomationDemo.tsx): messages and events appear in turn.
+   Without JavaScript every step is visible; `.js` hides the ones not yet
+   reached.
+   -------------------------------------------------------------------------- */
+
+.js .demo-msg:not(.is-shown),
+.js .demo-event:not(.is-shown) {
+  display: none;
+}
+
+.js .demo-msg.is-shown,
+.js .demo-event.is-shown {
+  animation: demo-in 0.5s var(--ease-expo) both;
+}
+
+@keyframes demo-in {
+  from {
+    opacity: 0;
+    translate: 0 10px;
+    scale: 0.97;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .demo-msg.is-shown,
+  .js .demo-event.is-shown {
+    animation: none;
+  }
+}
+
+/* Entrances around glass: movement only. A scroll-driven animation holds its
+   final keyframe for as long as the element exists, and an opacity keyframe
+   held that way makes the wrapper a backdrop root -- the glass inside would
+   stop blurring the world. So wrappers of .spatial rise without fading. */
+@supports (animation-timeline: view()) {
+  .js .sd-enter-soft:has(> .spatial),
+  .js .sd-enter:has(> .spatial) {
+    animation-name: sd-enter-move;
+  }
+}
+
+@keyframes sd-enter-move {
+  from {
+    translate: 0 40px;
+  }
+}

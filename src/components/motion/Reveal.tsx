@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import type { ElementType, ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 /**
  * Scroll reveal, PRD §18 ("subtle micro-interactions, scroll reveals").
@@ -63,7 +63,7 @@ interface RevealProps {
   /** Delay in ms before this element's transition starts. */
   delay?: number;
   className?: string;
-  as?: ElementType;
+  as?: "div" | "ul";
 }
 
 export function Reveal({
@@ -74,6 +74,9 @@ export function Reveal({
   as: Tag = "div",
 }: RevealProps) {
   const ref = useRef<HTMLElement>(null);
+  const setRef = (node: HTMLElement | null) => {
+    ref.current = node;
+  };
 
   useEffect(() => {
     const el = ref.current;
@@ -109,15 +112,22 @@ export function Reveal({
       ? { "data-reveal-group": "hidden" }
       : { "data-reveal": "hidden" };
 
+  const style = delay
+    ? ({ "--reveal-delay": `${delay}ms` } as CSSProperties)
+    : undefined;
+
+  if (Tag === "ul") {
+    return (
+      <ul ref={setRef} className={className} style={style} {...attrs}>
+        {children}
+      </ul>
+    );
+  }
+
   return (
-    <Tag
-      ref={ref}
-      className={className}
-      style={delay ? ({ "--reveal-delay": `${delay}ms` } as React.CSSProperties) : undefined}
-      {...attrs}
-    >
+    <div ref={setRef} className={className} style={style} {...attrs}>
       {children}
-    </Tag>
+    </div>
   );
 }
 
