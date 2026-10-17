@@ -15,6 +15,7 @@ import {
   WorkflowStage,
 } from "@/components/home/HomeSections";
 import { MotionToggle } from "@/components/motion/MotionToggle";
+import { SpiralGallery } from "@/components/home/SpiralGallery";
 import { Reveal } from "@/components/motion/Reveal";
 import { staggerStyle } from "@/components/motion/stagger";
 import {
@@ -254,6 +255,24 @@ export default function HomePage() {
           material is in content/proof.ts. */}
       <FounderSection />
       <PricingSection />
+
+      {/* The spiral gallery (lazy: three.js loads only near this section). */}
+      <section aria-labelledby="gallery-heading" className="overflow-hidden pt-20 sm:pt-28 lg:pt-36">
+        <Container>
+          <Eyebrow>In motion</Eyebrow>
+          <h2
+            id="gallery-heading"
+            className="max-w-3xl text-[2.35rem] sm:text-[3rem] lg:text-[3.6rem]"
+          >
+            Everything an automation <span className="text-signature">runs on</span>
+          </h2>
+          <p className="text-ink-500 mt-6 max-w-xl text-lg leading-relaxed">
+            The website, the app, the brand, the content and the space around
+            it — nine services, built by one team.
+          </p>
+        </Container>
+        <SpiralGallery />
+      </section>
 
       <ServicesShowcase />
 
